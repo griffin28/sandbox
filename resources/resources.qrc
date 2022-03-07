@@ -1,0 +1,8 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file alias="images/power.png">images/power-button.png</file>
+    <file alias="images/dot.png">images/dot-mini.png</file>
+    <file alias="images/sphere.png">images/earth-wireframe-mini.png</file>
+    <file alias="images/cuboid.png">images/box-3d.png</file>
+</qresource>
+</RCC>

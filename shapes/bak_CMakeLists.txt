@@ -1,0 +1,10 @@
+set (SRCS
+    shape.h
+    shape.cpp
+    sphere.h
+    sphere.cpp
+)
+
+add_library(vshapes ${SRCS})
+
+target_include_directories(vshapes PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

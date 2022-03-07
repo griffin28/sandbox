@@ -1,0 +1,172 @@
+#include "Canvas.h"
+#include "SimpleScene.h"
+
+#include <iostream>
+
+#include <QtGui>
+#include <QKeyEvent>
+#include <QOpenGLFunctions_4_3_Core>
+#include <QOpenGLContext>
+
+const int Canvas::HEIGHT = 900;
+const int Canvas::WIDTH = 900;
+
+//const GLfloat Canvas::RED[] = {1.0f, 0.0f, 0.0f, 1.0f};
+
+Canvas::Canvas(QWidget *parent) : QOpenGLWidget(parent), 
+								  m_scene(new SimpleScene(this)),
+								  m_mouseLeftDown(false),
+								  m_mouseRightDown(false),
+								  m_posX(0),
+								  m_posY(0) {
+    setMinimumSize(WIDTH, HEIGHT);
+    setFocusPolicy(Qt::StrongFocus);
+	setMouseTracking(true);
+}
+
+Canvas::~Canvas() {
+    // Make sure the context is current and then explicitly
+    // destroy all underlying OpenGL resources.
+    makeCurrent();
+    delete m_scene;
+    doneCurrent();
+}
+
+SimpleScene *
+Canvas::getScene()
+{
+    return m_scene;
+}
+
+void
+Canvas::mousePressEvent(QMouseEvent *event)
+{
+	switch(event->button()) 
+	{
+	case Qt::LeftButton:
+		m_mouseLeftDown = true;
+		m_scene->setShapeSelection(event->x(), event->y());
+		break;
+	case Qt::RightButton:
+		m_mouseRightDown = true;
+		break;
+	default:
+		QOpenGLWidget::mousePressEvent(event);
+	}
+}
+
+void
+Canvas::mouseReleaseEvent(QMouseEvent *event)
+{
+	switch(event->button()) 
+	{
+	case Qt::LeftButton:
+		m_mouseLeftDown = false;
+		
+		break;
+	case Qt::RightButton:
+		m_mouseRightDown = false;
+		break;
+	default:
+		QOpenGLWidget::mouseReleaseEvent(event);
+	}
+}
+
+void 
+Canvas::mouseMoveEvent(QMouseEvent *event)
+{
+	int x = event->x();
+	int y = event->y();
+
+	emit screenCoordsChanged(x, y);
+
+	if(m_mouseLeftDown) 
+	{		
+		m_scene->m_cameraAngleX += (x - m_posX);
+		m_scene->m_cameraAngleY += (y - m_posY);
+
+		m_posX = x;
+		m_posY = y;
+
+		m_scene->update();
+	}
+	else if(m_mouseRightDown)
+	{
+		m_scene->m_cameraDistance -= (y - m_posY) * 0.2f;
+		m_posY = y;
+
+		m_scene->update();
+	}
+	else
+	{
+		QOpenGLWidget::mouseMoveEvent(event);
+	}
+}
+
+void 
+Canvas::keyPressEvent(QKeyEvent *event) {
+//	QOpenGLWidgetGLWidget::keyPressEvent(event);
+//	double offset;
+
+//	switch(event->key()) {
+//	case Qt::Key_Up:
+////		std::cout << "Key_up" << std::endl;
+//		offset = d_scene->getOffset() + 0.05;
+
+//		if(offset > 1) {
+//			offset = 1;
+//		}
+
+//		d_scene->setOffset(offset);
+//		break;
+//	case Qt::Key_Down:
+////		std::cout << "Key_down" << std::endl;
+//		offset = d_scene->getOffset() - 0.05;
+
+//		if(offset < 0) {
+//			offset = 0;
+//		}
+
+//		d_scene->setOffset(offset);
+//		break;
+//	default:
+//		QOpenGLWidget::keyPressEvent(event);
+//	}
+}
+
+// Sets up the OpenGL resources and state. Gets called once before the first time resizeGL() or paintGL() is called.
+void 
+Canvas::initializeGL() {
+    m_scene->initialize();
+
+	/*glViewport(0, 0, WIDTH, HEIGHT);
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+	glShadeModel(GL_SMOOTH);
+
+	// set the perspective coordinate system
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	// aspect ratio of the window
+	float aspect = WIDTH / HEIGHT;
+	gluPerspective(fovy, aspect, near, far);
+
+	// Modelview matrix reset
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();*/
+}
+
+//Sets up the OpenGL viewport, projection, etc. Gets called whenever the widget has been resized 
+//(and also when it is shown for the first time because all newly created widgets get a resize event automatically).
+void
+Canvas::resizeGL(int w, int h) {
+    // Update projection matrix and other size related settings
+    m_scene->resize(w, h);
+}
+
+// Renders the OpenGL scene. Gets called whenever the widget needs to be updated.
+void
+Canvas::paintGL() {
+    m_scene->paint();
+}
