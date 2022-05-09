@@ -1,10 +1,14 @@
 #ifndef INCLUDED_SHAPE_H
 #define INCLUDED_SHAPE_H
 
+#include "shading/model.h"
+
 #include <glm/glm.hpp>
-  
+
+#include <memory>
+
 // Scoped enumeration
-enum class SHAPE_TYPE 
+enum class ShapeType 
 {
     SPHERE = 0,
     CUBOID,
@@ -13,17 +17,36 @@ enum class SHAPE_TYPE
 
 class Shape {
 public:
-    Shape(SHAPE_TYPE);
-    Shape(SHAPE_TYPE, glm::mat4 transform);
+    Shape();
+    Shape(ShapeType);
+    Shape(ShapeType, glm::mat4 transform);
     virtual ~Shape() = default;
 
     virtual glm::mat4   getTransform() const { return m_transform; }
     virtual void        setTransform(glm::mat4 transform) { m_transform = transform; };
 
-    virtual SHAPE_TYPE  getType() const { return m_type; }
+    // Shading Model
+    void            setShadingModel(ShadingModel *model) { m_shadingModel.reset(model); }
+    ShadingModel    *getShadingModel() const { return m_shadingModel.get(); }
+
+    // Geometry
+    virtual unsigned int    getInterleavedVertexSize() const { return 0; }
+    virtual const float     *getInterleavedVertices() const { return nullptr; };
+
+    virtual unsigned int        sizeofIndices() const { return 0; }
+    virtual const unsigned int  *getIndices() const { return nullptr; }
+    virtual unsigned int        getIndexCount() const { return 0; }
+
+    virtual unsigned int        sizeofLineIndices() const { return 0; }
+    virtual const unsigned int  *getLineIndices() const { return nullptr; }
+    virtual unsigned int        getLineIndexCount() const { return 0; }
+
+    virtual ShapeType  getType() const { return m_type; }
 private:
-    SHAPE_TYPE  m_type;
+    ShapeType  m_type;
     glm::mat4   m_transform;
+
+    std::unique_ptr<ShadingModel> m_shadingModel;
 };
 
 #endif

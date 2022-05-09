@@ -2,12 +2,11 @@
 #define INCLUDED_SPHERE_H
 
 #include "shape.h"
-#include "shading/model.h"
 
 #include <vector>
-#include <memory>
 
-class Sphere : public Shape {
+class Sphere : public Shape 
+{
 public:
     Sphere();
     Sphere(float r, float x, float y, float z, bool smooth=true, bool buildGeometry=true);
@@ -24,35 +23,31 @@ public:
     void    setBuildGeometry(const bool);
     void    setCenter(const float, const float, const float);
 
-    // Shading Model
-    void            setShadingModel(ShadingModel *model) { m_shadingModel.reset(model); }
-    ShadingModel    *getShadingModel() const { return m_shadingModel.get(); }
-    
     // For vertex data
     unsigned int    getVertexCount() const { return static_cast<unsigned int>(m_vertices.size()) / 3; }
     unsigned int    getNormalCount() const { return static_cast<unsigned int>(m_normals.size()) / 3; }
     unsigned int    getTexCoordCount() const { return static_cast<unsigned int>(m_texCoords.size()) / 2; }
-    unsigned int    getIndexCount() const { return static_cast<unsigned int>(m_indices.size()); }
-    unsigned int    getLineIndexCount() const { return static_cast<unsigned int>(m_lineIndices.size()); }
+    unsigned int    getIndexCount() const override { return static_cast<unsigned int>(m_indices.size()); }
+    unsigned int    getLineIndexCount() const override { return static_cast<unsigned int>(m_lineIndices.size()); }
     unsigned int    getTriangleCount() const { return getIndexCount() / 3; }
     
     unsigned int    sizeofVertices() const { return static_cast<unsigned int>(m_vertices.size() * sizeof(float)); }
     unsigned int    sizeofNormals() const { return static_cast<unsigned int>(m_normals.size() * sizeof(float)); }
     unsigned int    sizeofTexCoords() const { return static_cast<unsigned int>(m_texCoords.size() * sizeof(float)); } 
-    unsigned int    sizeofIndices() const { return static_cast<unsigned int>(m_indices.size() * sizeof(unsigned int)); }
-    unsigned int    sizeofLineIndices() const { return static_cast<unsigned int>(m_lineIndices.size() * sizeof(unsigned int)); }
+    unsigned int    sizeofIndices() const override { return static_cast<unsigned int>(m_indices.size() * sizeof(unsigned int)); }
+    unsigned int    sizeofLineIndices() const override { return static_cast<unsigned int>(m_lineIndices.size() * sizeof(unsigned int)); }
 
     const float*        getVertices() const { return m_vertices.data(); }
     const float*        getNormals() const { return m_normals.data(); }
     const float*        getTexCoords() const { return m_texCoords.data(); }
-    const unsigned int* getIndices() const  { return m_indices.data(); }
-    const unsigned int* getLineIndices() const  { return m_lineIndices.data(); }
+    const unsigned int* getIndices() const override { return m_indices.data(); }
+    const unsigned int* getLineIndices() const override { return m_lineIndices.data(); }
 
     // for interleaved vertices: V/N/T
     unsigned int    getInterleavedVertexCount() const  { return getVertexCount(); }    // # of vertices
     unsigned int    getInterleavedVertexSize() const   { return static_cast<unsigned int>(m_interleavedVertices.size() * sizeof(float)); }    // # of bytes
     int             getInterleavedStride() const       { return 8 * sizeof(float); }   // should be 32 bytes
-    const float*    getInterleavedVertices() const     { return m_interleavedVertices.data(); }
+    const float*    getInterleavedVertices() const override { return m_interleavedVertices.data(); }
 
     void            printSelf() const;
 private:
@@ -77,9 +72,7 @@ private:
     std::vector<float>          m_normals;
     std::vector<float>          m_texCoords;
     std::vector<unsigned int>   m_indices;
-    std::vector<unsigned int>   m_lineIndices;
-
-    std::unique_ptr<ShadingModel> m_shadingModel;
+    std::vector<unsigned int>   m_lineIndices;    
 
     const static int            UNIT_SECTOR_COUNT;  // longitude, # of slices
     const static int            UNIT_STACK_COUNT;   // latitude, # of stacks

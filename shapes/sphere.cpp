@@ -17,8 +17,7 @@ Sphere::Sphere() : Shape(SHAPE_TYPE::SPHERE),
     m_normals(),
     m_texCoords(),
     m_indices(),
-    m_lineIndices(),
-    m_shadingModel(nullptr)
+    m_lineIndices()
 {
     set(1.0f, 0.0f, 0.0f, 0.0f, true, true);
 }

@@ -348,7 +348,14 @@ MainWindow::showHUD()
 void
 MainWindow::showAddSphereDialog()
 {
-    // TODO:
+    // TODO: show a popup to input sphere inputs
+    SimpleScene *scene = d_mainWidget->d_canvas->getScene();
+
+    scene->addSphere(3.0f, 0.0f, 0.0f, 0.0f);
+    scene->addSphere(3.0f, 5.0f, 10.0f, 30.1f);
+    scene->addSphere(1.0f, 15.0f, 5.0f, 0.1f);
+    scene->addSphere(10.0f, -10.0f, -10.0f, 10.1f);
+    scene->addSphere(2.0f, 5.0f, -10.0f, -30.1f);
 }
 
 void

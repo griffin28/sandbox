@@ -39,6 +39,11 @@ public:
     void initGLSL(Shape * const);
 
     void setShapeSelection(const int, const int);
+    void addSphere(const float, 
+                   const float, 
+                   const float, 
+                   const float, 
+                   ModelType shading=ModelType::LAMBERT);
 
     static void GLAPIENTRY  DebugMessageCallback(GLenum, 
                                                  GLenum, 
@@ -72,10 +77,11 @@ private:
     void printLinkerInfoLog(const GLuint);
 
 
-    // std::vector<mog::Shape> m_objects;
-    Sphere     *m_sphere;
+    std::vector<Shape *> m_shapes;
+    // Sphere     *m_sphere;
     int         m_shapeSelectionIndex;
     
+    // OpenGL
     // std::vector<GLuint> m_programs;
     std::vector<GLuint>          m_programs;  // for each shape
     // TODO: QOpenGLShaderProgram    m_shaderProgram;

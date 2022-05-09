@@ -18,17 +18,14 @@ SimpleScene::SimpleScene(Canvas *glWidget):
     m_mouseY(0),
     m_cameraAngleX(0),
     m_cameraAngleY(0),
+    m_shapes(),
     m_shapeSelectionIndex(-1),
     m_programs(),
     m_vaos(),
     m_positionBuffers(),
     m_indexBuffers(),
     m_angle(0.0f),
-    m_projMatrix() 
-{
-    m_sphere = new Sphere(5.0f, 0.0f, 0.0f, 0.0f);
-    m_sphere->setShadingModel(new LambertShadingModel());
-}
+    m_projMatrix() {}
 
 SimpleScene::~SimpleScene() 
 {
@@ -54,9 +51,9 @@ SimpleScene::~SimpleScene()
         glDeleteProgram(m_programs[i]);
     } 
 
-    if(m_sphere != nullptr)
+    for(int i=0; i<m_shapes.size(); i++)
     {
-        delete m_sphere;
+        delete m_shapes[i];
     }
 }
 
@@ -155,6 +152,37 @@ SimpleScene::setShapeSelection(const int x, const int y)
 }
 
 void
+SimpleScene::addSphere(const float r, 
+                       const float x, 
+                       const float y, 
+                       const float z, 
+                       ModelType shadingModel)
+{
+    Sphere *sphere = new Sphere(r, x, y, z);
+    sphere->setShadingModel(new LambertShadingModel());
+
+    // switch(shadingModel) 
+    // {
+    // case ModelType::LAMBERT:
+    //     sphere->setShadingModel(new LambertShadingModel());
+    //     break;
+    // case ModelType::PHONG:
+    //     // TODO
+    //     break;
+    // case ModelType::BLINN_PHONG:
+    //     // TODO
+    //     break;
+    // default:
+    //     sphere->setShadingModel(new LambertShadingModel());
+    // }
+
+    m_shapes.emplace_back(sphere);
+    initGLSL(sphere);
+
+    update();
+}
+
+void
 SimpleScene::updateShaderInputs(Shape const *shapePtr, const GLuint program)
 {
     // Material material = shapePtr->getMaterial();    
@@ -203,19 +231,23 @@ SimpleScene::updateShaderInputs(Shape const *shapePtr, const GLuint program)
 }
 
 void 
-SimpleScene::initGLSL(Shape * const shapePtr) 
+SimpleScene::initGLSL(Shape * const shape) 
 {
-    // TODO: loop through shapes
-    // Material mat = shapePtr->getMaterial();
-
-    // Init GLSL for all objects (sphere)
-    // TODO: Check if shading model is nullptr
-    const char *vertexShaderSource = m_sphere->getShadingModel()->getVertexShaderSource();
-    const char *fragmentShaderSource = m_sphere->getShadingModel()->getFragmentShaderSource();
     
-    GLuint program1 = createShaderProgram(&vertexShaderSource, &fragmentShaderSource);
+    const char *vertexShaderSource = shape->getShadingModel()->getVertexShaderSource();
+    const char *fragmentShaderSource = shape->getShadingModel()->getFragmentShaderSource();
+    // const char *geometryShaderSource = shape->getShadingModel()->getGeometryShaderSource();
+    // const char *tessControlShaderSource = shape->getShadingModel()->getTessControlShaderSource();
+    // const char *tessEvaluationShaderSource = shape->getShadingModel()->getTessEvaluationShaderSource();
+
+    GLuint program1 = createShaderProgram(&vertexShaderSource, 
+                                          &fragmentShaderSource);
+                                            // &geometryShaderSource,
+                                            // &tessControlShaderSource,
+                                            // &tessEvaluationShaderSource);
     m_programs.emplace_back(program1);
     glUseProgram(program1);
+    updateShaderInputs(shape, program1);
 
     GLuint vao1;
     glGenVertexArrays(1, &vao1);
@@ -226,37 +258,26 @@ SimpleScene::initGLSL(Shape * const shapePtr)
     glGenBuffers(1, &positionBuffer);
     m_positionBuffers.emplace_back(positionBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, m_sphere->getInterleavedVertexSize(), m_sphere->getInterleavedVertices(), GL_STATIC_DRAW);
-    GLsizei stride = 8 * sizeof(float);
-    
-    // Position
-    GLint positionLocation = glGetAttribLocation(program1, "position");
-    glVertexAttribPointer(positionLocation, 3, GL_FLOAT, GL_FALSE, stride, NULL);
-    glEnableVertexAttribArray(positionLocation);
-    // Normals
-    GLint normalLocation = glGetAttribLocation(program1, "normal");
-    glVertexAttribPointer(normalLocation, 3, GL_FLOAT, false, stride, (void *)(3 * sizeof(float)));
-    glEnableVertexAttribArray(normalLocation);
-    // Texture Coords
-    GLint texCoordLocation = glGetAttribLocation(program1, "texCoord");
-    glVertexAttribPointer(texCoordLocation, 2, GL_FLOAT, false, stride, (void *)(6 * sizeof(float)));
-    glEnableVertexAttribArray(texCoordLocation);
+    glBufferData(GL_ARRAY_BUFFER, shape->getInterleavedVertexSize(), shape->getInterleavedVertices(), GL_STATIC_DRAW);
 
     // Indices
     GLuint indexBuffer1;
     glGenBuffers(1, &indexBuffer1);
     m_indexBuffers.emplace_back(indexBuffer1);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer1);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_sphere->sizeofIndices(), m_sphere->getIndices(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, shape->sizeofIndices(), shape->getIndices(), GL_STATIC_DRAW);
 
     // Line Indices
     GLuint indexBuffer2;
     glGenBuffers(1, &indexBuffer2);
     m_indexBuffers.emplace_back(indexBuffer2);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer2);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_sphere->sizeofLineIndices(), m_sphere->getLineIndices(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, shape->sizeofLineIndices(), shape->getLineIndices(), GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    // glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
 }
 
 void
@@ -292,12 +313,16 @@ SimpleScene::initialize()
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     // glDisable(GL_DEPTH_TEST);
     // glDisable(GL_CULL_FACE);
+    // GLuint vao;
+    // glGenVertexArrays(1, &vao);
+    // glBindVertexArray(vao);
+    // m_vaos.emplace_back(vao);
 
-    // TODO: loop through m_objects
-    initGLSL(m_sphere);
+    // // TODO: loop through m_objects
+    // initGLSL(m_sphere);
 
-    // TODO: For each shape??
-    updateShaderInputs(m_sphere, m_programs[0]);
+    // // TODO: For each shape??
+    // updateShaderInputs(m_sphere, m_programs[0]);
 }
 
 void
@@ -312,77 +337,103 @@ SimpleScene::paint() {
     // Rendering started
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // For each shape
-    glUseProgram(m_programs[0]);
-
-    // Enable Vertex Array Object and buffers
-    // glBindVertexArray(m_vao);   
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffers[0]);
-
-    GLint uniformColorUsed = glGetUniformLocation(m_programs[0], "colorUsed");
-    glUniform1i(uniformColorUsed, 0);
-
-    // Update Transforms
-    // Column-major
-
-    // Here's where you apply the interactive vars
-    glm::mat4 mvMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -m_cameraDistance));
-    mvMatrix = glm::rotate(mvMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    mvMatrix = glm::rotate(mvMatrix, glm::radians(m_cameraAngleY), glm::vec3(0.0f, 1.0f, 0.0f));
-    mvMatrix = glm::rotate(mvMatrix, glm::radians(m_cameraAngleX), glm::vec3(1.0f, 0.0f, 0.0f));
-
-    // Normals are transformed by the inverse transpose of the matrix
-    // See: https://paroj.github.io/gltut/Illumination/Tut09%20Normal%20Transformation.html
-    glm::mat4 mvNormalMatrix = glm::transpose(glm::inverse(mvMatrix));    //mvMatrix;
-    // glm::mat4 mvNormalMatrix = mvMatrix;
-    // mvNormalMatrix[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    // mvMatrix = glm::rotate(mvMatrix, 1122245.0f * 17.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-    // mvMatrix = glm::rotate(mvMatrix, 120.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-
-    GLint mvLocation = glGetUniformLocation(m_programs[0], "mvMatrix");
-    GLint mvpLocation = glGetUniformLocation(m_programs[0], "mvpMatrix");
-    GLint projLocation = glGetUniformLocation(m_programs[0], "mvNormalMatrix");
-
-    glUniformMatrix4fv(mvLocation, 1, GL_FALSE, glm::value_ptr(mvMatrix));
-    glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(m_projMatrix * mvMatrix));
-    glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(mvNormalMatrix));
-
-    // std::cout << "Triangle count: " << m_sphere->getTriangleCount() << std::endl;
-
-    // glDrawArrays(GL_TRIANGLES, 0, m_sphere->getTriangleCount());
-
-    // Draw Sphere
-    glDrawElements(GL_TRIANGLES,                // primitive type
-                   m_sphere->getIndexCount(),   // # of indices
-                   GL_UNSIGNED_INT,             // data type
-                   (void*)0);                   // offset into the indices buffer
-
-    // Draw selection outline
-    if(m_shapeSelectionIndex == 0)
+    for(int i=0; i<m_shapes.size(); i++)
     {
-        // Draw Lines
-        // GLint uniformColorUsed = glGetUniformLocation(m_programs[0], "colorUsed");
-        glUniform1i(uniformColorUsed, 1);
+        glBindVertexArray(m_vaos[i]);
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffers[1]);
+        Shape *shape = m_shapes[i];        
 
-        glDrawElements(GL_LINES,
-                    m_sphere->getLineIndexCount(),
-                    GL_UNSIGNED_INT,
-                    (void*)0);
+        GLuint program = m_programs[i];
+        glUseProgram(program);        
+
+        GLuint positionBuffer = m_positionBuffers[i];
+        glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+
+        GLsizei stride = 8 * sizeof(float);
+
+        GLint positionLocation = glGetAttribLocation(program, "position");
+        glVertexAttribPointer(positionLocation, 3, GL_FLOAT, GL_FALSE, stride, NULL);
+        glEnableVertexAttribArray(positionLocation);
+        // Normals
+        GLint normalLocation = glGetAttribLocation(program, "normal");
+        glVertexAttribPointer(normalLocation, 3, GL_FLOAT, false, stride, (void *)(3 * sizeof(float)));
+        glEnableVertexAttribArray(normalLocation);
+        // Texture Coords
+        GLint texCoordLocation = glGetAttribLocation(program, "texCoord");
+        glVertexAttribPointer(texCoordLocation, 2, GL_FLOAT, false, stride, (void *)(6 * sizeof(float)));
+        glEnableVertexAttribArray(texCoordLocation);
+
+        GLuint indexBuffer1 = m_indexBuffers[i*2];
+        GLuint indexBuffer2 = m_indexBuffers[i*2+1];
+ 
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer1);
+
+        GLint uniformColorUsed = glGetUniformLocation(program, "colorUsed");
+        glUniform1i(uniformColorUsed, 0);
+
+        // Update Transforms
+        // Column-major
+
+        // Here's where you apply the interactive vars
+        glm::mat4 mvMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -m_cameraDistance));
+        mvMatrix = glm::rotate(mvMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        mvMatrix = glm::rotate(mvMatrix, glm::radians(m_cameraAngleY), glm::vec3(0.0f, 1.0f, 0.0f));
+        mvMatrix = glm::rotate(mvMatrix, glm::radians(m_cameraAngleX), glm::vec3(1.0f, 0.0f, 0.0f));
+
+        // Normals are transformed by the inverse transpose of the matrix
+        // See: https://paroj.github.io/gltut/Illumination/Tut09%20Normal%20Transformation.html
+        glm::mat4 mvNormalMatrix = glm::transpose(glm::inverse(mvMatrix));    //mvMatrix;
+        // glm::mat4 mvNormalMatrix = mvMatrix;
+        // mvNormalMatrix[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        // mvMatrix = glm::rotate(mvMatrix, 1122245.0f * 17.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        // mvMatrix = glm::rotate(mvMatrix, 120.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+
+        GLint mvLocation = glGetUniformLocation(program, "mvMatrix");
+        GLint mvpLocation = glGetUniformLocation(program, "mvpMatrix");
+        GLint projLocation = glGetUniformLocation(program, "mvNormalMatrix");
+
+        glUniformMatrix4fv(mvLocation, 1, GL_FALSE, glm::value_ptr(mvMatrix));
+        glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(m_projMatrix * mvMatrix));
+        glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(mvNormalMatrix));
+
+        // std::cout << "Triangle count: " << m_sphere->getTriangleCount() << std::endl;
+
+        // glDrawArrays(GL_TRIANGLES, 0, m_sphere->getTriangleCount());
+
+        // Draw Sphere
+        glDrawElements(GL_TRIANGLES,                // primitive type
+                       shape->getIndexCount(),      // # of indices
+                       GL_UNSIGNED_INT,             // data type
+                       (void*)0);                   // offset into the indices buffer
+
+        // Draw selection outline
+        if(m_shapeSelectionIndex == i)
+        {
+            // Draw Lines
+            // GLint uniformColorUsed = glGetUniformLocation(m_programs[0], "colorUsed");
+            glUniform1i(uniformColorUsed, 1);
+
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer2);
+
+            glDrawElements(GL_LINES,
+                           shape->getLineIndexCount(),
+                           GL_UNSIGNED_INT,
+                           (void*)0);
+        }
+        // Triangle
+        // glPatchParameteri(GL_PATCH_VERTICES, 16);
+        // glDrawArrays(GL_PATCHES, 0, 16);
+
+        // glDisableVertexAttribArray(m_attribIndex[0]);
+        // glDisableVertexAttribArray(m_attribIndex[1]);
+        // glDisableVertexAttribArray(m_attribIndex[2]);
+        // glBindVertexArray(0);        
     }
-    // Triangle
-    // glPatchParameteri(GL_PATCH_VERTICES, 16);
-    // glDrawArrays(GL_PATCHES, 0, 16);
 
-    // glDisableVertexAttribArray(m_attribIndex[0]);
-    // glDisableVertexAttribArray(m_attribIndex[1]);
-    // glDisableVertexAttribArray(m_attribIndex[2]);
-    // glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    // glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glUseProgram(0);
-
+    glBindVertexArray(0);    
 }
 
 void 
