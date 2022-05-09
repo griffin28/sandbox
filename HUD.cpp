@@ -1,6 +1,9 @@
 #include "HUD.h"
 
+#include <iostream>
+
 #include <QGraphicsRectItem>
+#include <QElapsedTimer>
 
 HUD::HUD(QWidget *parent): QGraphicsView(parent)
 { 
@@ -30,7 +33,7 @@ HUD::HUD(QWidget *parent): QGraphicsView(parent)
     m_renderingModeTextItem->setBrush(Qt::white);
     // m_renderingModeTextItem->setPen(textPen);
 
-    QString renderTimeStr = "FPS: 12.34, Frame Time: " + QString::number(87.3333, 'f', 3) + " ms";
+    QString renderTimeStr = "FPS: 0 Frame time: 0 ms";
     m_renderTimeTextItem = m_scene->addSimpleText(renderTimeStr, textFont);
     m_renderTimeTextItem->setParentItem(m_border);
     QRectF br = m_renderingModeTextItem->sceneBoundingRect();
@@ -54,8 +57,26 @@ HUD::setRenderingMode(const char *mode)
 
 // SLOTS
 
+// ****************************************************************************
+// SLOT: HUD::updateFrameRenderTime
+//
+// Purpose:
+//  Update the frames per second (FPS) and the frame render time in the HUD.
+//
+// Arguments:
+//      nsecs the number of nanoseconds to render the frame 
+//
+// Programmer: Kevin Griffin 
+// Creation:   March 8, 2022
+//
+// ****************************************************************************
+
 void
-HUD::setRenderTime(const float time)
+HUD::updateFrameRenderTime(long long int nsecs)
 {
-    // m_textItem->setText(time);
+    float elapsedTime = static_cast<float>(nsecs) / 1e+6;   // milliseconds
+    float fps = (1.0f / elapsedTime) * 1000.0f;
+
+    QString timeText = "FPS: " + QString::number(fps, 'f', 2) + " Frame time: " + QString::number(elapsedTime, 'f', 2) + " ms";
+    m_renderTimeTextItem->setText(timeText);
 }

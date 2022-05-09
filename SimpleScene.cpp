@@ -1,5 +1,6 @@
 #include "SimpleScene.h"
 #include "Canvas.h"
+#include "shading/lambert.h"
 
 #include <glm/ext/matrix_transform.hpp>	 // translate, rotate, scale
 #include <glm/ext/matrix_clip_space.hpp> // glm::perspective
@@ -17,14 +18,17 @@ SimpleScene::SimpleScene(Canvas *glWidget):
     m_mouseY(0),
     m_cameraAngleX(0),
     m_cameraAngleY(0),
-    m_sphere(new mog::Sphere(5.0f, 0.0f, 0.0f, 0.0f)),
     m_shapeSelectionIndex(-1),
     m_programs(),
     m_vaos(),
     m_positionBuffers(),
     m_indexBuffers(),
     m_angle(0.0f),
-    m_projMatrix() {}
+    m_projMatrix() 
+{
+    m_sphere = new Sphere(5.0f, 0.0f, 0.0f, 0.0f);
+    m_sphere->setShadingModel(new LambertShadingModel());
+}
 
 SimpleScene::~SimpleScene() 
 {
@@ -49,6 +53,11 @@ SimpleScene::~SimpleScene()
     {
         glDeleteProgram(m_programs[i]);
     } 
+
+    if(m_sphere != nullptr)
+    {
+        delete m_sphere;
+    }
 }
 
 //
@@ -146,7 +155,7 @@ SimpleScene::setShapeSelection(const int x, const int y)
 }
 
 void
-SimpleScene::updateShaderInputs(mog::Shape const *shapePtr, const GLuint program)
+SimpleScene::updateShaderInputs(Shape const *shapePtr, const GLuint program)
 {
     // Material material = shapePtr->getMaterial();    
 
@@ -194,14 +203,15 @@ SimpleScene::updateShaderInputs(mog::Shape const *shapePtr, const GLuint program
 }
 
 void 
-SimpleScene::initGLSL(mog::Shape * const shapePtr) 
+SimpleScene::initGLSL(Shape * const shapePtr) 
 {
     // TODO: loop through shapes
     // Material mat = shapePtr->getMaterial();
 
     // Init GLSL for all objects (sphere)
-    const char *vertexShaderSource = m_sphere->getVertexShaderSource();     // mat.getVertexShaderSource();
-    const char *fragmentShaderSource = m_sphere->getFragmentShaderSource(); // mat.getFragmentShaderSource();
+    // TODO: Check if shading model is nullptr
+    const char *vertexShaderSource = m_sphere->getShadingModel()->getVertexShaderSource();
+    const char *fragmentShaderSource = m_sphere->getShadingModel()->getFragmentShaderSource();
     
     GLuint program1 = createShaderProgram(&vertexShaderSource, &fragmentShaderSource);
     m_programs.emplace_back(program1);
@@ -299,6 +309,7 @@ SimpleScene::resize(int width, int height) {
 
 void
 SimpleScene::paint() {
+    // Rendering started
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // For each shape
@@ -371,6 +382,7 @@ SimpleScene::paint() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glUseProgram(0);
+
 }
 
 void 

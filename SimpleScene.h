@@ -36,7 +36,7 @@ public:
     void paint() override;
     void resize(int, int) override;
 
-    void initGLSL(mog::Shape * const);
+    void initGLSL(Shape * const);
 
     void setShapeSelection(const int, const int);
 
@@ -56,7 +56,6 @@ public:
     float   m_cameraAngleY;
 
 signals:
-    void sceneUpdated();
     void statusUpdate(QString);
 
 private:
@@ -67,15 +66,15 @@ private:
                                const char * const *tcs=nullptr,
                                const char * const *tes=nullptr);
     GLuint  compileComputeShaders();
-    void    updateShaderInputs(mog::Shape const *, const GLuint);
+    void    updateShaderInputs(Shape const *, const GLuint);
 
     void printShaderInfoLog(const GLuint * const, const mog::Shader);
     void printLinkerInfoLog(const GLuint);
 
 
     // std::vector<mog::Shape> m_objects;
-    mog::Sphere     *m_sphere;
-    int             m_shapeSelectionIndex;
+    Sphere     *m_sphere;
+    int         m_shapeSelectionIndex;
     
     // std::vector<GLuint> m_programs;
     std::vector<GLuint>          m_programs;  // for each shape

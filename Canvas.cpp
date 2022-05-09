@@ -7,6 +7,7 @@
 #include <QKeyEvent>
 #include <QOpenGLFunctions_4_3_Core>
 #include <QOpenGLContext>
+#include <QElapsedTimer>
 
 const int Canvas::HEIGHT = 900;
 const int Canvas::WIDTH = 900;
@@ -136,37 +137,26 @@ Canvas::keyPressEvent(QKeyEvent *event) {
 
 // Sets up the OpenGL resources and state. Gets called once before the first time resizeGL() or paintGL() is called.
 void 
-Canvas::initializeGL() {
+Canvas::initializeGL() 
+{
     m_scene->initialize();
-
-	/*glViewport(0, 0, WIDTH, HEIGHT);
-	glEnable(GL_DEPTH_TEST);
-	glDepthMask(GL_TRUE);
-	glShadeModel(GL_SMOOTH);
-
-	// set the perspective coordinate system
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	// aspect ratio of the window
-	float aspect = WIDTH / HEIGHT;
-	gluPerspective(fovy, aspect, near, far);
-
-	// Modelview matrix reset
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();*/
 }
 
 //Sets up the OpenGL viewport, projection, etc. Gets called whenever the widget has been resized 
 //(and also when it is shown for the first time because all newly created widgets get a resize event automatically).
 void
-Canvas::resizeGL(int w, int h) {
+Canvas::resizeGL(int w, int h) 
+{
     // Update projection matrix and other size related settings
     m_scene->resize(w, h);
 }
 
 // Renders the OpenGL scene. Gets called whenever the widget needs to be updated.
 void
-Canvas::paintGL() {
+Canvas::paintGL() 
+{
+	QElapsedTimer timer;
+	timer.start();
     m_scene->paint();
+	emit frameRenderTimeChanged(timer.nsecsElapsed());
 }

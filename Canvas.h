@@ -21,6 +21,7 @@ public:
 
 signals:
     void screenCoordsChanged(const int, const int); 
+    void frameRenderTimeChanged(long long int);
 /* signals:
 	void rotateX(int);
 	void rotateY(int);

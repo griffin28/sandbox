@@ -1,7 +1,5 @@
 #include "shape.h"
 
-using namespace mog;
-
 Shape::Shape(SHAPE_TYPE type)
 {
     Shape(type, glm::mat4(1.0f));

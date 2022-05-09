@@ -2,10 +2,10 @@
 #define INCLUDED_SPHERE_H
 
 #include "shape.h"
+#include "shading/model.h"
 
 #include <vector>
-
-namespace mog {
+#include <memory>
 
 class Sphere : public Shape {
 public:
@@ -23,6 +23,10 @@ public:
     void    setSmooth(const bool);
     void    setBuildGeometry(const bool);
     void    setCenter(const float, const float, const float);
+
+    // Shading Model
+    void            setShadingModel(ShadingModel *model) { m_shadingModel.reset(model); }
+    ShadingModel    *getShadingModel() const { return m_shadingModel.get(); }
     
     // For vertex data
     unsigned int    getVertexCount() const { return static_cast<unsigned int>(m_vertices.size()) / 3; }
@@ -50,10 +54,6 @@ public:
     int             getInterleavedStride() const       { return 8 * sizeof(float); }   // should be 32 bytes
     const float*    getInterleavedVertices() const     { return m_interleavedVertices.data(); }
 
-    // TODO: Material - this code will go into a material class
-    const char *    getVertexShaderSource();
-    const char *    getFragmentShaderSource();
-
     void            printSelf() const;
 private:
     void    buildVertices();
@@ -79,10 +79,10 @@ private:
     std::vector<unsigned int>   m_indices;
     std::vector<unsigned int>   m_lineIndices;
 
+    std::unique_ptr<ShadingModel> m_shadingModel;
+
     const static int            UNIT_SECTOR_COUNT;  // longitude, # of slices
     const static int            UNIT_STACK_COUNT;   // latitude, # of stacks
 };
-
-}   // namespace mog
 
 #endif

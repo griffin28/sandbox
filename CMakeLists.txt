@@ -20,23 +20,22 @@ find_package(glm REQUIRED)
 
 set (SRCS
     AbstractGLScene.cpp
-    AbstractGLScene.h
     Canvas.cpp
-    Canvas.h
     main.cpp
     MainWidget.cpp
-    MainWidget.h
     MainWindow.cpp
-    MainWindow.h
     SimpleScene.cpp
-    SimpleScene.h
     HUD.cpp
-    HUD.h
     shapes/shape.cpp
-    shapes/shape.h
     shapes/sphere.cpp
-    shapes/sphere.h
+    shading/lambert.cpp
     resources/resources.qrc
+)
+
+INCLUDE_DIRECTORIES(
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/shapes
+    ${CMAKE_CURRENT_SOURCE_DIR}/shading
 )
 
 # add_subdirectory(<sourcedir> [<binarydir>])

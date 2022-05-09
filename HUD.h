@@ -3,6 +3,8 @@
 
 #include <QGraphicsView>
 
+class QElapsedTimer;
+
 class HUD : public QGraphicsView 
 {
     Q_OBJECT
@@ -14,9 +16,11 @@ public:
     void    setRenderingMode(const char *);
 
 public slots:
-    void    setRenderTime(const float);
+    void    updateFrameRenderTime(long long int);
     
 private:
+    QElapsedTimer           *m_fpsTimer;
+
     QRectF                  *m_position;
     QGraphicsScene          *m_scene;
     // border

@@ -8,7 +8,6 @@ class QMenu;
 class QAction;
 class QLabel;
 class QProgressBar;
-class QElapsedTimer;
 class HUD;
 
 class MainWindow : public QMainWindow
@@ -17,7 +16,7 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    ~MainWindow() = default;
 
 private slots:
     void about();
@@ -45,8 +44,6 @@ private:
 
     // ToolBar
     void    createToolBar();
-
-    QElapsedTimer   *d_fpsTimer; 
 
     MainWidget  *d_mainWidget;
     HUD         *m_hud;

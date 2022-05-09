@@ -2,9 +2,7 @@
 #define INCLUDED_SHAPE_H
 
 #include <glm/glm.hpp>
-
-namespace mog {
-    
+  
 // Scoped enumeration
 enum class SHAPE_TYPE 
 {
@@ -27,7 +25,5 @@ private:
     SHAPE_TYPE  m_type;
     glm::mat4   m_transform;
 };
-
-}   // namespace mog
 
 #endif

@@ -11,7 +11,6 @@
 #include <QLabel>
 #include <QProgressBar>
 #include <QStatusBar>
-#include <QElapsedTimer>
 #include <QApplication>
 #include <QIcon>
 #include <QToolBar>
@@ -26,13 +25,11 @@ using namespace std;
 //
 // ****************************************************************************
 
-MainWindow::MainWindow(QWidget *parent): 
-    QMainWindow(parent), 
-    d_fpsTimer(nullptr)
+MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 {
 	d_mainWidget = new MainWidget(this);
 	setCentralWidget(d_mainWidget);
-	setWindowTitle("Kevin's Rendering Sandbox");
+	setWindowTitle("Rendering Sandbox");
 
 	createActions();
 
@@ -62,24 +59,11 @@ MainWindow::MainWindow(QWidget *parent):
     connect(d_mainWidget->d_canvas, &Canvas::screenCoordsChanged,
             this, &MainWindow::updateScreenCoords);
 
-    // INitialize HUD
-    m_hud = new HUD(d_mainWidget->d_canvas);
+    // Initialize HUD
+    m_hud = new HUD(d_mainWidget->d_canvas);    
+    connect(d_mainWidget->d_canvas, &Canvas::frameRenderTimeChanged,
+            m_hud, &HUD::updateFrameRenderTime);    
     m_hud->show();
-}
-
-// ****************************************************************************
-//  Method: MainWindow destructor
-//
-//  Programmer: Kevin Griffin 
-//  Creation:   Fri Aug 14 13:50:31 PST 2020
-//
-// ****************************************************************************
-
-MainWindow::~MainWindow() 
-{
-    if(d_fpsTimer != nullptr) {
-        delete d_fpsTimer;
-    }
 }
 
 // ****************************************************************************
@@ -353,13 +337,11 @@ MainWindow::showHUD()
     {
         m_hud->setVisible(false);
         d_showHUDAction->setIconVisibleInMenu(false);
-        // d_hud->setVisible(false)
     } 
     else
     {
         m_hud->setVisible(true);
         d_showHUDAction->setIconVisibleInMenu(true);
-        // d_hud->setVisible(true);
     }
 }
 
