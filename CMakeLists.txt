@@ -29,6 +29,7 @@ set (SRCS
     shapes/shape.cpp
     shapes/sphere.cpp
     shading/lambert.cpp
+    dialogs/SphereDialog.cpp
     resources/resources.qrc
 )
 
@@ -36,6 +37,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/shapes
     ${CMAKE_CURRENT_SOURCE_DIR}/shading
+    ${CMAKE_CURRENT_SOURCE_DIR}/dialogs
 )
 
 # add_subdirectory(<sourcedir> [<binarydir>])

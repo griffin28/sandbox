@@ -40,9 +40,8 @@ public:
 
     void setShapeSelection(const int, const int);
     void addSphere(const float, 
-                   const float, 
-                   const float, 
-                   const float, 
+                   float * const,
+                   float * const, 
                    ModelType shading=ModelType::LAMBERT);
 
     static void GLAPIENTRY  DebugMessageCallback(GLenum, 
@@ -78,11 +77,9 @@ private:
 
 
     std::vector<Shape *> m_shapes;
-    // Sphere     *m_sphere;
     int         m_shapeSelectionIndex;
     
     // OpenGL
-    // std::vector<GLuint> m_programs;
     std::vector<GLuint>          m_programs;  // for each shape
     // TODO: QOpenGLShaderProgram    m_shaderProgram;
     // std::vector<QOpenGLShaderProgram> m_shaderPrograms;
@@ -90,19 +87,11 @@ private:
 
     // std::vector<GLuint> m_vectorArrayObjs;
     std::vector<GLuint>          m_vaos;     
-    // std::vector<DataStore> m_shapeBuffers; 
-    // GLint           *m_attribIndex;
-    // GLuint          *m_buffers; // for each shape
-    // GLint           m_bufferCount;
     std::vector<GLuint>          m_positionBuffers;
     std::vector<GLuint>          m_indexBuffers;
 
     // Transformation
     float           m_angle;
-    // TODO: change to local variables
-    // GLint           m_mvLocation;
-    // GLint           m_projLocation;
-    // GLint           m_mvpLocation;
     glm::mat4       m_projMatrix;
 };
 

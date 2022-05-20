@@ -4,6 +4,7 @@
 #include "shading/model.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <memory>
 
@@ -23,7 +24,10 @@ public:
     virtual ~Shape() = default;
 
     virtual glm::mat4   getTransform() const { return m_transform; }
-    virtual void        setTransform(glm::mat4 transform) { m_transform = transform; };
+    virtual void        setTransform(glm::mat4 transform) { m_transform = transform; }
+
+    virtual const float *getColor() const { return glm::value_ptr(m_color); }
+    virtual void        setColor(const float r, const float g, const float b, const float a=1.0f) { m_color = glm::vec4(r,g,b,a); }
 
     // Shading Model
     void            setShadingModel(ShadingModel *model) { m_shadingModel.reset(model); }
@@ -43,8 +47,9 @@ public:
 
     virtual ShapeType  getType() const { return m_type; }
 private:
-    ShapeType  m_type;
-    glm::mat4   m_transform;
+    ShapeType m_type;
+    glm::mat4 m_transform;
+    glm::vec4 m_color;
 
     std::unique_ptr<ShadingModel> m_shadingModel;
 };

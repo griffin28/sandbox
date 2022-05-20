@@ -3,6 +3,7 @@
 #include "Canvas.h"
 #include "SimpleScene.h"
 #include "HUD.h"
+#include "dialogs/SphereDialog.h"
 
 #include <QtGui>
 #include <QMenu>
@@ -14,6 +15,8 @@
 #include <QApplication>
 #include <QIcon>
 #include <QToolBar>
+
+#include <iostream>
 
 using namespace std;
 
@@ -348,14 +351,22 @@ MainWindow::showHUD()
 void
 MainWindow::showAddSphereDialog()
 {
-    // TODO: show a popup to input sphere inputs
-    SimpleScene *scene = d_mainWidget->d_canvas->getScene();
+    SphereDialog sphereDialog(this);
+    
+    if(sphereDialog.exec() == QDialog::Rejected)
+    {
+        return; 
+    }
 
-    scene->addSphere(3.0f, 0.0f, 0.0f, 0.0f);
-    scene->addSphere(3.0f, 5.0f, 10.0f, 30.1f);
-    scene->addSphere(1.0f, 15.0f, 5.0f, 0.1f);
-    scene->addSphere(10.0f, -10.0f, -10.0f, 10.1f);
-    scene->addSphere(2.0f, 5.0f, -10.0f, -30.1f);
+    float radius = sphereDialog.getRadius();
+    float *center = sphereDialog.getCenter();
+    float r, g, b, a;
+    sphereDialog.getColor(&r, &g, &b, &a);
+    // cout << "r: " << r << " g: " << g << " b: " << b << " a: " << a << endl;
+    float color[4] = {r,g,b,a};
+
+    SimpleScene *scene = d_mainWidget->d_canvas->getScene();
+    scene->addSphere(radius, center, color);
 }
 
 void

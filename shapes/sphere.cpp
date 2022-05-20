@@ -7,7 +7,7 @@
 const int Sphere::UNIT_SECTOR_COUNT = 10;
 const int Sphere::UNIT_STACK_COUNT = 5;
 
-Sphere::Sphere() : Shape(SHAPE_TYPE::SPHERE), 
+Sphere::Sphere() : Shape(ShapeType::SPHERE), 
     m_radius(-1.0f),
     m_center(-1.0f, -1.0f, -1.0f),
     m_smooth(true),
@@ -22,7 +22,7 @@ Sphere::Sphere() : Shape(SHAPE_TYPE::SPHERE),
     set(1.0f, 0.0f, 0.0f, 0.0f, true, true);
 }
 
-Sphere::Sphere(float radius, float x, float y, const float z, bool smooth, bool buildGeometry) : Shape(SHAPE_TYPE::SPHERE),
+Sphere::Sphere(float radius, float x, float y, const float z, bool smooth, bool buildGeometry) : Shape(ShapeType::SPHERE),
     m_radius(-1.0f),
     m_center(-1.0f, -1.0f, -1.0f),
     m_smooth(true),

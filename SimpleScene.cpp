@@ -153,12 +153,12 @@ SimpleScene::setShapeSelection(const int x, const int y)
 
 void
 SimpleScene::addSphere(const float r, 
-                       const float x, 
-                       const float y, 
-                       const float z, 
+                       float * const center, 
+                       float * const color,
                        ModelType shadingModel)
 {
-    Sphere *sphere = new Sphere(r, x, y, z);
+    Sphere *sphere = new Sphere(r, center[0], center[1], center[2]);
+    sphere->setColor(color[0], color[1], color[2], color[3]);
     sphere->setShadingModel(new LambertShadingModel());
 
     // switch(shadingModel) 
@@ -185,7 +185,7 @@ SimpleScene::addSphere(const float r,
 void
 SimpleScene::updateShaderInputs(Shape const *shapePtr, const GLuint program)
 {
-    // Material material = shapePtr->getMaterial();    
+    const float *shapeColor = shapePtr->getColor();    
 
     // TODO: Create uniform blocks for lights and bind at global level to be shared
     // by all shaders
@@ -195,7 +195,7 @@ SimpleScene::updateShaderInputs(Shape const *shapePtr, const GLuint program)
     GLint uniformLightSpecular = glGetUniformLocation(program, "lightSpecular");
 
     float lightPosition[] = {0.0f, 10.0f, -10.0f, 1.0f};
-    float lightAmbient[] {0.3f, 0.3f, 0.3f, 1.0f};
+    float lightAmbient[] {shapeColor[0], shapeColor[1], shapeColor[2], shapeColor[3]};
     float lightDiffuse[]  = {0.7f, 0.7f, 0.7f, 1.0f};
     float lightSpecular[] = {0.5f, 0.5f, 1.0f, 1.0f};
 
@@ -215,11 +215,12 @@ SimpleScene::updateShaderInputs(Shape const *shapePtr, const GLuint program)
     GLint uniformTextureUsed = glGetUniformLocation(program, "textureUsed");
     GLint uniformColorUsed = glGetUniformLocation(program, "colorUsed");
 
-    float materialAmbient[]  = {1.0f, 0.5f, 0.5f, 1.0f};
+    float materialAmbient[]  = {shapeColor[0], shapeColor[1], shapeColor[2], shapeColor[3]};
     float materialDiffuse[]  = {1.0f, 0.7f, 0.7f, 1.0f};
     float materialSpecular[] = {0.4f, 0.4f, 0.4f, 1.0f};
     float materialShininess  = 5;
-    float materialColor[] = {1.0f, 0.0f, 0.0f, 1.0f};
+    
+    float materialColor[] = {shapeColor[0], shapeColor[1], shapeColor[2], shapeColor[3]};
 
     glUniform4fv(uniformMaterialAmbient, 1, materialAmbient);
     glUniform4fv(uniformMaterialDiffuse, 1, materialDiffuse);
@@ -313,16 +314,6 @@ SimpleScene::initialize()
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     // glDisable(GL_DEPTH_TEST);
     // glDisable(GL_CULL_FACE);
-    // GLuint vao;
-    // glGenVertexArrays(1, &vao);
-    // glBindVertexArray(vao);
-    // m_vaos.emplace_back(vao);
-
-    // // TODO: loop through m_objects
-    // initGLSL(m_sphere);
-
-    // // TODO: For each shape??
-    // updateShaderInputs(m_sphere, m_programs[0]);
 }
 
 void
