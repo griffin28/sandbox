@@ -137,12 +137,12 @@ SphereDialog::initUI()
 }
 
 void
-SphereDialog::getColor(float *r, float *g, float *b, float *a)
+SphereDialog::getColor(float *color)
 {
-    *r = m_color->redF();
-    *g = m_color->greenF();
-    *b = m_color->blueF();
-    *a = m_color->alphaF();
+    color[0] = m_color->redF();
+    color[1] = m_color->greenF();
+    color[2] = m_color->blueF();
+    color[3] = m_color->alphaF();
 }
 
 // SLOTS

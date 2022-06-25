@@ -2,11 +2,16 @@
 #define INCLUDED_SHAPE_H
 
 #include "shading/model.h"
+// TODO: #include "aabb.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <memory>
+
+// TODO:
+// - bounding box
+// - ray intersection 
 
 // Scoped enumeration
 enum class ShapeType 
@@ -46,6 +51,11 @@ public:
     virtual unsigned int        getLineIndexCount() const { return 0; }
 
     virtual ShapeType  getType() const { return m_type; }
+
+    //virtual AxisAlignedBB objectBounds() const = 0;
+    //virtual AxisAlignedBB worldBounds() const = 0;
+
+    //virtual bool intersect() const = 0;
 private:
     ShapeType m_type;
     glm::mat4 m_transform;

@@ -195,7 +195,7 @@ SimpleScene::updateShaderInputs(Shape const *shapePtr, const GLuint program)
     GLint uniformLightSpecular = glGetUniformLocation(program, "lightSpecular");
 
     float lightPosition[] = {0.0f, 10.0f, -10.0f, 1.0f};
-    float lightAmbient[] {shapeColor[0], shapeColor[1], shapeColor[2], shapeColor[3]};
+    float lightAmbient[] = {shapeColor[0], shapeColor[1], shapeColor[2], shapeColor[3]};
     float lightDiffuse[]  = {0.7f, 0.7f, 0.7f, 1.0f};
     float lightSpecular[] = {0.5f, 0.5f, 1.0f, 1.0f};
 

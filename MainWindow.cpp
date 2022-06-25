@@ -3,7 +3,7 @@
 #include "Canvas.h"
 #include "SimpleScene.h"
 #include "HUD.h"
-#include "dialogs/SphereDialog.h"
+#include "SphereDialog.h"
 
 #include <QtGui>
 #include <QMenu>
@@ -360,10 +360,9 @@ MainWindow::showAddSphereDialog()
 
     float radius = sphereDialog.getRadius();
     float *center = sphereDialog.getCenter();
-    float r, g, b, a;
-    sphereDialog.getColor(&r, &g, &b, &a);
-    // cout << "r: " << r << " g: " << g << " b: " << b << " a: " << a << endl;
-    float color[4] = {r,g,b,a};
+
+    float color[4];
+    sphereDialog.getColor(color);
 
     SimpleScene *scene = d_mainWidget->d_canvas->getScene();
     scene->addSphere(radius, center, color);

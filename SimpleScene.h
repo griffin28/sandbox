@@ -2,7 +2,7 @@
 #define INCLUDED_SIMPLESCENE_H
 
 #include "AbstractGLScene.h"
-#include "shapes/sphere.h"
+#include "sphere.h"
 
 //#include <glm/vec3.hpp> // vec3
 //#include <glm/mat4x4.hpp> // mat4

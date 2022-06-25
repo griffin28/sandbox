@@ -20,7 +20,7 @@ public:
 
     float getRadius() const { return m_radius; }
     float *getCenter() const { return m_center; }
-    void getColor(float *, float *, float *, float *);
+    void getColor(float *);
 
 public slots:
     void showColorDialog();
