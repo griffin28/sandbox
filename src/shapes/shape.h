@@ -1,7 +1,7 @@
 #ifndef INCLUDED_SHAPE_H
 #define INCLUDED_SHAPE_H
 
-#include "shading/model.h"
+#include "model.h"
 // TODO: #include "aabb.h"
 
 #include <glm/glm.hpp>

@@ -1,6 +1,6 @@
 #include "SimpleScene.h"
 #include "Canvas.h"
-#include "shading/lambert.h"
+#include "lambert.h"
 
 #include <glm/ext/matrix_transform.hpp>	 // translate, rotate, scale
 #include <glm/ext/matrix_clip_space.hpp> // glm::perspective
