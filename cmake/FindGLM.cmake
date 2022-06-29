@@ -9,6 +9,8 @@ Imported Targets
 
 This module provides the following imported targets, if found:
 
+``glm::glm``
+  The GLM library
 
 Result Variables
 ^^^^^^^^^^^^^^^^
@@ -16,7 +18,7 @@ Result Variables
 This will define the following variables:
 
 ``glm_FOUND``
-  True if the system has the Qt5 library.
+  True if the system has the glm library.
 
 Cache Variables
 ^^^^^^^^^^^^^^^

@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <string>
+#include <memory>
 
 using namespace std;
 
@@ -459,8 +460,8 @@ SimpleScene::printShaderInfoLog(const GLuint * const shader, const mog::Shader t
     glGetShaderiv(*shader, GL_INFO_LOG_LENGTH, &logLen);
 
     // Retrieve log info
-    GLchar msg[logLen];
-    glGetShaderInfoLog(*shader, logLen, &msgLen, msg);
+    std::unique_ptr<GLchar[]> msg{new GLchar[logLen]};
+    glGetShaderInfoLog(*shader, logLen, &msgLen, msg.get());
 
     if(msgLen > 0) {
         switch(type) {
@@ -490,7 +491,7 @@ SimpleScene::printShaderInfoLog(const GLuint * const shader, const mog::Shader t
             break;
         }
             
-        cout << msg << endl;
+        cout << msg.get() << endl;
     }
 }
 
