@@ -1,7 +1,11 @@
 #======== Interface libraries
-# Compiler Warnings
-add_library(warning_props INTERFACE)
-target_compile_options(warning_props INTERFACE -Wall -Wextra -Wpedantic)
+# Compiler Settings
+add_library(compiler_props INTERFACE)
+target_compile_options(compiler_props
+    INTERFACE
+        $<$<CONFIG:DEBUG>:-Wall -Wextra -Wpedantic>
+        $<$<AND:$<CXX_COMPILER_ID:GNU>,$<CONFIG:DEBUG>>:-gstatement-frontiers -ginline-points> # extended debug info for inline funcs
+)
 
 #======== Macros
 macro(create_find_package pkg required quiet components)
