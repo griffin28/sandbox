@@ -4,6 +4,8 @@
 #include "AbstractGLScene.h"
 #include "sphere.h"
 
+#include <memory>
+
 //#include <glm/vec3.hpp> // vec3
 //#include <glm/mat4x4.hpp> // mat4
 #include <glm/glm.hpp>
@@ -13,7 +15,8 @@
 
 class Canvas;
 
-namespace mog {
+namespace mog 
+{
     // Scoped enumeration
     enum class Shader {
         VERTEX = 0,
@@ -23,9 +26,27 @@ namespace mog {
         FRAGMENT,
         COMPUTE
     };
+
+   class SceneObject
+   {
+    public:
+        SceneObject() : shape(nullptr),
+                        program(0),
+                        vertexArray(0),
+                        positionBuffer(0),
+                        indexBuffers{0,1} {}
+        ~SceneObject() = default;
+
+        std::unique_ptr<Shape>  shape;
+        GLuint 	                program;
+        GLuint 	                vertexArray;
+        GLuint 	                positionBuffer;
+        GLuint 	                indexBuffers[2];
+   };
 }
 
-class SimpleScene: public QObject, public AbstractGLScene {
+class SimpleScene: public QObject, public AbstractGLScene 
+{
     Q_OBJECT
 
 public:
@@ -36,7 +57,7 @@ public:
     void paint() override;
     void resize(int, int) override;
 
-    void initGLSL(Shape * const);
+    void initGLSL(mog::SceneObject * const);
 
     void setShapeSelection(const int, const int);
     void addSphere(const float, 
@@ -75,21 +96,9 @@ private:
     void printShaderInfoLog(const GLuint * const, const mog::Shader);
     void printLinkerInfoLog(const GLuint);
 
-
-    std::vector<Shape *> m_shapes;
-    int         m_shapeSelectionIndex;
+    size_t         		                m_shapeSelectionIndex;
+    std::vector<mog::SceneObject *>     m_sceneObjects;
     
-    // OpenGL
-    std::vector<GLuint>          m_programs;  // for each shape
-    // TODO: QOpenGLShaderProgram    m_shaderProgram;
-    // std::vector<QOpenGLShaderProgram> m_shaderPrograms;
-    
-
-    // std::vector<GLuint> m_vectorArrayObjs;
-    std::vector<GLuint>          m_vaos;     
-    std::vector<GLuint>          m_positionBuffers;
-    std::vector<GLuint>          m_indexBuffers;
-
     // Transformation
     float           m_angle;
     glm::mat4       m_projMatrix;

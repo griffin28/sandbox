@@ -19,42 +19,27 @@ SimpleScene::SimpleScene(Canvas *glWidget):
     m_mouseY(0),
     m_cameraAngleX(0),
     m_cameraAngleY(0),
-    m_shapes(),
     m_shapeSelectionIndex(-1),
-    m_programs(),
-    m_vaos(),
-    m_positionBuffers(),
-    m_indexBuffers(),
+    m_sceneObjects(),
     m_angle(0.0f),
     m_projMatrix() {}
 
 SimpleScene::~SimpleScene() 
 {
-    // Delete Vertex Array Object
-    if(m_vaos.size() > 0)
+    for(int i=0; i<m_sceneObjects.size(); i++)
     {
-        glDeleteVertexArrays(m_vaos.size(), m_vaos.data());
-    }
+        mog::SceneObject *sceneObject = m_sceneObjects[i];
 
-    if(m_positionBuffers.size() > 0)
-    {
-        glDeleteBuffers(m_positionBuffers.size(), m_positionBuffers.data());
-    }
-    
-    if(m_indexBuffers.size() > 0)
-    {
-        glDeleteBuffers(m_indexBuffers.size(), m_indexBuffers.data());
-    }    
+        GLuint vao = sceneObject->vertexArray;
+        glDeleteVertexArrays(1, &vao);
 
-    // Delete GLSL programs
-    for(int i=0; i<m_programs.size(); i++)
-    {
-        glDeleteProgram(m_programs[i]);
-    } 
+        GLuint positionBuffer = sceneObject->positionBuffer;
+        glDeleteBuffers(1, &positionBuffer);
+        
+	    glDeleteBuffers(2, sceneObject->indexBuffers);
+        glDeleteProgram(sceneObject->program);
 
-    for(int i=0; i<m_shapes.size(); i++)
-    {
-        delete m_shapes[i];
+        delete sceneObject;
     }
 }
 
@@ -160,26 +145,28 @@ SimpleScene::addSphere(const float r,
 {
     Sphere *sphere = new Sphere(r, center[0], center[1], center[2]);
     sphere->setColor(color[0], color[1], color[2], color[3]);
-    sphere->setShadingModel(new LambertShadingModel());
+    // sphere->setShadingModel(new LambertShadingModel());
 
-    // switch(shadingModel) 
-    // {
-    // case ModelType::LAMBERT:
-    //     sphere->setShadingModel(new LambertShadingModel());
-    //     break;
-    // case ModelType::PHONG:
-    //     // TODO
-    //     break;
-    // case ModelType::BLINN_PHONG:
-    //     // TODO
-    //     break;
-    // default:
-    //     sphere->setShadingModel(new LambertShadingModel());
-    // }
+    switch(shadingModel) 
+    {
+    case ModelType::LAMBERT:
+        sphere->setShadingModel(new LambertShadingModel());
+        break;
+    case ModelType::PHONG:
+        // TODO
+        break;
+    case ModelType::BLINN_PHONG:
+        // TODO
+        break;
+    default:
+        sphere->setShadingModel(new LambertShadingModel());
+    }
 
-    m_shapes.emplace_back(sphere);
-    initGLSL(sphere);
+    mog::SceneObject *sceneObject = new mog::SceneObject();
+    sceneObject->shape.reset(sphere);
+    m_sceneObjects.emplace_back(sceneObject);
 
+    initGLSL(sceneObject);
     update();
 }
 
@@ -233,51 +220,50 @@ SimpleScene::updateShaderInputs(Shape const *shapePtr, const GLuint program)
 }
 
 void 
-SimpleScene::initGLSL(Shape * const shape) 
+SimpleScene::initGLSL(mog::SceneObject * const sceneObject) 
 {
-    
+    Shape *shape = sceneObject->shape.get();
+ 
     const char *vertexShaderSource = shape->getShadingModel()->getVertexShaderSource();
     const char *fragmentShaderSource = shape->getShadingModel()->getFragmentShaderSource();
     // const char *geometryShaderSource = shape->getShadingModel()->getGeometryShaderSource();
     // const char *tessControlShaderSource = shape->getShadingModel()->getTessControlShaderSource();
     // const char *tessEvaluationShaderSource = shape->getShadingModel()->getTessEvaluationShaderSource();
 
-    GLuint program1 = createShaderProgram(&vertexShaderSource, 
+    GLuint program = createShaderProgram(&vertexShaderSource, 
                                           &fragmentShaderSource);
                                             // &geometryShaderSource,
                                             // &tessControlShaderSource,
                                             // &tessEvaluationShaderSource);
-    m_programs.emplace_back(program1);
-    glUseProgram(program1);
-    updateShaderInputs(shape, program1);
+    sceneObject->program = program;
+    glUseProgram(program);
+    updateShaderInputs(shape, program);
 
-    GLuint vao1;
-    glGenVertexArrays(1, &vao1);
-    glBindVertexArray(vao1);
-    m_vaos.emplace_back(vao1);
+    GLuint vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    sceneObject->vertexArray = vao;
 
     GLuint positionBuffer;
     glGenBuffers(1, &positionBuffer);
-    m_positionBuffers.emplace_back(positionBuffer);
+    sceneObject->positionBuffer = positionBuffer;
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
     glBufferData(GL_ARRAY_BUFFER, shape->getInterleavedVertexSize(), shape->getInterleavedVertices(), GL_STATIC_DRAW);
 
     // Indices
     GLuint indexBuffer1;
     glGenBuffers(1, &indexBuffer1);
-    m_indexBuffers.emplace_back(indexBuffer1);
+    sceneObject->indexBuffers[0] = indexBuffer1;
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer1);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, shape->sizeofIndices(), shape->getIndices(), GL_STATIC_DRAW);
 
     // Line Indices
     GLuint indexBuffer2;
     glGenBuffers(1, &indexBuffer2);
-    m_indexBuffers.emplace_back(indexBuffer2);
+    sceneObject->indexBuffers[1] = indexBuffer2;
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer2);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, shape->sizeofLineIndices(), shape->getLineIndices(), GL_STATIC_DRAW);
 
-    // glBindBuffer(GL_ARRAY_BUFFER, 0);
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     glUseProgram(0);
 }
@@ -329,16 +315,17 @@ SimpleScene::paint() {
     // Rendering started
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    for(int i=0; i<m_shapes.size(); i++)
+    for(int i=0; i<m_sceneObjects.size(); i++)
     {
-        glBindVertexArray(m_vaos[i]);
+        mog::SceneObject *sceneObject = m_sceneObjects[i];
+        glBindVertexArray(sceneObject->vertexArray);
 
-        Shape *shape = m_shapes[i];        
+        Shape *shape = sceneObject->shape.get();        
 
-        GLuint program = m_programs[i];
+        GLuint program = sceneObject->program;
         glUseProgram(program);        
 
-        GLuint positionBuffer = m_positionBuffers[i];
+        GLuint positionBuffer = sceneObject->positionBuffer;
         glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
 
         GLsizei stride = 8 * sizeof(float);
@@ -355,8 +342,8 @@ SimpleScene::paint() {
         glVertexAttribPointer(texCoordLocation, 2, GL_FLOAT, false, stride, (void *)(6 * sizeof(float)));
         glEnableVertexAttribArray(texCoordLocation);
 
-        GLuint indexBuffer1 = m_indexBuffers[i*2];
-        GLuint indexBuffer2 = m_indexBuffers[i*2+1];
+        GLuint indexBuffer1 = sceneObject->indexBuffers[0];
+        GLuint indexBuffer2 = sceneObject->indexBuffers[1];
  
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer1);
 
@@ -422,8 +409,6 @@ SimpleScene::paint() {
         // glBindVertexArray(0);        
     }
 
-    // glBindBuffer(GL_ARRAY_BUFFER, 0);
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glUseProgram(0);
     glBindVertexArray(0);    
 }
