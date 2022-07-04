@@ -64,7 +64,7 @@ endif()
 
 # Docs
 if(BUILD_DOCS)
-    add_subdirectory(doc)
+    add_subdirectory(docs)
 endif()
 
 # add_dependencies(doc src)

@@ -55,7 +55,16 @@ public:
 
     void initialize() override;
     void paint() override;
-    void resize(int, int) override;
+
+    /**
+     * Sets up the OpenGL viewport, projection, etc. Gets called whenever the widget 
+     * has been resized (and also when it is shown for the first time because all newly 
+     * created widgets get a resize event automatically).
+     * @see <a href="https://doc.qt.io/qt-6/qopenglwidget.html#resizeGL">QOpenGLWidget::resizeGL</a>
+     * @param w the width
+     * @param h the height
+     */
+    void resize(int w, int h) override;
 
     void initGLSL(mog::SceneObject * const);
 
