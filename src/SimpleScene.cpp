@@ -26,7 +26,7 @@ SimpleScene::SimpleScene(Canvas *glWidget):
 
 SimpleScene::~SimpleScene() 
 {
-    for(int i=0; i<m_sceneObjects.size(); i++)
+    for(size_t i=0; i<m_sceneObjects.size(); i++)
     {
         mog::SceneObject *sceneObject = m_sceneObjects[i];
 
@@ -315,7 +315,7 @@ SimpleScene::paint() {
     // Rendering started
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    for(int i=0; i<m_sceneObjects.size(); i++)
+    for(size_t i=0; i<m_sceneObjects.size(); i++)
     {
         mog::SceneObject *sceneObject = m_sceneObjects[i];
         glBindVertexArray(sceneObject->vertexArray);

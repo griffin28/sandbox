@@ -121,7 +121,7 @@ private:
     void printShaderInfoLog(const GLuint * const, const mog::Shader);
     void printLinkerInfoLog(const GLuint);
 
-    size_t         		                m_shapeSelectionIndex;
+    int         		                m_shapeSelectionIndex;
     std::vector<mog::SceneObject *>     m_sceneObjects;
     
     // Transformation

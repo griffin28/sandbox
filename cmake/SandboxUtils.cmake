@@ -1,5 +1,10 @@
 #======== Interface libraries
 # Compiler Settings
+#
+# Add -save-temps=obj to force output of each stage to be stored in a file instead
+# of memory (GCC and Clang)
+#
+# Add -H to see which paths are being used to include a requested header
 add_library(compiler_props INTERFACE)
 target_compile_options(compiler_props
     INTERFACE
