@@ -27,6 +27,13 @@ namespace mog
         COMPUTE
     };
 
+    /**
+     * @class SceneObject
+     * @brief Stores the scene related rendering resources
+     * 
+     * Collects all of the OpenGL scene related objects
+     */
+
    class SceneObject
    {
     public:
@@ -44,6 +51,14 @@ namespace mog
         GLuint 	                indexBuffers[2];
    };
 }
+
+/**
+ * @class SimpleScene
+ * @brief Renders a scene using OpenGL rasterization
+ * 
+ * This class creates a scene of objects and renders them using
+ * OpenGL's programmable rasterization pipeline.
+ */
 
 class SimpleScene: public QObject, public AbstractGLScene 
 {
@@ -64,6 +79,7 @@ public:
      * @param w the width
      * @param h the height
      */
+    
     void resize(int w, int h) override;
 
     void initGLSL(mog::SceneObject * const);
