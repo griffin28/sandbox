@@ -50,7 +50,7 @@ namespace mog
         GLuint 	                positionBuffer;
         GLuint 	                indexBuffers[2];
    };
-}
+} // namespace mog
 
 /**
  * @class SimpleScene

@@ -3,9 +3,12 @@
 
 #include <QVBoxLayout>
 
+const int WIDTH = 900;
+const int HEIGHT = 900;
+
 MainWidget::MainWidget(QWidget *parent): QWidget(parent)
 {
-	setMinimumSize(Canvas::WIDTH, Canvas::HEIGHT);
+	setMinimumSize(WIDTH, HEIGHT);
 	//setMaximumSize(900, 800);
 
 	initialize();
@@ -17,18 +20,22 @@ MainWidget::MainWidget(QWidget *parent): QWidget(parent)
 MainWidget::~MainWidget()
 {
     if(d_canvas != NULL)
+    {
         delete d_canvas;
+    }
     
     // Having widgets in a parent widget allows them to get deleted by the parent
 }
 
 void 
-MainWidget::initialize() {
-    d_canvas = new Canvas(this);
+MainWidget::initialize() 
+{
+    d_canvas = new Canvas(WIDTH, HEIGHT, this);
 }
 
 void 
-MainWidget::setupLayout() {
+MainWidget::setupLayout() 
+{
     QVBoxLayout *mainLayout = new QVBoxLayout;
 
     // Canvas

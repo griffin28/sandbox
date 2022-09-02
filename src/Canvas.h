@@ -6,17 +6,15 @@
 class QKeyEvent;
 class SimpleScene;
 
+// RasterCanvas
 class Canvas : public QOpenGLWidget {
 
 	Q_OBJECT
 
 public:
-    Canvas(QWidget *parent=0);
+    Canvas(int w, int h, QWidget *parent=0);
     ~Canvas();
     
-    static const int HEIGHT;
-    static const int WIDTH;
-
     SimpleScene *getScene();
 
 signals:
@@ -38,6 +36,9 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
+    int m_width;
+    int m_height;
+
     SimpleScene *m_scene;
 
     // Mouse

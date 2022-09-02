@@ -49,7 +49,7 @@ endif()
 
 message(STATUS "Qt5_DIR: ${Qt5_DIR}")
 
-# set(Qt5_DIR "/home/kgriffin/VisIt/third_party/3.1.4/qt/5.10.1/linux-x86_64_gcc-9.3/lib/cmake/Qt5"
+# set(Qt5_DIR "/home/kgriffin/VisIt/third_party/3.1.4/qt/5.10.1/linux-x86_64_gcc-9.4/lib/cmake/Qt5"
 
 set(Qt_MODULES 
     Core

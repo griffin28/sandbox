@@ -9,23 +9,24 @@
 #include <QOpenGLContext>
 #include <QElapsedTimer>
 
-const int Canvas::HEIGHT = 900;
-const int Canvas::WIDTH = 900;
-
 //const GLfloat Canvas::RED[] = {1.0f, 0.0f, 0.0f, 1.0f};
 
-Canvas::Canvas(QWidget *parent) : QOpenGLWidget(parent), 
-								  m_scene(new SimpleScene(this)),
-								  m_mouseLeftDown(false),
-								  m_mouseRightDown(false),
-								  m_posX(0),
-								  m_posY(0) {
-    setMinimumSize(WIDTH, HEIGHT);
+Canvas::Canvas(int w, int h, QWidget *parent) : QOpenGLWidget(parent),
+                                                m_width(w),
+												m_height(h), 
+					        					m_scene(new SimpleScene(this)),
+												m_mouseLeftDown(false),
+												m_mouseRightDown(false),
+												m_posX(0),
+												m_posY(0) 
+{
+    setMinimumSize(w, h);
     setFocusPolicy(Qt::StrongFocus);
 	setMouseTracking(true);
 }
 
-Canvas::~Canvas() {
+Canvas::~Canvas() 
+{
     // Make sure the context is current and then explicitly
     // destroy all underlying OpenGL resources.
     makeCurrent();

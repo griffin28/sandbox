@@ -7,48 +7,53 @@
 #include <QOpenGLContext>
 #include <QDebug>
 
-using namespace std;
+AbstractGLScene::AbstractGLScene(QOpenGLWidget *glWidget) : m_glWidget(glWidget) {}
 
-AbstractGLScene::AbstractGLScene(QOpenGLWidget *glWidget) : d_glWidget(glWidget) { }
-
-AbstractGLScene::~AbstractGLScene() { }
-
-void
-AbstractGLScene::initialize() {
-	if(!this->initializeOpenGLFunctions()) {
-		qFatal("initializeOpenGLFunctions Failed!");
-	}
+//----------------------------------------------------------------------------------
+void AbstractGLScene::initialize() 
+{
+    if(!this->initializeOpenGLFunctions()) 
+    {
+        qFatal("initializeOpenGLFunctions Failed!");
+    }
 }
 
-void
-AbstractGLScene::update() {
-    d_glWidget->update();
+//----------------------------------------------------------------------------------
+void AbstractGLScene::update() 
+{
+    m_glWidget->update();
 }
 
-QOpenGLWidget *
-AbstractGLScene::glWidget() const {
-	return d_glWidget;
+//----------------------------------------------------------------------------------
+QOpenGLWidget *AbstractGLScene::glWidget() const 
+{
+	return m_glWidget;
 }
 
-QOpenGLContext *
-AbstractGLScene::context() {
-	return d_glWidget ? d_glWidget->context() : nullptr;
+//----------------------------------------------------------------------------------
+QOpenGLContext *AbstractGLScene::context() 
+{
+	return m_glWidget ? m_glWidget->context() : nullptr;
 }
 
-const QOpenGLContext *
-AbstractGLScene::context() const {
-	return d_glWidget ? d_glWidget->context() : nullptr;
+//----------------------------------------------------------------------------------
+const QOpenGLContext *AbstractGLScene::context() const 
+{
+	return m_glWidget ? m_glWidget->context() : nullptr;
 }
 
-bool
-AbstractGLScene::isExtensionSupported(const char *extension) {
+//----------------------------------------------------------------------------------
+bool AbstractGLScene::isExtensionSupported(const char *extension) 
+{
     bool isSupported = false;
     int numExtensions;
     glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
 
-    for(int i=0; i<numExtensions; i++) {
+    for(int i=0; i<numExtensions; i++) 
+    {
         const GLubyte *ext = glGetStringi(GL_EXTENSIONS, i);
-        if(strcmp(extension, reinterpret_cast<const char *>(ext)) == 0) {
+        if(strcmp(extension, reinterpret_cast<const char *>(ext)) == 0) 
+        {
             isSupported = true;
             break;
         }
@@ -57,19 +62,21 @@ AbstractGLScene::isExtensionSupported(const char *extension) {
     return isSupported;
 }
 
-void
-AbstractGLScene::printAvailableExtensions() {
-    cout << "Supported Extensions: " << endl;
-    cout << "===================== " << endl;
+//----------------------------------------------------------------------------------
+void AbstractGLScene::printAvailableExtensions() 
+{
+    std::cout << "Supported Extensions: " << std::endl;
+    std::cout << "===================== " << std::endl;
 
     int numExtensions;
     glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
 
-    for(int i=0; i<numExtensions; i++) {
+    for(int i=0; i<numExtensions; i++) 
+    {
         const GLubyte *ext = glGetStringi(GL_EXTENSIONS, i);
-        cout << ext << endl;
+        std::cout << ext << endl;
 //      string extStr(reinterpret_cast<const char *>(ext));
     }
 
-    cout << "===================== " << endl;
+    std::cout << "===================== " << endl;
 }
