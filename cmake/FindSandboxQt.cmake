@@ -41,16 +41,13 @@ The following cache variables may also be set:
 
 #]=======================================================================]
 
-if(NOT DEFINED Qt5_DIR)
+if(DEFINED $ENV{Qt5_DIR})
     file(TO_CMAKE_PATH "$ENV{Qt5_DIR}" _Qt5_DIR)
     set(Qt5_DIR ${_Qt5_DIR} CACHE PATH "Install location of Qt5" FORCE)
     mark_as_advanced(Qt5_DIR)
 endif()
 
-message(STATUS "Qt5_DIR: ${Qt5_DIR}")
-
 # set(Qt5_DIR "/home/kgriffin/VisIt/third_party/3.1.4/qt/5.10.1/linux-x86_64_gcc-9.4/lib/cmake/Qt5"
-
 set(Qt_MODULES 
     Core
     Gui

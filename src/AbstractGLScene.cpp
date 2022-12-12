@@ -52,6 +52,7 @@ bool AbstractGLScene::isExtensionSupported(const char *extension)
     for(int i=0; i<numExtensions; i++) 
     {
         const GLubyte *ext = glGetStringi(GL_EXTENSIONS, i);
+        
         if(strcmp(extension, reinterpret_cast<const char *>(ext)) == 0) 
         {
             isSupported = true;
@@ -74,9 +75,9 @@ void AbstractGLScene::printAvailableExtensions()
     for(int i=0; i<numExtensions; i++) 
     {
         const GLubyte *ext = glGetStringi(GL_EXTENSIONS, i);
-        std::cout << ext << endl;
+        std::cout << ext << std::endl;
 //      string extStr(reinterpret_cast<const char *>(ext));
     }
 
-    std::cout << "===================== " << endl;
+    std::cout << "===================== " << std::endl;
 }

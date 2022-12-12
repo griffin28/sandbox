@@ -10,7 +10,7 @@
 #include <QElapsedTimer>
 
 //const GLfloat Canvas::RED[] = {1.0f, 0.0f, 0.0f, 1.0f};
-
+//----------------------------------------------------------------------------------
 Canvas::Canvas(int w, int h, QWidget *parent) : QOpenGLWidget(parent),
                                                 m_width(w),
 												m_height(h), 
@@ -25,6 +25,7 @@ Canvas::Canvas(int w, int h, QWidget *parent) : QOpenGLWidget(parent),
 	setMouseTracking(true);
 }
 
+//----------------------------------------------------------------------------------
 Canvas::~Canvas() 
 {
     // Make sure the context is current and then explicitly
@@ -34,12 +35,14 @@ Canvas::~Canvas()
     doneCurrent();
 }
 
+//----------------------------------------------------------------------------------
 SimpleScene *
 Canvas::getScene()
 {
     return m_scene;
 }
 
+//----------------------------------------------------------------------------------
 void
 Canvas::mousePressEvent(QMouseEvent *event)
 {
@@ -57,6 +60,7 @@ Canvas::mousePressEvent(QMouseEvent *event)
 	}
 }
 
+//----------------------------------------------------------------------------------
 void
 Canvas::mouseReleaseEvent(QMouseEvent *event)
 {
@@ -74,6 +78,7 @@ Canvas::mouseReleaseEvent(QMouseEvent *event)
 	}
 }
 
+//----------------------------------------------------------------------------------
 void 
 Canvas::mouseMoveEvent(QMouseEvent *event)
 {
@@ -105,6 +110,7 @@ Canvas::mouseMoveEvent(QMouseEvent *event)
 	}
 }
 
+//----------------------------------------------------------------------------------
 void 
 Canvas::keyPressEvent(QKeyEvent *event) {
 //	QOpenGLWidgetGLWidget::keyPressEvent(event);
@@ -136,6 +142,7 @@ Canvas::keyPressEvent(QKeyEvent *event) {
 //	}
 }
 
+//----------------------------------------------------------------------------------
 // Sets up the OpenGL resources and state. Gets called once before the first time resizeGL() or paintGL() is called.
 void 
 Canvas::initializeGL() 
@@ -143,6 +150,7 @@ Canvas::initializeGL()
     m_scene->initialize();
 }
 
+//----------------------------------------------------------------------------------
 //Sets up the OpenGL viewport, projection, etc. Gets called whenever the widget has been resized 
 //(and also when it is shown for the first time because all newly created widgets get a resize event automatically).
 void
@@ -152,6 +160,7 @@ Canvas::resizeGL(int w, int h)
     m_scene->resize(w, h);
 }
 
+//----------------------------------------------------------------------------------
 // Renders the OpenGL scene. Gets called whenever the widget needs to be updated.
 void
 Canvas::paintGL() 

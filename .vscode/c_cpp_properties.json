@@ -5,9 +5,8 @@
             "includePath": [
                 "${default}",
                 "${workspaceFolder}/**",
-                "/home/kgriffin/OpenGL/MyOpenGL/src/glm/**",
-                "/home/kgriffin/VisIt/third_party/3.1.4/qt/5.10.1/linux-x86_64_gcc-9.3/lib/**",
-		        "/home/kgriffin/VisIt/third_party/3.1.4/qt/5.10.1/linux-x86_64_gcc-9.3/include/**"
+                "/home/kevin/Projects/Rendering/sandbox/extern/glm/**",
+                "/usr/include/x86_64-linux-gnu/qt5/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",
