@@ -1,6 +1,7 @@
 # Rendering Sandbox
 
 # Build
+If QT5 is in a non-standard location you can export an environment variable with the non-standard path `export Qt5_DIR=<path/to/Qt5>` or create a CMake cache entry using the `-D` option as shown below. 
 
 ```bash
 mkdir build && cd build
