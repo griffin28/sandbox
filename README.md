@@ -1,10 +1,11 @@
 # Rendering Sandbox
 
 # Build
+If QT5 is in a non-standard location you can export an environment variable with the non-standard path `export Qt5_DIR=<path/to/Qt5>` or create a CMake cache entry using the `-D` option as shown below. 
 
 ```bash
 mkdir build && cd build
-cmake -DQt5_DIR:PATH=<path/to/Qt5> </path/to/sandbox>
+cmake [-DCMAKE_BUILD_TYPE=Debug] [-DQt5_DIR:PATH=<path/to/Qt5>] </path/to/sandbox>
 cmake --build . [-j <threads>]
 ```
 
@@ -12,7 +13,7 @@ cmake --build . [-j <threads>]
 
 ```bash
 mkdir build && cd build
-cmake -DQt5_DIR:PATH=<path/to/Qt5> -DBUILD_DOCS:BOOL=ON </path/to/sandbox>
+cmake [-DCMAKE_BUILD_TYPE=Debug] [-DQt5_DIR:PATH=<path/to/Qt5>] -DBUILD_DOCS:BOOL=ON </path/to/sandbox>
 cmake --build . [-j <threads>]
 cmake --build . -t doxygen
 ```
