@@ -19,9 +19,9 @@ MainWidget::MainWidget(QWidget *parent): QWidget(parent)
 
 MainWidget::~MainWidget()
 {
-    if(d_canvas != NULL)
+    if(m_canvas != NULL)
     {
-        delete d_canvas;
+        delete m_canvas;
     }
     
     // Having widgets in a parent widget allows them to get deleted by the parent
@@ -30,7 +30,7 @@ MainWidget::~MainWidget()
 void 
 MainWidget::initialize() 
 {
-    d_canvas = new Canvas(WIDTH, HEIGHT, this);
+    m_canvas = new Canvas(WIDTH, HEIGHT, this);
 }
 
 void 
@@ -40,7 +40,7 @@ MainWidget::setupLayout()
 
     // Canvas
 	//vlayout1->addStretch(1);
-    mainLayout->addWidget(d_canvas);
+    mainLayout->addWidget(m_canvas);
 
     setLayout(mainLayout);
 }

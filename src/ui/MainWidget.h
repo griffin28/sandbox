@@ -20,7 +20,7 @@ private slots:
 */
 
 private:
-    Canvas *d_canvas;
+    Canvas *m_canvas;
 
     void initialize();
     void setupLayout();

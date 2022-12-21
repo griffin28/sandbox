@@ -5,6 +5,7 @@
 #include <QGraphicsRectItem>
 #include <QElapsedTimer>
 
+//----------------------------------------------------------------------------------
 HUD::HUD(QWidget *parent): QGraphicsView(parent)
 { 
     float width = static_cast<float>(parent->width()) / 4.0f;
@@ -48,6 +49,7 @@ HUD::HUD(QWidget *parent): QGraphicsView(parent)
     setStyleSheet("background-color: rgba(0, 0, 0, 0.3)");
 }
 
+//----------------------------------------------------------------------------------
 void
 HUD::setRenderingMode(const char *mode) 
 {
@@ -56,21 +58,7 @@ HUD::setRenderingMode(const char *mode)
 }
 
 // SLOTS
-
-// ****************************************************************************
-// SLOT: HUD::updateFrameRenderTime
-//
-// Purpose:
-//  Update the frames per second (FPS) and the frame render time in the HUD.
-//
-// Arguments:
-//      nsecs the number of nanoseconds to render the frame 
-//
-// Programmer: Kevin Griffin 
-// Creation:   March 8, 2022
-//
-// ****************************************************************************
-
+//----------------------------------------------------------------------------------
 void
 HUD::updateFrameRenderTime(long long int nsecs)
 {

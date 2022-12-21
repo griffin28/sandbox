@@ -6,7 +6,8 @@
                 "${default}",
                 "${workspaceFolder}/**",
                 "/home/kevin/Projects/Rendering/sandbox/extern/glm/**",
-                "/usr/include/x86_64-linux-gnu/qt5/**"
+                "/usr/include/x86_64-linux-gnu/qt5/**",
+                "${workspaceFolder}/src/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",

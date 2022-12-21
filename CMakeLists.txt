@@ -2,7 +2,7 @@
 # You may attempt to use it for building too, by modifying this file here.
 
 cmake_minimum_required(VERSION 3.20)
-project(sandbox 
+project(sandbox
         VERSION 0.0.1 
         DESCRIPTION "Rendering Sandbox"
         HOMEPAGE_URL "https://github.com/griffin28/sandbox"
