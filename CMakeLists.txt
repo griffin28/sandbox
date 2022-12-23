@@ -59,7 +59,7 @@ add_subdirectory(src bin)
 
 # Tests 
 if(BUILD_TESTING)
-    add_subdirectory(test)
+    add_subdirectory(tests)
 endif()
 
 # Docs

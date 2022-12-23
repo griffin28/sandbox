@@ -23,6 +23,9 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     Qt5::Xml Qt5::UiTools Qt5::Concurrent Qt5::X11Extras glm::glm
     compiler_props)
 
+# Create the valgrind target
+AddValgrind(${CMAKE_PROJECT_NAME})
+
 # Generate MD5 hash of the executable
 add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
                    COMMAND md5sum

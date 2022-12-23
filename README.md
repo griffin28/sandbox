@@ -17,3 +17,11 @@ cmake [-DCMAKE_BUILD_TYPE=Debug] [-DQt5_DIR:PATH=<path/to/Qt5>] -DBUILD_DOCS:BOO
 cmake --build . [-j <threads>]
 cmake --build . -t doxygen
 ```
+
+# Memcheck
+To use Valgrind's memcheck tool to debug memory issues, execute the **valgrind** target as shown below. You will need to have valgrind installed on your system.
+
+```bash
+cd build
+cmake --build . -t valgrind
+```

@@ -5,20 +5,13 @@
 #include "HUD.h"
 #include "SphereDialog.h"
 
-#include <QtGui>
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QLabel>
-#include <QProgressBar>
 #include <QStatusBar>
 #include <QApplication>
-#include <QIcon>
 #include <QToolBar>
-
-#include <iostream>
-
-using namespace std;
 
 //----------------------------------------------------------------------------------
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
@@ -43,13 +36,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
     m_statusLabel = new QLabel(this);
     m_statusLabel->setText(tr("x: 0 y: 0"));
 
-    // m_statusProgressBar = new QProgressBar(this);
-    // m_statusProgressBar->setRange(0, 100);
-    // m_statusProgressBar->setTextVisible(false);
-    // m_statusProgressBar->setValue(0);
-
     this->statusBar()->addPermanentWidget(m_statusLabel);
-    // this->statusBar()->addPermanentWidget(m_statusProgressBar);
 
   	// Connect signals
     connect(m_mainWidget->m_canvas, &Canvas::screenCoordsChanged,
@@ -113,11 +100,11 @@ MainWindow::createActions()
     connect(m_pathTracingAction, &QAction::triggered, this, &MainWindow::pathtracingActionHandler);
 
     m_accelNoneAction = new QAction(QIcon(":images/dot.png"), tr("None"), this);
-    connect(m_accelNoneAction, &QAction::triggered, this, &MainWindow::tempRenderingActionHandler);
+    connect(m_accelNoneAction, &QAction::triggered, this, &MainWindow::tempActionHandler);
 
     m_accelBVHAction = new QAction(QIcon(":images/dot.png"), tr("BVH"), this);
     m_accelBVHAction->setIconVisibleInMenu(false);
-    connect(m_accelBVHAction, &QAction::triggered, this, &MainWindow::tempRenderingActionHandler);
+    connect(m_accelBVHAction, &QAction::triggered, this, &MainWindow::tempActionHandler);
 }
 
 //----------------------------------------------------------------------------------
@@ -328,7 +315,7 @@ MainWindow::pathtracingActionHandler()
 
 //----------------------------------------------------------------------------------
 void
-MainWindow::tempRenderingActionHandler()
+MainWindow::tempActionHandler()
 {
     // TODO: remove when all the rendering handlers are implemented
 }

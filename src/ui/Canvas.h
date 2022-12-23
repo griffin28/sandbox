@@ -27,7 +27,7 @@ public:
      * @param parent this widget's parent
      * 
     */
-    Canvas(int w, int h, QWidget *parent=0);
+    Canvas(int w, int h, QWidget *parent = nullptr);
 
     /**
      * Destroys the widget.

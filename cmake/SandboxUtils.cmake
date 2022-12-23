@@ -22,3 +22,16 @@ macro(create_find_package pkg required quiet components)
         find_package(${pkg} QUIET COMPONENTS ${components})
     endif()
 endmacro(create_find_package)
+
+#======== Functions
+function(AddValgrind target)
+    find_program(VALGRIND_PATH valgrind)
+    if(NOT VALGRIND_PATH)
+        add_custom_target(valgrind COMMAND false
+            COMMENT "valgrind not found")
+        return()
+    endif()
+    add_custom_target(valgrind 
+        COMMAND ${VALGRIND_PATH} --leak-check=full $<TARGET_FILE:${target}>
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+endfunction()

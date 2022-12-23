@@ -28,7 +28,7 @@ SimpleScene::~SimpleScene()
 {
     for(size_t i=0; i<m_sceneObjects.size(); i++)
     {
-        mog::SceneObject *sceneObject = m_sceneObjects[i];
+        sandbox::SceneObject *sceneObject = m_sceneObjects[i];
 
         GLuint vao = sceneObject->vertexArray;
         glDeleteVertexArrays(1, &vao);
@@ -162,7 +162,7 @@ SimpleScene::addSphere(const float r,
         sphere->setShadingModel(new LambertShadingModel());
     }
 
-    mog::SceneObject *sceneObject = new mog::SceneObject();
+    sandbox::SceneObject *sceneObject = new sandbox::SceneObject();
     sceneObject->shape.reset(sphere);
     m_sceneObjects.emplace_back(sceneObject);
 
@@ -220,7 +220,7 @@ SimpleScene::updateShaderInputs(Shape const *shapePtr, const GLuint program)
 }
 
 void 
-SimpleScene::initGLSL(mog::SceneObject * const sceneObject) 
+SimpleScene::initGLSL(sandbox::SceneObject * const sceneObject) 
 {
     Shape *shape = sceneObject->shape.get();
  
@@ -317,7 +317,7 @@ SimpleScene::paint() {
 
     for(size_t i=0; i<m_sceneObjects.size(); i++)
     {
-        mog::SceneObject *sceneObject = m_sceneObjects[i];
+        sandbox::SceneObject *sceneObject = m_sceneObjects[i];
         glBindVertexArray(sceneObject->vertexArray);
 
         Shape *shape = sceneObject->shape.get();        
@@ -437,7 +437,7 @@ SimpleScene::printLinkerInfoLog(const GLuint program) {
 }
 
 void
-SimpleScene::printShaderInfoLog(const GLuint * const shader, const mog::Shader type) {
+SimpleScene::printShaderInfoLog(const GLuint * const shader, const sandbox::Shader type) {
     GLint logLen;
     GLsizei msgLen;
     
@@ -450,27 +450,27 @@ SimpleScene::printShaderInfoLog(const GLuint * const shader, const mog::Shader t
 
     if(msgLen > 0) {
         switch(type) {
-        case mog::Shader::VERTEX:
+        case sandbox::Shader::VERTEX:
             cout << "Vertex Shader Info: " << endl;
             cout << "=================== " << endl;
             break;
-        case mog::Shader::TESS_CONTROL:
+        case sandbox::Shader::TESS_CONTROL:
             cout << "Tess Control Shader Info: " << endl;
             cout << "========================= " << endl;
             break;
-        case mog::Shader::TESS_EVAL:
+        case sandbox::Shader::TESS_EVAL:
             cout << "Tess Eval Shader Info: " << endl;
             cout << "====================== " << endl;
             break;
-        case mog::Shader::GEOMETRY:
+        case sandbox::Shader::GEOMETRY:
             cout << "Geometry Shader Info: " << endl;
             cout << "===================== " << endl;
             break;
-        case mog::Shader::FRAGMENT:
+        case sandbox::Shader::FRAGMENT:
             cout << "Fragment Shader Info: " << endl;
             cout << "===================== " << endl;
             break;
-        case mog::Shader::COMPUTE:
+        case sandbox::Shader::COMPUTE:
             cout << "Compute Shader Info: " << endl;
             cout << "==================== " << endl;
             break;
@@ -497,7 +497,7 @@ SimpleScene::compileComputeShaders()
 
     auto computeShader = glCreateShader(GL_COMPUTE_SHADER);
     glShaderSource(computeShader, 1, computeShaderSource, nullptr);
-    printShaderInfoLog(&computeShader, mog::Shader::COMPUTE);
+    printShaderInfoLog(&computeShader, sandbox::Shader::COMPUTE);
 
     // Create Program
     auto program = glCreateProgram();
@@ -531,7 +531,7 @@ SimpleScene::createShaderProgram(const char * const *vs,
         GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertexShader, 1, vs, NULL);
         glCompileShader(vertexShader);
-        printShaderInfoLog(&vertexShader, mog::Shader::VERTEX);
+        printShaderInfoLog(&vertexShader, sandbox::Shader::VERTEX);
 
         glAttachShader(program, vertexShader);
         glDeleteShader(vertexShader);
@@ -542,7 +542,7 @@ SimpleScene::createShaderProgram(const char * const *vs,
         GLuint tessControlShader = glCreateShader(GL_TESS_CONTROL_SHADER);
         glShaderSource(tessControlShader, 1, tcs, NULL);
         glCompileShader(tessControlShader);
-        printShaderInfoLog(&tessControlShader, mog::Shader::TESS_CONTROL);
+        printShaderInfoLog(&tessControlShader, sandbox::Shader::TESS_CONTROL);
 
         glAttachShader(program, tessControlShader);
         glDeleteShader(tessControlShader);
@@ -553,7 +553,7 @@ SimpleScene::createShaderProgram(const char * const *vs,
         GLuint tessEvaluationShader = glCreateShader(GL_TESS_EVALUATION_SHADER);
         glShaderSource(tessEvaluationShader, 1, tes, NULL);
         glCompileShader(tessEvaluationShader);
-        printShaderInfoLog(&tessEvaluationShader, mog::Shader::TESS_EVAL);
+        printShaderInfoLog(&tessEvaluationShader, sandbox::Shader::TESS_EVAL);
 
         glAttachShader(program, tessEvaluationShader);
         glDeleteShader(tessEvaluationShader);
@@ -564,7 +564,7 @@ SimpleScene::createShaderProgram(const char * const *vs,
         GLuint geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
         glShaderSource(geometryShader, 1, gs, NULL);
         glCompileShader(geometryShader);
-        printShaderInfoLog(&geometryShader, mog::Shader::GEOMETRY);
+        printShaderInfoLog(&geometryShader, sandbox::Shader::GEOMETRY);
 
         glAttachShader(program, geometryShader);
         glDeleteShader(geometryShader);
@@ -575,7 +575,7 @@ SimpleScene::createShaderProgram(const char * const *vs,
         GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragmentShader, 1, fs, NULL);
         glCompileShader(fragmentShader);
-        printShaderInfoLog(&fragmentShader, mog::Shader::FRAGMENT);
+        printShaderInfoLog(&fragmentShader, sandbox::Shader::FRAGMENT);
 
         glAttachShader(program, fragmentShader);
         glDeleteShader(fragmentShader);

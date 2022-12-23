@@ -68,8 +68,8 @@ private slots:
     void showBlinnPhongShadingDialog();
     //@}
 
-    // Rendering
-    void tempRenderingActionHandler();
+    // TODO: remove once all action handlers implemented
+    void tempActionHandler();
 
     //@{
     /**
@@ -81,14 +81,11 @@ private slots:
 
 private:
     void    createActions();
-    // Menu
     void    createHelpMenu();
     void    createFileMenu();
     void    createViewMenu();
     void    createAddMenu();
     void    createRenderingMenu();
-
-    // ToolBar
     void    createToolBar();
 
     MainWidget  *m_mainWidget;

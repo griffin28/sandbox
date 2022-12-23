@@ -15,7 +15,7 @@
 
 class Canvas;
 
-namespace mog 
+namespace sandbox 
 {
     // Scoped enumeration
     enum class Shader {
@@ -50,7 +50,7 @@ namespace mog
         GLuint 	                positionBuffer;
         GLuint 	                indexBuffers[2];
    };
-} // namespace mog
+} // namespace sandbox
 
 /**
  * @class SimpleScene
@@ -82,7 +82,7 @@ public:
     
     void resize(int w, int h) override;
 
-    void initGLSL(mog::SceneObject * const);
+    void initGLSL(sandbox::SceneObject * const);
 
     void setShapeSelection(const int, const int);
     void addSphere(const float, 
@@ -118,11 +118,11 @@ private:
     GLuint  compileComputeShaders();
     void    updateShaderInputs(Shape const *, const GLuint);
 
-    void printShaderInfoLog(const GLuint * const, const mog::Shader);
+    void printShaderInfoLog(const GLuint * const, const sandbox::Shader);
     void printLinkerInfoLog(const GLuint);
 
     int         		                m_shapeSelectionIndex;
-    std::vector<mog::SceneObject *>     m_sceneObjects;
+    std::vector<sandbox::SceneObject *>     m_sceneObjects;
     
     // Transformation
     float           m_angle;
