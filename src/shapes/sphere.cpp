@@ -3,10 +3,6 @@
 #include <iostream>
 #include <glm/ext/scalar_constants.hpp>
 
-// The sector and stack counts per 1 unit of radius
-const int Sphere::UNIT_SECTOR_COUNT = 10;
-const int Sphere::UNIT_STACK_COUNT = 5;
-
 Sphere::Sphere() : Shape(ShapeType::SPHERE), 
     m_radius(-1.0f),
     m_center(-1.0f, -1.0f, -1.0f),

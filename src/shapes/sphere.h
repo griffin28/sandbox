@@ -16,6 +16,7 @@ public:
     float   getRadius() const { return m_radius; }
     float   getSectorCount() const { return m_radius * UNIT_SECTOR_COUNT; }
     float   getStackCount() const { return m_radius * UNIT_STACK_COUNT; }
+    bool    getBuildGeometry() const { return m_buildGeometry; }
 
     void    set(const float, const float, const float, const float, const bool, const bool);
     void    setRadius(const float);
@@ -74,8 +75,8 @@ private:
     std::vector<unsigned int>   m_indices;
     std::vector<unsigned int>   m_lineIndices;    
 
-    const static int            UNIT_SECTOR_COUNT;  // longitude, # of slices
-    const static int            UNIT_STACK_COUNT;   // latitude, # of stacks
+    constexpr static int        UNIT_SECTOR_COUNT = 10;  // longitude, # of slices
+    constexpr static int        UNIT_STACK_COUNT = 5;   // latitude, # of stacks
 };
 
 #endif

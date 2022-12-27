@@ -43,7 +43,7 @@ find_package(SandboxQt REQUIRED)
 find_package(GLM REQUIRED)
 
 # Options
-option(BUILD_TESTING "Build tests for CTest" OFF)
+option(BUILD_TESTS "Build unit tests" OFF)
 option(BUILD_DOCS "Build documentation" OFF)
 
 # Set global vars here
@@ -58,7 +58,7 @@ add_subdirectory(extern)
 add_subdirectory(src bin)
 
 # Tests 
-if(BUILD_TESTING)
+if(BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 

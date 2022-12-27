@@ -12,14 +12,6 @@ set (UI_SRCS
     SimpleScene.cpp
     SimpleScene.h)
 
-INCLUDE_DIRECTORIES(
-    ${Qt5Widgets_INCLUDE_DIRS}
-    ${GLM_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../shapes
-    ${CMAKE_CURRENT_SOURCE_DIR}/../shading
-    ${CMAKE_CURRENT_SOURCE_DIR}/../dialogs
-)
-
 add_library(ui OBJECT ${UI_SRCS})
 
 target_compile_options(ui 
@@ -27,5 +19,12 @@ target_compile_options(ui
         $<$<COMPILE_LANGUAGE:CXX>:-fPIC>    
 )
 
-target_include_directories(ui PUBLIC 
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+target_include_directories(ui 
+    PUBLIC 
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    PRIVATE
+        ${Qt5Widgets_INCLUDE_DIRS}
+        ${GLM_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_SOURCE_DIR}/../shapes
+        ${CMAKE_CURRENT_SOURCE_DIR}/../shading
+        ${CMAKE_CURRENT_SOURCE_DIR}/../dialogs)
