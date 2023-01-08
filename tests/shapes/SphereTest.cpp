@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "sphere.h"
 
-class SphereTest : public ::testing::Test 
+class SphereTest : public testing::Test 
 {
 protected:
     void SetUp() override 
@@ -15,6 +15,18 @@ protected:
 
     // }
 
+    testing::AssertionResult IsBuildGeometryFlagSet()
+    {
+        if(m_sphere.getBuildGeometry())
+        {
+            return testing::AssertionSuccess();
+        }
+        else 
+        {
+            return testing::AssertionFailure() << "vertices won't be generated for rasterization";
+        }
+    }
+
     Sphere m_sphere;
 };
 
@@ -25,5 +37,5 @@ TEST_F(SphereTest, TestRadius)
 
 TEST_F(SphereTest, TestBuildGeometryFlag)
 {
-    EXPECT_EQ(true, m_sphere.getBuildGeometry());
+    EXPECT_TRUE(IsBuildGeometryFlagSet());
 }

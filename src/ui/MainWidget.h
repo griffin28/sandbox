@@ -14,6 +14,8 @@ namespace sandbox
     };
 }
 
+using sandbox::RendererType;
+
 /**
  * @class MainWidget
  * @brief Main application widget
@@ -36,6 +38,12 @@ public:
     */
     ~MainWidget() = default;
 
+    /**
+     * Set the renderertype to type.
+     * @param type the renderer type to set
+    */
+    void setRendererType(const RendererType);
+
 /*
 public slots:
     void rendererTypeChanged(int);
@@ -44,7 +52,7 @@ public slots:
 private:
     Canvas *m_canvas;   // should be destroyed when parent is destroyed
     //std::unique_ptr<PathTracingCanvas> m_ptcanvas;
-    sandbox::RendererType m_currentRendererType;
+    RendererType m_currentRendererType;
  
     static constexpr int WIDTH = 900;
     static constexpr int HEIGHT = 900;

@@ -16,8 +16,7 @@ add_library(ui OBJECT ${UI_SRCS})
 
 target_compile_options(ui 
     PRIVATE 
-        $<$<COMPILE_LANGUAGE:CXX>:-fPIC>    
-)
+        $<$<COMPILE_LANGUAGE:CXX>:-fPIC>)
 
 target_include_directories(ui 
     PUBLIC 

@@ -296,7 +296,8 @@ MainWindow::rasterizationActionHandler()
         m_hud->setRenderingMode("Rasterization");
     }
 
-    // TODO: switch out path tracing canvas to rasterization
+    m_mainWidget->setRendererType(RendererType::RASTERIZATION);
+    update();
 }
 
 //----------------------------------------------------------------------------------
@@ -310,7 +311,8 @@ MainWindow::pathtracingActionHandler()
         m_hud->setRenderingMode("Path Tracing");
     }
 
-    // TODO: switch out path tracing canvas to rasterization
+    m_mainWidget->setRendererType(RendererType::PATHTRACING);
+    update();
 }
 
 //----------------------------------------------------------------------------------
