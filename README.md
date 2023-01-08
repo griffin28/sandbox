@@ -25,6 +25,7 @@ mkdir build && cd build
 cmake [-DCMAKE_BUILD_TYPE=Debug] [-DQt5_DIR:PATH=<path/to/Qt5>] -DBUILD_TESTS:BOOL=ON </path/to/sandbox>
 cmake --build . [-j <threads>]
 ctest
+```
 
 # Memcheck
 To use Valgrind's memcheck tool to debug memory issues, execute the **valgrind** target as shown below. You will need to have valgrind installed on your system.
