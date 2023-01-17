@@ -34,21 +34,19 @@ namespace sandbox
      * Collects all of the OpenGL scene related objects
      */
 
-   class SceneObject
+   struct SceneObject
    {
-    public:
         SceneObject() : shape(nullptr),
                         program(0),
                         vertexArray(0),
                         positionBuffer(0),
                         indexBuffers{0,1} {}
-        ~SceneObject() = default;
 
-        std::unique_ptr<Shape>  shape;
-        GLuint 	                program;
-        GLuint 	                vertexArray;
-        GLuint 	                positionBuffer;
-        GLuint 	                indexBuffers[2];
+        Shape   *shape;
+        GLuint  program;
+        GLuint  vertexArray;
+        GLuint  positionBuffer;
+        GLuint  indexBuffers[2];
    };
 } // namespace sandbox
 
@@ -85,10 +83,8 @@ public:
     void initGLSL(sandbox::SceneObject * const);
 
     void setShapeSelection(const int, const int);
-    void addSphere(const float, 
-                   float * const,
-                   float * const, 
-                   ModelType shading=ModelType::LAMBERT);
+    void addShape(Shape * const);
+    void addShapes(Shape **, const size_t);
 
     static void GLAPIENTRY  DebugMessageCallback(GLenum, 
                                                  GLenum, 
@@ -121,8 +117,8 @@ private:
     void printShaderInfoLog(const GLuint * const, const sandbox::Shader);
     void printLinkerInfoLog(const GLuint);
 
-    int         		                m_shapeSelectionIndex;
-    std::vector<sandbox::SceneObject *>     m_sceneObjects;
+    int         		                    m_shapeSelectionIndex;
+    std::vector<sandbox::SceneObject>       *m_sceneObjects;
     
     // Transformation
     float           m_angle;

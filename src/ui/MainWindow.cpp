@@ -4,6 +4,7 @@
 #include "SimpleScene.h"
 #include "HUD.h"
 #include "SphereDialog.h"
+#include "shape.h"
 
 #include <QMenu>
 #include <QMenuBar>
@@ -16,6 +17,9 @@
 //----------------------------------------------------------------------------------
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 {
+    // Initialize shapes cache
+    m_shapePtrs = new std::vector<Shape *>();
+
     // Initialize rendering widgets
 	m_mainWidget = new MainWidget(this);
 
@@ -40,6 +44,20 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
     this->statusBar()->addPermanentWidget(m_statusLabel);
 
   	connectRendererSignals(RendererType::RASTERIZATION);
+}
+
+//----------------------------------------------------------------------------------
+MainWindow::~MainWindow()
+{
+    if(m_shapePtrs != nullptr)
+    {
+        for(int i=0; i<m_shapePtrs->size(); i++)
+        {
+            delete m_shapePtrs->at(i);
+        }
+
+        delete m_shapePtrs;
+    }
 }
 
 //----------------------------------------------------------------------------------
@@ -291,8 +309,16 @@ MainWindow::showAddSphereDialog()
     float color[4];
     sphereDialog.getColor(color);
 
-    SimpleScene *scene = m_mainWidget->m_canvas->getScene();
-    scene->addSphere(radius, center, color);
+    Sphere *sphere = new Sphere(radius, center[0], center[1], center[2]);
+    sphere->setColor(color[0], color[1], color[2], color[3]);
+
+    m_shapePtrs->emplace_back(sphere);
+
+    if(m_mainWidget != nullptr)
+    {
+        SimpleScene *scene = m_mainWidget->m_canvas->getScene();
+        scene->addShape(sphere);
+    }
 }
 
 //----------------------------------------------------------------------------------
@@ -351,9 +377,20 @@ MainWindow::rasterizationActionHandler()
         // TODO: Add cached objects  (with own transform matrices)
 
         this->setCentralWidget(m_mainWidget);
-
         connectRendererSignals(RendererType::RASTERIZATION);
-        update();
+
+        SimpleScene *scene = m_mainWidget->m_canvas->getScene();
+
+        if(!m_shapePtrs->empty())
+        {
+            // implicit update
+            scene->addShapes(m_shapePtrs->data(), m_shapePtrs->size());
+        }
+        else
+        {
+            // explicit update
+            update();
+        }
     }
 }
 

@@ -9,6 +9,7 @@ class QAction;
 class QLabel;
 class QProgressBar;
 class HUD;
+class Shape;
 
 namespace sandbox
 {
@@ -41,7 +42,7 @@ public:
     /**
      * Default destructor.
     */
-    ~MainWindow() = default;
+    ~MainWindow();
 
 private slots:
     /**
@@ -105,6 +106,8 @@ private:
     MainWidget  *m_mainWidget;
     QWidget     *m_pathTracerWidget;
     HUD         *m_hud;
+
+    std::vector<Shape *> *m_shapePtrs;
 
     // Menu Bar
     QMenu *m_fileMenu;

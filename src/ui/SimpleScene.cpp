@@ -20,26 +20,24 @@ SimpleScene::SimpleScene(Canvas *glWidget):
     m_cameraAngleX(0),
     m_cameraAngleY(0),
     m_shapeSelectionIndex(-1),
-    m_sceneObjects(),
+    m_sceneObjects(new std::vector<sandbox::SceneObject>()),
     m_angle(0.0f),
     m_projMatrix() {}
 
 SimpleScene::~SimpleScene() 
 {
-    for(size_t i=0; i<m_sceneObjects.size(); i++)
+    for(size_t i=0; i<m_sceneObjects->size(); i++)
     {
-        sandbox::SceneObject *sceneObject = m_sceneObjects[i];
+        sandbox::SceneObject sceneObject = m_sceneObjects->at(i);
 
-        GLuint vao = sceneObject->vertexArray;
+        GLuint vao = sceneObject.vertexArray;
         glDeleteVertexArrays(1, &vao);
 
-        GLuint positionBuffer = sceneObject->positionBuffer;
+        GLuint positionBuffer = sceneObject.positionBuffer;
         glDeleteBuffers(1, &positionBuffer);
         
-	    glDeleteBuffers(2, sceneObject->indexBuffers);
-        glDeleteProgram(sceneObject->program);
-
-        delete sceneObject;
+	    glDeleteBuffers(2, sceneObject.indexBuffers);
+        glDeleteProgram(sceneObject.program);
     }
 }
 
@@ -137,36 +135,37 @@ SimpleScene::setShapeSelection(const int x, const int y)
     // TODO: m_shapeSelectionIndex = findShapeIntersection(x, y);
 }
 
+//----------------------------------------------------------------------------------
 void
-SimpleScene::addSphere(const float r, 
-                       float * const center, 
-                       float * const color,
-                       ModelType shadingModel)
+SimpleScene::addShape(Shape * const shape)
 {
-    Sphere *sphere = new Sphere(r, center[0], center[1], center[2]);
-    sphere->setColor(color[0], color[1], color[2], color[3]);
-    // sphere->setShadingModel(new LambertShadingModel());
+    shape->setShadingModel(new LambertShadingModel());
 
-    switch(shadingModel) 
+    sandbox::SceneObject sceneObject;
+    sceneObject.shape = shape;
+    
+    initGLSL(&sceneObject);
+    m_sceneObjects->emplace_back(sceneObject);
+
+    update();
+}
+
+//----------------------------------------------------------------------------------
+void
+SimpleScene::addShapes(Shape **shapes, const size_t size)
+{
+    for(size_t i=0; i<size; i++)
     {
-    case ModelType::LAMBERT:
-        sphere->setShadingModel(new LambertShadingModel());
-        break;
-    case ModelType::PHONG:
-        // TODO
-        break;
-    case ModelType::BLINN_PHONG:
-        // TODO
-        break;
-    default:
-        sphere->setShadingModel(new LambertShadingModel());
+        Shape *shape = shapes[i];
+        shape->setShadingModel(new LambertShadingModel());
+
+        sandbox::SceneObject sceneObject;
+        sceneObject.shape = shape;
+
+        initGLSL(&sceneObject);
+        m_sceneObjects->emplace_back(sceneObject);
     }
-
-    sandbox::SceneObject *sceneObject = new sandbox::SceneObject();
-    sceneObject->shape.reset(sphere);
-    m_sceneObjects.emplace_back(sceneObject);
-
-    initGLSL(sceneObject);
+    
     update();
 }
 
@@ -222,7 +221,7 @@ SimpleScene::updateShaderInputs(Shape const *shapePtr, const GLuint program)
 void 
 SimpleScene::initGLSL(sandbox::SceneObject * const sceneObject) 
 {
-    Shape *shape = sceneObject->shape.get();
+    Shape *shape = sceneObject->shape;
  
     const char *vertexShaderSource = shape->getShadingModel()->getVertexShaderSource();
     const char *fragmentShaderSource = shape->getShadingModel()->getFragmentShaderSource();
@@ -315,17 +314,17 @@ SimpleScene::paint() {
     // Rendering started
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    for(size_t i=0; i<m_sceneObjects.size(); i++)
+    for(size_t i=0; i<m_sceneObjects->size(); i++)
     {
-        sandbox::SceneObject *sceneObject = m_sceneObjects[i];
-        glBindVertexArray(sceneObject->vertexArray);
+        sandbox::SceneObject sceneObject = m_sceneObjects->at(i);
+        glBindVertexArray(sceneObject.vertexArray);
 
-        Shape *shape = sceneObject->shape.get();        
+        Shape *shape = sceneObject.shape;        
 
-        GLuint program = sceneObject->program;
+        GLuint program = sceneObject.program;
         glUseProgram(program);        
 
-        GLuint positionBuffer = sceneObject->positionBuffer;
+        GLuint positionBuffer = sceneObject.positionBuffer;
         glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
 
         GLsizei stride = 8 * sizeof(float);
@@ -342,8 +341,8 @@ SimpleScene::paint() {
         glVertexAttribPointer(texCoordLocation, 2, GL_FLOAT, false, stride, (void *)(6 * sizeof(float)));
         glEnableVertexAttribArray(texCoordLocation);
 
-        GLuint indexBuffer1 = sceneObject->indexBuffers[0];
-        GLuint indexBuffer2 = sceneObject->indexBuffers[1];
+        GLuint indexBuffer1 = sceneObject.indexBuffers[0];
+        GLuint indexBuffer2 = sceneObject.indexBuffers[1];
  
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer1);
 
@@ -588,9 +587,3 @@ SimpleScene::createShaderProgram(const char * const *vs,
 
     return program;
 }
-
-
-
-
-
-
