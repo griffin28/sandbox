@@ -5,17 +5,6 @@
 
 class Canvas;
 
-namespace sandbox
-{
-    enum class RendererType 
-    {
-        RASTERIZATION,
-        PATHTRACING
-    };
-}
-
-using sandbox::RendererType;
-
 /**
  * @class MainWidget
  * @brief Main application widget
@@ -37,22 +26,10 @@ public:
      * Default destructor.
     */
     ~MainWidget() = default;
-
-    /**
-     * Set the renderertype to type.
-     * @param type the renderer type to set
-    */
-    void setRendererType(const RendererType);
-
-/*
-public slots:
-    void rendererTypeChanged(int);
-*/
-
+    
 private:
     Canvas *m_canvas;   // should be destroyed when parent is destroyed
     //std::unique_ptr<PathTracingCanvas> m_ptcanvas;
-    RendererType m_currentRendererType;
  
     static constexpr int WIDTH = 900;
     static constexpr int HEIGHT = 900;

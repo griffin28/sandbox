@@ -10,6 +10,17 @@ class QLabel;
 class QProgressBar;
 class HUD;
 
+namespace sandbox
+{
+    enum class RendererType 
+    {
+        RASTERIZATION,
+        PATHTRACING
+    };
+}
+
+using sandbox::RendererType;
+
 /**
  * @class MainWindow
  * @brief Main application window
@@ -88,7 +99,11 @@ private:
     void    createRenderingMenu();
     void    createToolBar();
 
+    RendererType getRendererType() const;
+    void connectRendererSignals(const RendererType);
+
     MainWidget  *m_mainWidget;
+    QWidget     *m_pathTracerWidget;
     HUD         *m_hud;
 
     // Menu Bar

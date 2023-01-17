@@ -16,7 +16,9 @@
 //----------------------------------------------------------------------------------
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 {
+    // Initialize rendering widgets
 	m_mainWidget = new MainWidget(this);
+
 	setCentralWidget(m_mainWidget);
 	setWindowTitle("Rendering Sandbox");
 
@@ -35,18 +37,57 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
     // Initialize Status Bar
     m_statusLabel = new QLabel(this);
     m_statusLabel->setText(tr("x: 0 y: 0"));
-
     this->statusBar()->addPermanentWidget(m_statusLabel);
 
-  	// Connect signals
-    connect(m_mainWidget->m_canvas, &Canvas::screenCoordsChanged,
+  	connectRendererSignals(RendererType::RASTERIZATION);
+}
+
+//----------------------------------------------------------------------------------
+void
+MainWindow::connectRendererSignals(const RendererType rt)
+{
+    if(rt == RendererType::RASTERIZATION)
+    {
+        connect(m_mainWidget->m_canvas, &Canvas::screenCoordsChanged,
             this, &MainWindow::updateScreenCoords);
 
-    // Initialize HUD
-    m_hud = new HUD(m_mainWidget->m_canvas);    
-    connect(m_mainWidget->m_canvas, &Canvas::frameRenderTimeChanged,
-            m_hud, &HUD::updateFrameRenderTime);    
-    m_hud->show();
+        // Initialize HUD
+        if(m_hud != nullptr)
+        {
+            delete m_hud;
+        }
+
+        m_hud = new HUD(m_mainWidget->m_canvas);
+        m_hud->setRenderingMode("Rasterization");
+        connect(m_mainWidget->m_canvas, &Canvas::frameRenderTimeChanged,
+                m_hud, &HUD::updateFrameRenderTime);    
+
+        if(!m_showHUDAction->isIconVisibleInMenu())
+        {
+            m_hud->setVisible(false);
+        }
+    }
+    else if(rt == RendererType::PATHTRACING)
+    {
+        // connect(m_pathTracerWidget, &Canvas::screenCoordsChanged,
+        //     this, &MainWindow::updateScreenCoords);
+
+        // Initialize HUD
+        if(m_hud != nullptr)
+        {
+            delete m_hud;
+        }
+
+        m_hud = new HUD(m_pathTracerWidget);
+        m_hud->setRenderingMode("Path Tracing");
+        // connect(m_mainWidget->m_canvas, &Canvas::frameRenderTimeChanged,
+        //         m_hud, &HUD::updateFrameRenderTime);    
+
+        if(!m_showHUDAction->isIconVisibleInMenu())
+        {
+            m_hud->setVisible(false);
+        }
+    }
 }
 
 //----------------------------------------------------------------------------------
@@ -184,6 +225,18 @@ MainWindow::createHelpMenu()
 	m_helpMenu->addAction(m_aboutQtAction);
 }
 
+//----------------------------------------------------------------------------------
+RendererType 
+MainWindow::getRendererType() const
+{
+    if(m_rasterizationAction->isIconVisibleInMenu())
+    {
+        return RendererType::RASTERIZATION;
+    }
+
+    return RendererType::PATHTRACING;
+}
+
 //
 // Slots
 //
@@ -293,11 +346,15 @@ MainWindow::rasterizationActionHandler()
     {
         m_rasterizationAction->setIconVisibleInMenu(true);
         m_pathTracingAction->setIconVisibleInMenu(false);
-        m_hud->setRenderingMode("Rasterization");
-    }
 
-    m_mainWidget->setRendererType(RendererType::RASTERIZATION);
-    update();
+        m_mainWidget = new MainWidget(this);
+        // TODO: Add cached objects  (with own transform matrices)
+
+        this->setCentralWidget(m_mainWidget);
+
+        connectRendererSignals(RendererType::RASTERIZATION);
+        update();
+    }
 }
 
 //----------------------------------------------------------------------------------
@@ -308,11 +365,16 @@ MainWindow::pathtracingActionHandler()
     {
         m_pathTracingAction->setIconVisibleInMenu(true);
         m_rasterizationAction->setIconVisibleInMenu(false);
-        m_hud->setRenderingMode("Path Tracing");
-    }
 
-    m_mainWidget->setRendererType(RendererType::PATHTRACING);
-    update();
+        m_pathTracerWidget = new QWidget(this);
+        m_pathTracerWidget->setStyleSheet("background-color: rgba(0,0,0,1)");
+        // TODO: Create pt widget and add cached objects
+        
+        this->setCentralWidget(m_pathTracerWidget);
+
+        connectRendererSignals(RendererType::PATHTRACING);
+        update();
+    } 
 }
 
 //----------------------------------------------------------------------------------
