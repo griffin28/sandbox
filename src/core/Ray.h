@@ -7,7 +7,6 @@
 #include <glm/vec3.hpp>
 
 // core/geometry.h
-// TODO: finish documentation, add unit test
 
 /// @class Ray
 /// @brief Ray Declaration
@@ -30,6 +29,9 @@ public:
                                                                m_tMin(tMin),
                                                                m_tMax(tMax) {}
 
+    /// @brief The ray parametric equation
+    /// @param t the distance between the ray origin and the returned point
+    /// @return the point at distance t from the ray origin
     glm::vec3 operator()(const float t) const { return m_origin + m_direction * t; }
 
     friend std::ostream &operator<<(std::ostream &os, const Ray &r)
