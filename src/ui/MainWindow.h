@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 
-class MainWidget;
+class RasterizationWidget;
 class QMenu;
 class QAction;
 class QLabel;
@@ -13,7 +13,7 @@ class Shape;
 
 namespace sandbox
 {
-    enum class RendererType 
+    enum class RendererType
     {
         RASTERIZATION,
         PATHTRACING
@@ -26,7 +26,7 @@ using sandbox::RendererType;
  * @class MainWindow
  * @brief Main application window
  * @see <a href="https://doc.qt.io/qt-5/qmainwindow.html#details">QMainWindow</a>
- * 
+ *
 */
 class MainWindow : public QMainWindow
 {
@@ -51,7 +51,7 @@ private slots:
      * @see <a href="https://doc.qt.io/qt-5/qmessagebox.html#about">QMessageBox::about</a>
     */
     void about();
-    
+
     /**
      * Update the status bar with the x- and y-coordinates of the mouse.
      * @param x the current mouse x-coordinate
@@ -103,7 +103,7 @@ private:
     RendererType getRendererType() const;
     void connectRendererSignals(const RendererType);
 
-    MainWidget  *m_mainWidget;
+    RasterizationWidget  *m_rasterizationWidget;
     QWidget     *m_pathTracerWidget;
     HUD         *m_hud;
 
@@ -136,9 +136,9 @@ private:
     QAction     *m_pathTracingAction;
     QAction     *m_accelNoneAction;
     QAction     *m_accelBVHAction;
-    
+
     // Labels
-    QLabel      *m_statusLabel; 
+    QLabel      *m_statusLabel;
 };
 
 #endif // INCLUDED_MAINWINDOW_H

@@ -1,5 +1,5 @@
-#ifndef INCLUDED_SIMPLESCENE_H
-#define INCLUDED_SIMPLESCENE_H
+#ifndef INCLUDED_RASTERIZATIONSCENE_H
+#define INCLUDED_RASTERIZATIONSCENE_H
 
 #include "AbstractGLScene.h"
 #include "sphere.h"
@@ -13,9 +13,9 @@
 #include <QObject>
 #include <QOpenGLShaderProgram>
 
-class Canvas;
+class GLCanvas;
 
-namespace sandbox 
+namespace sandbox
 {
     // Scoped enumeration
     enum class Shader {
@@ -30,7 +30,7 @@ namespace sandbox
     /**
      * @class SceneObject
      * @brief Stores the scene related rendering resources
-     * 
+     *
      * Collects all of the OpenGL scene related objects
      */
 
@@ -51,33 +51,33 @@ namespace sandbox
 } // namespace sandbox
 
 /**
- * @class SimpleScene
+ * @class RasterizationScene
  * @brief Renders a scene using OpenGL rasterization
- * 
+ *
  * This class creates a scene of objects and renders them using
  * OpenGL's programmable rasterization pipeline.
  */
 
-class SimpleScene: public QObject, public AbstractGLScene 
+class RasterizationScene: public QObject, public AbstractGLScene
 {
     Q_OBJECT
 
 public:
-    SimpleScene(Canvas *glWidget);
-    ~SimpleScene();
+    RasterizationScene(GLCanvas *glWidget);
+    ~RasterizationScene();
 
     void initialize() override;
     void paint() override;
 
     /**
-     * Sets up the OpenGL viewport, projection, etc. Gets called whenever the widget 
-     * has been resized (and also when it is shown for the first time because all newly 
+     * Sets up the OpenGL viewport, projection, etc. Gets called whenever the widget
+     * has been resized (and also when it is shown for the first time because all newly
      * created widgets get a resize event automatically).
      * @see <a href="https://doc.qt.io/qt-6/qopenglwidget.html#resizeGL">QOpenGLWidget::resizeGL</a>
      * @param w the width
      * @param h the height
      */
-    
+
     void resize(int w, int h) override;
 
     void initGLSL(sandbox::SceneObject * const);
@@ -86,12 +86,12 @@ public:
     void addShape(Shape * const);
     void addShapes(Shape **, const size_t);
 
-    static void GLAPIENTRY  DebugMessageCallback(GLenum, 
-                                                 GLenum, 
-                                                 GLuint, 
-                                                 GLenum, 
-                                                 GLsizei, 
-                                                 const GLchar *, 
+    static void GLAPIENTRY  DebugMessageCallback(GLenum,
+                                                 GLenum,
+                                                 GLuint,
+                                                 GLenum,
+                                                 GLsizei,
+                                                 const GLchar *,
                                                  const void *);
 
     // Interactive Vars
@@ -119,7 +119,7 @@ private:
 
     int         		                    m_shapeSelectionIndex;
     std::vector<sandbox::SceneObject>       *m_sceneObjects;
-    
+
     // Transformation
     float           m_angle;
     glm::mat4       m_projMatrix;

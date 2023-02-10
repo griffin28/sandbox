@@ -1,7 +1,7 @@
 #include "MainWindow.h"
-#include "MainWidget.h"
-#include "Canvas.h"
-#include "SimpleScene.h"
+#include "RasterizationWidget.h"
+#include "GLCanvas.h"
+#include "RasterizationScene.h"
 #include "HUD.h"
 #include "SphereDialog.h"
 #include "shape.h"
@@ -21,15 +21,15 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
     m_shapePtrs = new std::vector<Shape *>();
 
     // Initialize rendering widgets
-	m_mainWidget = new MainWidget(this);
+	m_rasterizationWidget = new RasterizationWidget(this);
 
-	setCentralWidget(m_mainWidget);
+	setCentralWidget(m_rasterizationWidget);
 	setWindowTitle("Rendering Sandbox");
 
 	createActions();
 
     // Create Menus
-    createFileMenu();    
+    createFileMenu();
     createRenderingMenu();
     createAddMenu();
     createViewMenu();
@@ -66,7 +66,7 @@ MainWindow::connectRendererSignals(const RendererType rt)
 {
     if(rt == RendererType::RASTERIZATION)
     {
-        connect(m_mainWidget->m_canvas, &Canvas::screenCoordsChanged,
+        connect(m_rasterizationWidget->m_canvas, &GLCanvas::screenCoordsChanged,
             this, &MainWindow::updateScreenCoords);
 
         // Initialize HUD
@@ -75,10 +75,10 @@ MainWindow::connectRendererSignals(const RendererType rt)
             delete m_hud;
         }
 
-        m_hud = new HUD(m_mainWidget->m_canvas);
+        m_hud = new HUD(m_rasterizationWidget->m_canvas);
         m_hud->setRenderingMode("Rasterization");
-        connect(m_mainWidget->m_canvas, &Canvas::frameRenderTimeChanged,
-                m_hud, &HUD::updateFrameRenderTime);    
+        connect(m_rasterizationWidget->m_canvas, &GLCanvas::frameRenderTimeChanged,
+                m_hud, &HUD::updateFrameRenderTime);
 
         if(!m_showHUDAction->isIconVisibleInMenu())
         {
@@ -87,7 +87,7 @@ MainWindow::connectRendererSignals(const RendererType rt)
     }
     else if(rt == RendererType::PATHTRACING)
     {
-        // connect(m_pathTracerWidget, &Canvas::screenCoordsChanged,
+        // connect(m_pathTracerWidget, &GLCanvas::screenCoordsChanged,
         //     this, &MainWindow::updateScreenCoords);
 
         // Initialize HUD
@@ -98,8 +98,8 @@ MainWindow::connectRendererSignals(const RendererType rt)
 
         m_hud = new HUD(m_pathTracerWidget);
         m_hud->setRenderingMode("Path Tracing");
-        // connect(m_mainWidget->m_canvas, &Canvas::frameRenderTimeChanged,
-        //         m_hud, &HUD::updateFrameRenderTime);    
+        // connect(m_rasterizationWidget->m_canvas, &GLCanvas::frameRenderTimeChanged,
+        //         m_hud, &HUD::updateFrameRenderTime);
 
         if(!m_showHUDAction->isIconVisibleInMenu())
         {
@@ -109,8 +109,8 @@ MainWindow::connectRendererSignals(const RendererType rt)
 }
 
 //----------------------------------------------------------------------------------
-void 
-MainWindow::createActions() 
+void
+MainWindow::createActions()
 {
     // Exit program
     m_closeAction = new QAction(QIcon(":/images/power.png"), tr("Exit"), this);
@@ -125,7 +125,7 @@ MainWindow::createActions()
 	m_aboutQtAction = new QAction(tr("About &Qt"), this);
 	connect(m_aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
-    // Show HUD 
+    // Show HUD
     m_showHUDAction = new QAction(QIcon(":/images/dot.png"), tr("Show HUD"), this);
     connect(m_showHUDAction, &QAction::triggered, this, &MainWindow::showHUD);
 
@@ -179,8 +179,8 @@ MainWindow::createToolBar()
 }
 
 //----------------------------------------------------------------------------------
-void 
-MainWindow::createFileMenu() 
+void
+MainWindow::createFileMenu()
 {
     // File Menu
     m_fileMenu = menuBar()->addMenu(tr("File"));
@@ -225,8 +225,8 @@ MainWindow::createRenderingMenu()
 }
 
 //----------------------------------------------------------------------------------
-void 
-MainWindow::createViewMenu() 
+void
+MainWindow::createViewMenu()
 {
     // File Menu
     m_viewMenu = menuBar()->addMenu(tr("View"));
@@ -234,8 +234,8 @@ MainWindow::createViewMenu()
 }
 
 //----------------------------------------------------------------------------------
-void 
-MainWindow::createHelpMenu() 
+void
+MainWindow::createHelpMenu()
 {
     // Help Menu
 	m_helpMenu = menuBar()->addMenu(tr("Help"));
@@ -244,7 +244,7 @@ MainWindow::createHelpMenu()
 }
 
 //----------------------------------------------------------------------------------
-RendererType 
+RendererType
 MainWindow::getRendererType() const
 {
     if(m_rasterizationAction->isIconVisibleInMenu())
@@ -259,8 +259,8 @@ MainWindow::getRendererType() const
 // Slots
 //
 //----------------------------------------------------------------------------------
-void 
-MainWindow::about() 
+void
+MainWindow::about()
 {
 	QMessageBox::about(this, tr("About Rendering Sandbox"),
 			tr("<h2>Rendering Sandbox 1.0</h2>"
@@ -278,13 +278,13 @@ MainWindow::updateScreenCoords(const int x, const int y)
 
 //----------------------------------------------------------------------------------
 void
-MainWindow::showHUD() 
+MainWindow::showHUD()
 {
-    if(m_hud->isVisible()) 
+    if(m_hud->isVisible())
     {
         m_hud->setVisible(false);
         m_showHUDAction->setIconVisibleInMenu(false);
-    } 
+    }
     else
     {
         m_hud->setVisible(true);
@@ -297,10 +297,10 @@ void
 MainWindow::showAddSphereDialog()
 {
     SphereDialog sphereDialog(this);
-    
+
     if(sphereDialog.exec() == QDialog::Rejected)
     {
-        return; 
+        return;
     }
 
     float radius = sphereDialog.getRadius();
@@ -314,9 +314,9 @@ MainWindow::showAddSphereDialog()
 
     m_shapePtrs->emplace_back(sphere);
 
-    if(m_mainWidget != nullptr)
+    if(m_rasterizationWidget != nullptr)
     {
-        SimpleScene *scene = m_mainWidget->m_canvas->getScene();
+        RasterizationScene *scene = m_rasterizationWidget->m_canvas->getScene();
         scene->addShape(sphere);
     }
 }
@@ -373,13 +373,13 @@ MainWindow::rasterizationActionHandler()
         m_rasterizationAction->setIconVisibleInMenu(true);
         m_pathTracingAction->setIconVisibleInMenu(false);
 
-        m_mainWidget = new MainWidget(this);
+        m_rasterizationWidget = new RasterizationWidget(this);
         // TODO: Add cached objects  (with own transform matrices)
 
-        this->setCentralWidget(m_mainWidget);
+        this->setCentralWidget(m_rasterizationWidget);
         connectRendererSignals(RendererType::RASTERIZATION);
 
-        SimpleScene *scene = m_mainWidget->m_canvas->getScene();
+        RasterizationScene *scene = m_rasterizationWidget->m_canvas->getScene();
 
         if(!m_shapePtrs->empty())
         {
@@ -406,12 +406,12 @@ MainWindow::pathtracingActionHandler()
         m_pathTracerWidget = new QWidget(this);
         m_pathTracerWidget->setStyleSheet("background-color: rgba(0,0,0,1)");
         // TODO: Create pt widget and add cached objects
-        
+
         this->setCentralWidget(m_pathTracerWidget);
 
         connectRendererSignals(RendererType::PATHTRACING);
         update();
-    } 
+    }
 }
 
 //----------------------------------------------------------------------------------

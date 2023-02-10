@@ -6,8 +6,6 @@
 
 #include <glm/vec3.hpp>
 
-// core/geometry.h
-
 /// @class Ray
 /// @brief Ray Declaration
 class Ray
@@ -45,8 +43,8 @@ public:
     // Ray Public Data
     glm::vec3 m_origin;
     glm::vec3 m_direction;
-    mutable float m_tMin;   // abs(near) / ray.m_direction.z
-    mutable float m_tMax;   // abs(zFar) / ray.m_direction.z
+    mutable float m_tMin;   // abs(near) / m_direction.z
+    mutable float m_tMax;   // abs(zFar) / m_direction.z
 };
 
 #endif  // INCLUDED_RAY_H

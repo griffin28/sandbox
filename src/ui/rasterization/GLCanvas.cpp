@@ -1,5 +1,5 @@
-#include "Canvas.h"
-#include "SimpleScene.h"
+#include "GLCanvas.h"
+#include "RasterizationScene.h"
 
 #include <iostream>
 
@@ -9,16 +9,16 @@
 #include <QOpenGLContext>
 #include <QElapsedTimer>
 
-//const GLfloat Canvas::RED[] = {1.0f, 0.0f, 0.0f, 1.0f};
+//const GLfloat GLCanvas::RED[] = {1.0f, 0.0f, 0.0f, 1.0f};
 //----------------------------------------------------------------------------------
-Canvas::Canvas(int w, int h, QWidget *parent) : QOpenGLWidget(parent),
+GLCanvas::GLCanvas(int w, int h, QWidget *parent) : QOpenGLWidget(parent),
                                                 m_width(w),
-												m_height(h), 
-					        					m_scene(new SimpleScene(this)),
+												m_height(h),
+					        					m_scene(new RasterizationScene(this)),
 												m_mouseLeftDown(false),
 												m_mouseRightDown(false),
 												m_posX(0),
-												m_posY(0) 
+												m_posY(0)
 {
     setMinimumSize(w, h);
     setFocusPolicy(Qt::StrongFocus);
@@ -26,7 +26,7 @@ Canvas::Canvas(int w, int h, QWidget *parent) : QOpenGLWidget(parent),
 }
 
 //----------------------------------------------------------------------------------
-Canvas::~Canvas() 
+GLCanvas::~GLCanvas()
 {
     // Make sure the context is current and then explicitly
     // destroy all underlying OpenGL resources.
@@ -36,17 +36,17 @@ Canvas::~Canvas()
 }
 
 //----------------------------------------------------------------------------------
-SimpleScene *
-Canvas::getScene()
+RasterizationScene *
+GLCanvas::getScene()
 {
     return m_scene;
 }
 
 //----------------------------------------------------------------------------------
 void
-Canvas::mousePressEvent(QMouseEvent *event)
+GLCanvas::mousePressEvent(QMouseEvent *event)
 {
-	switch(event->button()) 
+	switch(event->button())
 	{
 	case Qt::LeftButton:
 		m_mouseLeftDown = true;
@@ -62,13 +62,13 @@ Canvas::mousePressEvent(QMouseEvent *event)
 
 //----------------------------------------------------------------------------------
 void
-Canvas::mouseReleaseEvent(QMouseEvent *event)
+GLCanvas::mouseReleaseEvent(QMouseEvent *event)
 {
-	switch(event->button()) 
+	switch(event->button())
 	{
 	case Qt::LeftButton:
 		m_mouseLeftDown = false;
-		
+
 		break;
 	case Qt::RightButton:
 		m_mouseRightDown = false;
@@ -79,16 +79,16 @@ Canvas::mouseReleaseEvent(QMouseEvent *event)
 }
 
 //----------------------------------------------------------------------------------
-void 
-Canvas::mouseMoveEvent(QMouseEvent *event)
+void
+GLCanvas::mouseMoveEvent(QMouseEvent *event)
 {
 	int x = event->x();
 	int y = event->y();
 
 	emit screenCoordsChanged(x, y);
 
-	if(m_mouseLeftDown) 
-	{		
+	if(m_mouseLeftDown)
+	{
 		m_scene->m_cameraAngleX += (x - m_posX);
 		m_scene->m_cameraAngleY += (y - m_posY);
 
@@ -111,8 +111,8 @@ Canvas::mouseMoveEvent(QMouseEvent *event)
 }
 
 //----------------------------------------------------------------------------------
-void 
-Canvas::keyPressEvent(QKeyEvent *event) {
+void
+GLCanvas::keyPressEvent(QKeyEvent *event) {
 //	QOpenGLWidgetGLWidget::keyPressEvent(event);
 //	double offset;
 
@@ -144,17 +144,17 @@ Canvas::keyPressEvent(QKeyEvent *event) {
 
 //----------------------------------------------------------------------------------
 // Sets up the OpenGL resources and state. Gets called once before the first time resizeGL() or paintGL() is called.
-void 
-Canvas::initializeGL() 
+void
+GLCanvas::initializeGL()
 {
     m_scene->initialize();
 }
 
 //----------------------------------------------------------------------------------
-//Sets up the OpenGL viewport, projection, etc. Gets called whenever the widget has been resized 
+//Sets up the OpenGL viewport, projection, etc. Gets called whenever the widget has been resized
 //(and also when it is shown for the first time because all newly created widgets get a resize event automatically).
 void
-Canvas::resizeGL(int w, int h) 
+GLCanvas::resizeGL(int w, int h)
 {
     // Update projection matrix and other size related settings
     m_scene->resize(w, h);
@@ -163,7 +163,7 @@ Canvas::resizeGL(int w, int h)
 //----------------------------------------------------------------------------------
 // Renders the OpenGL scene. Gets called whenever the widget needs to be updated.
 void
-Canvas::paintGL() 
+GLCanvas::paintGL()
 {
 	QElapsedTimer timer;
 	timer.start();

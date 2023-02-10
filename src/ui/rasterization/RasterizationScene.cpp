@@ -1,5 +1,5 @@
-#include "SimpleScene.h"
-#include "Canvas.h"
+#include "RasterizationScene.h"
+#include "GLCanvas.h"
 #include "lambert.h"
 
 #include <glm/ext/matrix_transform.hpp>	 // translate, rotate, scale
@@ -12,7 +12,7 @@
 
 using namespace std;
 
-SimpleScene::SimpleScene(Canvas *glWidget):
+RasterizationScene::RasterizationScene(GLCanvas *glWidget):
     AbstractGLScene(glWidget),
     m_cameraDistance(20),
     m_mouseX(0),
@@ -24,7 +24,7 @@ SimpleScene::SimpleScene(Canvas *glWidget):
     m_angle(0.0f),
     m_projMatrix() {}
 
-SimpleScene::~SimpleScene() 
+RasterizationScene::~RasterizationScene()
 {
     for(size_t i=0; i<m_sceneObjects->size(); i++)
     {
@@ -35,7 +35,7 @@ SimpleScene::~SimpleScene()
 
         GLuint positionBuffer = sceneObject.positionBuffer;
         glDeleteBuffers(1, &positionBuffer);
-        
+
 	    glDeleteBuffers(2, sceneObject.indexBuffers);
         glDeleteProgram(sceneObject.program);
     }
@@ -46,7 +46,7 @@ SimpleScene::~SimpleScene()
 //
 
 void GLAPIENTRY
-SimpleScene::DebugMessageCallback(GLenum source,
+RasterizationScene::DebugMessageCallback(GLenum source,
                                   GLenum type,
                                   GLuint id,
                                   GLenum severity,
@@ -56,7 +56,7 @@ SimpleScene::DebugMessageCallback(GLenum source,
 {
     // Message Source
     std::string sourceStr;
-    switch(source) 
+    switch(source)
     {
         case(GL_DEBUG_SOURCE_API):
             sourceStr = "OpenGL API";
@@ -79,7 +79,7 @@ SimpleScene::DebugMessageCallback(GLenum source,
 
     // Message Type
     std::string typeStr;
-    switch(type) 
+    switch(type)
     {
         case(GL_DEBUG_TYPE_ERROR):
             typeStr = "Error";
@@ -128,7 +128,7 @@ SimpleScene::DebugMessageCallback(GLenum source,
 //
 
 void
-SimpleScene::setShapeSelection(const int x, const int y)
+RasterizationScene::setShapeSelection(const int x, const int y)
 {
     m_shapeSelectionIndex = m_shapeSelectionIndex == -1 ? 0 : -1;
     update();
@@ -137,13 +137,13 @@ SimpleScene::setShapeSelection(const int x, const int y)
 
 //----------------------------------------------------------------------------------
 void
-SimpleScene::addShape(Shape * const shape)
+RasterizationScene::addShape(Shape * const shape)
 {
     shape->setShadingModel(new LambertShadingModel());
 
     sandbox::SceneObject sceneObject;
     sceneObject.shape = shape;
-    
+
     initGLSL(&sceneObject);
     m_sceneObjects->emplace_back(sceneObject);
 
@@ -152,7 +152,7 @@ SimpleScene::addShape(Shape * const shape)
 
 //----------------------------------------------------------------------------------
 void
-SimpleScene::addShapes(Shape **shapes, const size_t size)
+RasterizationScene::addShapes(Shape **shapes, const size_t size)
 {
     for(size_t i=0; i<size; i++)
     {
@@ -165,14 +165,14 @@ SimpleScene::addShapes(Shape **shapes, const size_t size)
         initGLSL(&sceneObject);
         m_sceneObjects->emplace_back(sceneObject);
     }
-    
+
     update();
 }
 
 void
-SimpleScene::updateShaderInputs(Shape const *shapePtr, const GLuint program)
+RasterizationScene::updateShaderInputs(Shape const *shapePtr, const GLuint program)
 {
-    const float *shapeColor = shapePtr->getColor();    
+    const float *shapeColor = shapePtr->getColor();
 
     // TODO: Create uniform blocks for lights and bind at global level to be shared
     // by all shaders
@@ -186,7 +186,7 @@ SimpleScene::updateShaderInputs(Shape const *shapePtr, const GLuint program)
     float lightDiffuse[]  = {0.7f, 0.7f, 0.7f, 1.0f};
     float lightSpecular[] = {0.5f, 0.5f, 1.0f, 1.0f};
 
-    glUniform4fv(uniformLightPosition, 1, lightPosition); 
+    glUniform4fv(uniformLightPosition, 1, lightPosition);
     glUniform4fv(uniformLightAmbient, 1, lightAmbient);
     glUniform4fv(uniformLightDiffuse, 1, lightDiffuse);
     glUniform4fv(uniformLightSpecular, 1, lightSpecular);
@@ -206,7 +206,7 @@ SimpleScene::updateShaderInputs(Shape const *shapePtr, const GLuint program)
     float materialDiffuse[]  = {1.0f, 0.7f, 0.7f, 1.0f};
     float materialSpecular[] = {0.4f, 0.4f, 0.4f, 1.0f};
     float materialShininess  = 5;
-    
+
     float materialColor[] = {shapeColor[0], shapeColor[1], shapeColor[2], shapeColor[3]};
 
     glUniform4fv(uniformMaterialAmbient, 1, materialAmbient);
@@ -218,18 +218,18 @@ SimpleScene::updateShaderInputs(Shape const *shapePtr, const GLuint program)
     glUniform1i(uniformColorUsed, 0);
 }
 
-void 
-SimpleScene::initGLSL(sandbox::SceneObject * const sceneObject) 
+void
+RasterizationScene::initGLSL(sandbox::SceneObject * const sceneObject)
 {
     Shape *shape = sceneObject->shape;
- 
+
     const char *vertexShaderSource = shape->getShadingModel()->getVertexShaderSource();
     const char *fragmentShaderSource = shape->getShadingModel()->getFragmentShaderSource();
     // const char *geometryShaderSource = shape->getShadingModel()->getGeometryShaderSource();
     // const char *tessControlShaderSource = shape->getShadingModel()->getTessControlShaderSource();
     // const char *tessEvaluationShaderSource = shape->getShadingModel()->getTessEvaluationShaderSource();
 
-    GLuint program = createShaderProgram(&vertexShaderSource, 
+    GLuint program = createShaderProgram(&vertexShaderSource,
                                           &fragmentShaderSource);
                                             // &geometryShaderSource,
                                             // &tessControlShaderSource,
@@ -268,7 +268,7 @@ SimpleScene::initGLSL(sandbox::SceneObject * const sceneObject)
 }
 
 void
-SimpleScene::initialize() 
+RasterizationScene::initialize()
 {
     AbstractGLScene::initialize();
     // TODO: update progress
@@ -303,14 +303,14 @@ SimpleScene::initialize()
 }
 
 void
-SimpleScene::resize(int width, int height) {
+RasterizationScene::resize(int width, int height) {
     float aspect = static_cast<float>(width) / static_cast<float>(height);
     //d_projMatrix = vmath::perspective(45.0f, aspect, 0.1f, 1000.0f);
     m_projMatrix = glm::perspective(static_cast<float>(M_PI/4), aspect, 0.1f, 1000.0f);
 }
 
 void
-SimpleScene::paint() {
+RasterizationScene::paint() {
     // Rendering started
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -319,10 +319,10 @@ SimpleScene::paint() {
         sandbox::SceneObject sceneObject = m_sceneObjects->at(i);
         glBindVertexArray(sceneObject.vertexArray);
 
-        Shape *shape = sceneObject.shape;        
+        Shape *shape = sceneObject.shape;
 
         GLuint program = sceneObject.program;
-        glUseProgram(program);        
+        glUseProgram(program);
 
         GLuint positionBuffer = sceneObject.positionBuffer;
         glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
@@ -343,7 +343,7 @@ SimpleScene::paint() {
 
         GLuint indexBuffer1 = sceneObject.indexBuffers[0];
         GLuint indexBuffer2 = sceneObject.indexBuffers[1];
- 
+
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer1);
 
         GLint uniformColorUsed = glGetUniformLocation(program, "colorUsed");
@@ -405,29 +405,29 @@ SimpleScene::paint() {
         // glDisableVertexAttribArray(m_attribIndex[0]);
         // glDisableVertexAttribArray(m_attribIndex[1]);
         // glDisableVertexAttribArray(m_attribIndex[2]);
-        // glBindVertexArray(0);        
+        // glBindVertexArray(0);
     }
 
     glUseProgram(0);
-    glBindVertexArray(0);    
+    glBindVertexArray(0);
 }
 
-void 
-SimpleScene::printLinkerInfoLog(const GLuint program) {
+void
+RasterizationScene::printLinkerInfoLog(const GLuint program) {
     int linkStatus;
     glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
 
     if(linkStatus == GL_FALSE) {
         GLint logLen;
         GLsizei msgLen;
-        
+
         // Get log size
         glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLen);
 
         // Get linker info
         string msg;
         msg.reserve(logLen);
-    
+
         glGetProgramInfoLog(program, logLen, &msgLen, const_cast<char *>(msg.c_str()));
         cout << "Linker Info: " << endl;
         cout << "============ " << endl;
@@ -436,10 +436,10 @@ SimpleScene::printLinkerInfoLog(const GLuint program) {
 }
 
 void
-SimpleScene::printShaderInfoLog(const GLuint * const shader, const sandbox::Shader type) {
+RasterizationScene::printShaderInfoLog(const GLuint * const shader, const sandbox::Shader type) {
     GLint logLen;
     GLsizei msgLen;
-    
+
     // Get log size
     glGetShaderiv(*shader, GL_INFO_LOG_LENGTH, &logLen);
 
@@ -474,15 +474,15 @@ SimpleScene::printShaderInfoLog(const GLuint * const shader, const sandbox::Shad
             cout << "==================== " << endl;
             break;
         }
-            
+
         cout << msg.get() << endl;
     }
 }
 
 GLuint
-SimpleScene::compileComputeShaders()
+RasterizationScene::compileComputeShaders()
 {
-    static const GLchar *computeShaderSource[] = 
+    static const GLchar *computeShaderSource[] =
     {
     "#version 430 core \n"
     "\n"
@@ -515,8 +515,8 @@ SimpleScene::compileComputeShaders()
     return program;
 }
 
-GLuint 
-SimpleScene::createShaderProgram(const char * const *vs,
+GLuint
+RasterizationScene::createShaderProgram(const char * const *vs,
                                  const char * const *fs,
                                  const char * const *gs,
                                  const char * const *tcs,
@@ -526,7 +526,7 @@ SimpleScene::createShaderProgram(const char * const *vs,
     GLuint program = glCreateProgram();
 
     // Create and compile vertex shader
-    if(vs != nullptr) {        
+    if(vs != nullptr) {
         GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertexShader, 1, vs, NULL);
         glCompileShader(vertexShader);

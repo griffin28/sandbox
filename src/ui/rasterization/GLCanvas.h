@@ -1,21 +1,21 @@
-#ifndef INCLUDED_CANVAS_H_
-#define INCLUDED_CANVAS_H_
+#ifndef INCLUDED_GLCANVAS_H_
+#define INCLUDED_GLCANVAS_H_
 
 #include <QOpenGLWidget>
 
 class QKeyEvent;
-class SimpleScene;
+class RasterizationScene;
 
 /**
- * @class Canvas
+ * @class GLCanvas
  * @brief Creates a widget for displaying OpenGL graphics
  * @see <a href="https://doc.qt.io/qt-5/qopenglwidget.html">OpenGLWidget</a>
- * 
- * Provides functionality for displaying OpenGL graphics. You have the choice between using QPainter 
+ *
+ * Provides functionality for displaying OpenGL graphics. You have the choice between using QPainter
  * and standard OpenGL rendering commands.
- * 
+ *
 */
-class Canvas : public QOpenGLWidget {
+class GLCanvas : public QOpenGLWidget {
 
 	Q_OBJECT
 
@@ -25,25 +25,25 @@ public:
      * @param w the widget width
      * @param h the widget height
      * @param parent this widget's parent
-     * 
+     *
     */
-    Canvas(int w, int h, QWidget *parent = nullptr);
+    GLCanvas(int w, int h, QWidget *parent = nullptr);
 
     /**
      * Destroys the widget.
     */
-    ~Canvas();
-    
-    SimpleScene *getScene();
+    ~GLCanvas();
+
+    RasterizationScene *getScene();
 
 signals:
     /**
      * This signal is emitted when the mouse position on the screen has changed.
      * @param x the x position of the mouse cursor
      * @param y the y position of the mouse cursor
-     * 
+     *
     */
-    void screenCoordsChanged(const int x, const int y); 
+    void screenCoordsChanged(const int x, const int y);
 
     /**
      * This signal is emitted when a new time is calculated for rendering a frame
@@ -96,7 +96,7 @@ private:
     int m_width;
     int m_height;
 
-    SimpleScene *m_scene;
+    RasterizationScene *m_scene;
 
     // Mouse
     bool    m_mouseLeftDown;
@@ -106,4 +106,4 @@ private:
 
 };
 
-#endif /* CANVAS_H_ */
+#endif /* GLCANVAS_H_ */
