@@ -15,7 +15,7 @@
 #include <QToolBar>
 
 //----------------------------------------------------------------------------------
-MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), m_hud(nullptr)
 {
     // Initialize shapes cache
     m_shapePtrs = new std::vector<Shape *>();
