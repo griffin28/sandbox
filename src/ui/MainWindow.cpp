@@ -14,6 +14,8 @@
 #include <QApplication>
 #include <QToolBar>
 
+#include <random>
+
 //----------------------------------------------------------------------------------
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent)
 {
@@ -304,20 +306,52 @@ MainWindow::showAddSphereDialog()
     }
 
     float radius = sphereDialog.getRadius();
-    float *center = sphereDialog.getCenter();
+    int numSpheres = sphereDialog.getCount();
 
-    float color[4];
-    sphereDialog.getColor(color);
+    if(numSpheres > 1)
+    {
+        const float width = static_cast<float>(RasterizationWidget::WIDTH);
+        std::random_device randDevice;
+        std::mt19937 randEngine(randDevice());
 
-    Sphere *sphere = new Sphere(radius, center[0], center[1], center[2]);
-    sphere->setColor(color[0], color[1], color[2], color[3]);
+        std::uniform_real_distribution<> colorDist(0, 1);
+        std::uniform_real_distribution<> radiusDist(1, radius);
+        std::uniform_real_distribution<> centerDist(0, width);
 
-    m_shapePtrs->emplace_back(sphere);
+        for(int i=0; i<numSpheres; i++)
+        {
+            float color[4] = {static_cast<float>(colorDist(randEngine)),
+                              static_cast<float>(colorDist(randEngine)),
+                              static_cast<float>(colorDist(randEngine)),
+                              1.f};
+            float r = radiusDist(randEngine);
+            float center[3] = {static_cast<float>(centerDist(randEngine)) - width/2.0f,
+                               static_cast<float>(centerDist(randEngine)) - width/2.0f,
+                               static_cast<float>(centerDist(randEngine)) - width/2.0f};
+
+            Sphere *sphere = new Sphere(radius, center[0], center[1], center[2]);
+            sphere->setColor(color[0], color[1], color[2], color[3]);
+
+            m_shapePtrs->emplace_back(sphere);
+        }
+    }
+    else
+    {
+        float *center = sphereDialog.getCenter();
+
+        float color[4];
+        sphereDialog.getColor(color);
+
+        Sphere *sphere = new Sphere(radius, center[0], center[1], center[2]);
+        sphere->setColor(color[0], color[1], color[2], color[3]);
+
+        m_shapePtrs->emplace_back(sphere);
+    }
 
     if(m_rasterizationWidget != nullptr)
     {
         RasterizationScene *scene = m_rasterizationWidget->m_canvas->getScene();
-        scene->addShape(sphere);
+        scene->addShapes(m_shapePtrs->data(), m_shapePtrs->size());
     }
 }
 
