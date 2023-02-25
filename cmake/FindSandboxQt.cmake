@@ -47,7 +47,7 @@ if(DEFINED $ENV{Qt5_DIR})
     mark_as_advanced(Qt5_DIR)
 endif()
 
-# set(Qt5_DIR "/home/kgriffin/VisIt/third_party/3.1.4/qt/5.10.1/linux-x86_64_gcc-9.4/lib/cmake/Qt5"
+# set(Qt5_DIR "/home/kgriffin/VisIt/third_party/3.3.0/qt/5.14.2/linux-x86_64_gcc-9.4/lib/cmake/Qt5"
 set(Qt_MODULES 
     Core
     Gui

@@ -27,11 +27,11 @@ set(CMAKE_AUTORCC ON)
 
 # Peform optimization after linking so that all compilation
 # units can be optimized as a single module
-include(CheckIPOSupported)
-check_ipo_supported(RESULT ipo_supported)
-if(ipo_supported)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION true)
-endif()
+#include(CheckIPOSupported)
+#check_ipo_supported(RESULT ipo_supported)
+#if(ipo_supported)
+#    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION true)
+#endif()
 
 # Add custom find module path
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
