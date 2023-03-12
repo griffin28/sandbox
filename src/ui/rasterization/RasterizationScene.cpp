@@ -1,6 +1,7 @@
 #include "RasterizationScene.h"
 #include "GLCanvas.h"
 #include "lambert.h"
+#include "ProjectionCamera.h"
 
 #include <glm/ext/matrix_transform.hpp>	 // translate, rotate, scale
 #include <glm/ext/matrix_clip_space.hpp> // glm::perspective
@@ -14,15 +15,9 @@ using namespace std;
 
 RasterizationScene::RasterizationScene(GLCanvas *glWidget):
     AbstractGLScene(glWidget),
-    m_cameraDistance(20),
-    m_mouseX(0),
-    m_mouseY(0),
-    m_cameraAngleX(0),
-    m_cameraAngleY(0),
     m_shapeSelectionIndex(-1),
     m_sceneObjects(new std::vector<sandbox::SceneObject>()),
-    m_angle(0.0f),
-    m_projMatrix() {}
+    m_camera(nullptr) {}
 
 RasterizationScene::~RasterizationScene()
 {
@@ -303,10 +298,16 @@ RasterizationScene::initialize()
 }
 
 void
-RasterizationScene::resize(int width, int height) {
-    float aspect = static_cast<float>(width) / static_cast<float>(height);
-    //d_projMatrix = vmath::perspective(45.0f, aspect, 0.1f, 1000.0f);
-    m_projMatrix = glm::perspective(static_cast<float>(M_PI/4), aspect, 0.1f, 1000.0f);
+RasterizationScene::resize(int width, int height)
+{
+    if(m_camera != nullptr)
+    {
+        m_camera->setScreenSize(width, height);
+    }
+    else
+    {
+        std::cerr << "Camera not set" << std::endl;
+    }
 }
 
 void
@@ -314,102 +315,106 @@ RasterizationScene::paint() {
     // Rendering started
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    for(size_t i=0; i<m_sceneObjects->size(); i++)
+    if(m_camera != nullptr)
     {
-        sandbox::SceneObject sceneObject = m_sceneObjects->at(i);
-        glBindVertexArray(sceneObject.vertexArray);
-
-        Shape *shape = sceneObject.shape;
-
-        GLuint program = sceneObject.program;
-        glUseProgram(program);
-
-        GLuint positionBuffer = sceneObject.positionBuffer;
-        glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
-
-        GLsizei stride = 8 * sizeof(float);
-
-        GLint positionLocation = glGetAttribLocation(program, "position");
-        glVertexAttribPointer(positionLocation, 3, GL_FLOAT, GL_FALSE, stride, NULL);
-        glEnableVertexAttribArray(positionLocation);
-        // Normals
-        GLint normalLocation = glGetAttribLocation(program, "normal");
-        glVertexAttribPointer(normalLocation, 3, GL_FLOAT, false, stride, (void *)(3 * sizeof(float)));
-        glEnableVertexAttribArray(normalLocation);
-        // Texture Coords
-        GLint texCoordLocation = glGetAttribLocation(program, "texCoord");
-        glVertexAttribPointer(texCoordLocation, 2, GL_FLOAT, false, stride, (void *)(6 * sizeof(float)));
-        glEnableVertexAttribArray(texCoordLocation);
-
-        GLuint indexBuffer1 = sceneObject.indexBuffers[0];
-        GLuint indexBuffer2 = sceneObject.indexBuffers[1];
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer1);
-
-        GLint uniformColorUsed = glGetUniformLocation(program, "colorUsed");
-        glUniform1i(uniformColorUsed, 0);
-
-        // Update Transforms
-        // Column-major
-
-        // Here's where you apply the interactive vars
-        glm::mat4 mvMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -m_cameraDistance));
-        mvMatrix = glm::rotate(mvMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        mvMatrix = glm::rotate(mvMatrix, glm::radians(m_cameraAngleY), glm::vec3(0.0f, 1.0f, 0.0f));
-        mvMatrix = glm::rotate(mvMatrix, glm::radians(m_cameraAngleX), glm::vec3(1.0f, 0.0f, 0.0f));
-
-        // Normals are transformed by the inverse transpose of the matrix
-        // See: https://paroj.github.io/gltut/Illumination/Tut09%20Normal%20Transformation.html
-        glm::mat4 mvNormalMatrix = glm::transpose(glm::inverse(mvMatrix));    //mvMatrix;
-        // glm::mat4 mvNormalMatrix = mvMatrix;
-        // mvNormalMatrix[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-        // mvMatrix = glm::rotate(mvMatrix, 1122245.0f * 17.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        // mvMatrix = glm::rotate(mvMatrix, 120.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-
-        GLint mvLocation = glGetUniformLocation(program, "mvMatrix");
-        GLint mvpLocation = glGetUniformLocation(program, "mvpMatrix");
-        GLint projLocation = glGetUniformLocation(program, "mvNormalMatrix");
-
-        glUniformMatrix4fv(mvLocation, 1, GL_FALSE, glm::value_ptr(mvMatrix));
-        glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(m_projMatrix * mvMatrix));
-        glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(mvNormalMatrix));
-
-        // std::cout << "Triangle count: " << m_sphere->getTriangleCount() << std::endl;
-
-        // glDrawArrays(GL_TRIANGLES, 0, m_sphere->getTriangleCount());
-
-        // Draw Sphere
-        glDrawElements(GL_TRIANGLES,                // primitive type
-                       shape->getIndexCount(),      // # of indices
-                       GL_UNSIGNED_INT,             // data type
-                       (void*)0);                   // offset into the indices buffer
-
-        // Draw selection outline
-        if(m_shapeSelectionIndex == i)
+        for(size_t i=0; i<m_sceneObjects->size(); i++)
         {
-            // Draw Lines
-            // GLint uniformColorUsed = glGetUniformLocation(m_programs[0], "colorUsed");
-            glUniform1i(uniformColorUsed, 1);
+            sandbox::SceneObject sceneObject = m_sceneObjects->at(i);
+            glBindVertexArray(sceneObject.vertexArray);
 
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer2);
+            Shape *shape = sceneObject.shape;
 
-            glDrawElements(GL_LINES,
-                           shape->getLineIndexCount(),
-                           GL_UNSIGNED_INT,
-                           (void*)0);
+            GLuint program = sceneObject.program;
+            glUseProgram(program);
+
+            GLuint positionBuffer = sceneObject.positionBuffer;
+            glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+
+            GLsizei stride = 8 * sizeof(float);
+
+            GLint positionLocation = glGetAttribLocation(program, "position");
+            glVertexAttribPointer(positionLocation, 3, GL_FLOAT, GL_FALSE, stride, NULL);
+            glEnableVertexAttribArray(positionLocation);
+            // Normals
+            GLint normalLocation = glGetAttribLocation(program, "normal");
+            glVertexAttribPointer(normalLocation, 3, GL_FLOAT, false, stride, (void *)(3 * sizeof(float)));
+            glEnableVertexAttribArray(normalLocation);
+            // Texture Coords
+            GLint texCoordLocation = glGetAttribLocation(program, "texCoord");
+            glVertexAttribPointer(texCoordLocation, 2, GL_FLOAT, false, stride, (void *)(6 * sizeof(float)));
+            glEnableVertexAttribArray(texCoordLocation);
+
+            GLuint indexBuffer1 = sceneObject.indexBuffers[0];
+            GLuint indexBuffer2 = sceneObject.indexBuffers[1];
+
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer1);
+
+            GLint uniformColorUsed = glGetUniformLocation(program, "colorUsed");
+            glUniform1i(uniformColorUsed, 0);
+
+            // Update Transforms
+            // Column-major
+
+            auto mvMatrix = m_camera->getViewTransform() * shape->getModelTransform();
+            auto mvpMatrix = m_camera->getProjectionMatrix() * mvMatrix;
+            // glm::mat4 mvMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -m_cameraDistance));
+            // mvMatrix = glm::rotate(mvMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            // mvMatrix = glm::rotate(mvMatrix, glm::radians(m_cameraAngleY), glm::vec3(0.0f, 1.0f, 0.0f));
+            // mvMatrix = glm::rotate(mvMatrix, glm::radians(m_cameraAngleX), glm::vec3(1.0f, 0.0f, 0.0f));
+
+            // Normals are transformed by the inverse transpose of the matrix
+            // See: https://paroj.github.io/gltut/Illumination/Tut09%20Normal%20Transformation.html
+            auto mvNormalMatrix = glm::transpose(glm::inverse(mvMatrix));
+
+            GLint mvLocation = glGetUniformLocation(program, "mvMatrix");
+            GLint mvpLocation = glGetUniformLocation(program, "mvpMatrix");
+            GLint mvNormalLocation = glGetUniformLocation(program, "mvNormalMatrix");
+
+            glUniformMatrix4fv(mvLocation, 1, GL_FALSE, glm::value_ptr(mvMatrix));
+            glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
+            glUniformMatrix4fv(mvNormalLocation, 1, GL_FALSE, glm::value_ptr(mvNormalMatrix));
+
+            // std::cout << "Triangle count: " << m_sphere->getTriangleCount() << std::endl;
+
+            // glDrawArrays(GL_TRIANGLES, 0, m_sphere->getTriangleCount());
+
+            // Draw Sphere
+            glDrawElements(GL_TRIANGLES,                // primitive type
+                        shape->getIndexCount(),      // # of indices
+                        GL_UNSIGNED_INT,             // data type
+                        (void*)0);                   // offset into the indices buffer
+
+            // Draw selection outline
+            if(m_shapeSelectionIndex == i)
+            {
+                // Draw Lines
+                // GLint uniformColorUsed = glGetUniformLocation(m_programs[0], "colorUsed");
+                glUniform1i(uniformColorUsed, 1);
+
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer2);
+
+                glDrawElements(GL_LINES,
+                            shape->getLineIndexCount(),
+                            GL_UNSIGNED_INT,
+                            (void*)0);
+            }
+            // Triangle
+            // glPatchParameteri(GL_PATCH_VERTICES, 16);
+            // glDrawArrays(GL_PATCHES, 0, 16);
+
+            // glDisableVertexAttribArray(m_attribIndex[0]);
+            // glDisableVertexAttribArray(m_attribIndex[1]);
+            // glDisableVertexAttribArray(m_attribIndex[2]);
+            // glBindVertexArray(0);
         }
-        // Triangle
-        // glPatchParameteri(GL_PATCH_VERTICES, 16);
-        // glDrawArrays(GL_PATCHES, 0, 16);
 
-        // glDisableVertexAttribArray(m_attribIndex[0]);
-        // glDisableVertexAttribArray(m_attribIndex[1]);
-        // glDisableVertexAttribArray(m_attribIndex[2]);
-        // glBindVertexArray(0);
+        glUseProgram(0);
+        glBindVertexArray(0);
     }
-
-    glUseProgram(0);
-    glBindVertexArray(0);
+    else
+    {
+        std::cerr << "Camera not set" << std::endl;
+    }
 }
 
 void

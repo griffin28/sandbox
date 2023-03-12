@@ -5,12 +5,12 @@
 
 #include <vector>
 
-class Sphere : public Shape 
+class Sphere : public Shape
 {
 public:
     Sphere();
     Sphere(float r, float x, float y, float z, bool smooth=true, bool buildGeometry=true);
-    ~Sphere() = default; 
+    ~Sphere() = default;
 
     // Getter/setters
     float   getRadius() const { return m_radius; }
@@ -31,10 +31,10 @@ public:
     unsigned int    getIndexCount() const override { return static_cast<unsigned int>(m_indices.size()); }
     unsigned int    getLineIndexCount() const override { return static_cast<unsigned int>(m_lineIndices.size()); }
     unsigned int    getTriangleCount() const { return getIndexCount() / 3; }
-    
+
     unsigned int    sizeofVertices() const { return static_cast<unsigned int>(m_vertices.size() * sizeof(float)); }
     unsigned int    sizeofNormals() const { return static_cast<unsigned int>(m_normals.size() * sizeof(float)); }
-    unsigned int    sizeofTexCoords() const { return static_cast<unsigned int>(m_texCoords.size() * sizeof(float)); } 
+    unsigned int    sizeofTexCoords() const { return static_cast<unsigned int>(m_texCoords.size() * sizeof(float)); }
     unsigned int    sizeofIndices() const override { return static_cast<unsigned int>(m_indices.size() * sizeof(unsigned int)); }
     unsigned int    sizeofLineIndices() const override { return static_cast<unsigned int>(m_lineIndices.size() * sizeof(unsigned int)); }
 
@@ -63,9 +63,9 @@ private:
     void    addIndices(const unsigned int, const unsigned int, const unsigned int);
     glm::vec3  computeFaceNormal(glm::vec3, glm::vec3, glm::vec3);
 
-    float       m_radius;  
+    float       m_radius;
     glm::vec3   m_center;
-    bool        m_smooth; 
+    bool        m_smooth;
     bool        m_buildGeometry;
 
     std::vector<float>          m_vertices;
@@ -73,7 +73,7 @@ private:
     std::vector<float>          m_normals;
     std::vector<float>          m_texCoords;
     std::vector<unsigned int>   m_indices;
-    std::vector<unsigned int>   m_lineIndices;    
+    std::vector<unsigned int>   m_lineIndices;
 
     constexpr static int        UNIT_SECTOR_COUNT = 10;  // longitude, # of slices
     constexpr static int        UNIT_STACK_COUNT = 5;   // latitude, # of stacks

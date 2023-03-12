@@ -11,10 +11,10 @@
 
 // TODO:
 // - bounding box
-// - ray intersection 
+// - ray intersection
 
 // Scoped enumeration
-enum class ShapeType 
+enum class ShapeType
 {
     SPHERE = 0,
     CUBOID,
@@ -28,8 +28,13 @@ public:
     Shape(ShapeType, glm::mat4 transform);
     virtual ~Shape() = default;
 
-    virtual glm::mat4   getTransform() const { return m_transform; }
-    virtual void        setTransform(glm::mat4 transform) { m_transform = transform; }
+    // TODO: Make pure virtual and implement in concrete shape
+    //@{
+    /// @brief Set/get the model to world transform.
+    /// @return
+    virtual glm::mat4   getModelTransform() const { return m_transform; }
+    virtual void        setModelTransform(glm::mat4 transform) { m_transform = transform; }
+    //@}
 
     virtual const float *getColor() const { return glm::value_ptr(m_color); }
     virtual void        setColor(const float r, const float g, const float b, const float a=1.0f) { m_color = glm::vec4(r,g,b,a); }

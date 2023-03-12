@@ -5,6 +5,8 @@
 #include "HUD.h"
 #include "SphereDialog.h"
 #include "shape.h"
+#include "PerspectiveCamera.h"
+#include "OrthographicCamera.h"
 
 #include <QMenu>
 #include <QMenuBar>
@@ -17,13 +19,21 @@
 #include <random>
 
 //----------------------------------------------------------------------------------
-MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), m_hud(nullptr)
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    m_hud(nullptr),
+    m_shapePtrs(nullptr),
+    m_camera(nullptr)
 {
     // Initialize shapes cache
     m_shapePtrs = new std::vector<Shape *>();
 
+    // TODO: base this off UI setting
+    m_camera.reset(new PerspectiveCamera(RasterizationWidget::WIDTH, RasterizationWidget::HEIGHT));
+
     // Initialize rendering widgets
 	m_rasterizationWidget = new RasterizationWidget(this);
+    m_rasterizationWidget->m_canvas->getScene()->setCamera(m_camera.get());
 
 	setCentralWidget(m_rasterizationWidget);
 	setWindowTitle("Rendering Sandbox");
@@ -408,12 +418,12 @@ MainWindow::rasterizationActionHandler()
         m_pathTracingAction->setIconVisibleInMenu(false);
 
         m_rasterizationWidget = new RasterizationWidget(this);
-        // TODO: Add cached objects  (with own transform matrices)
 
         this->setCentralWidget(m_rasterizationWidget);
         connectRendererSignals(RendererType::RASTERIZATION);
 
         RasterizationScene *scene = m_rasterizationWidget->m_canvas->getScene();
+        scene->setCamera(m_camera.get());
 
         if(!m_shapePtrs->empty())
         {

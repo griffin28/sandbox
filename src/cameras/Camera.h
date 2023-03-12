@@ -1,7 +1,6 @@
 #ifndef INCLUDED_CAMERA_H
 #define INCLUDED_CAMERA_H
 
-#include "Ray.h"
 #include <glm/glm.hpp>
 
 class Camera
@@ -9,11 +8,6 @@ class Camera
 public:
     Camera();
     ~Camera() = default;
-
-    /// @brief Create a camera ray in camera space.
-    /// @param pixel the x- and y- pixel coordinate in raster space
-    /// @return camera ray
-    virtual Ray *generateRay(const glm::vec2 &pixel) = 0;
 
     //@{
     // Camera Rotation
@@ -62,8 +56,13 @@ public:
     glm::vec3 getViewUp() const { return m_viewUp; }
 
     /// @brief The viewing transformation for moving objects from world space to view space.
-    /// @return camera to world transformation matrix
+    /// @return world to view transformation matrix
     glm::mat4 getViewTransform() { return  m_viewMatrix * m_modelMatrix; }
+
+    /// @brief The transformation for moving the camera to world space.
+    /// @return camera to world transformation matrix
+    glm::mat4 getCameraToWorldTransform() { return m_modelMatrix; }
+    // TODO: setCameraToWorldTransform()
 
 private:
     glm::vec3 m_position;

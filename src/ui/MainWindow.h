@@ -10,6 +10,7 @@ class QLabel;
 class QProgressBar;
 class HUD;
 class Shape;
+class ProjectionCamera;
 
 namespace sandbox
 {
@@ -107,7 +108,8 @@ private:
     QWidget     *m_pathTracerWidget;
     HUD         *m_hud;
 
-    std::vector<Shape *> *m_shapePtrs;
+    std::vector<Shape *>                *m_shapePtrs;
+    std::unique_ptr<ProjectionCamera>   m_camera;
 
     // Menu Bar
     QMenu *m_fileMenu;

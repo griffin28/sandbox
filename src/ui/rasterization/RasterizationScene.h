@@ -14,6 +14,7 @@
 #include <QOpenGLShaderProgram>
 
 class GLCanvas;
+class ProjectionCamera;
 
 namespace sandbox
 {
@@ -77,7 +78,6 @@ public:
      * @param w the width
      * @param h the height
      */
-
     void resize(int w, int h) override;
 
     void initGLSL(sandbox::SceneObject * const);
@@ -86,6 +86,12 @@ public:
     void addShape(Shape * const);
     void addShapes(Shape **, const size_t);
 
+    //@{
+    /// @brief Set/get the projection (perspecivte or orthographic) camera
+    void setCamera(ProjectionCamera * const camera) { m_camera = camera; }
+    ProjectionCamera *getCamera() const { return m_camera; }
+    //@}
+
     static void GLAPIENTRY  DebugMessageCallback(GLenum,
                                                  GLenum,
                                                  GLuint,
@@ -93,13 +99,6 @@ public:
                                                  GLsizei,
                                                  const GLchar *,
                                                  const void *);
-
-    // Interactive Vars
-    float   m_cameraDistance;
-    float   m_mouseX;
-    float   m_mouseY;
-    float   m_cameraAngleX;
-    float   m_cameraAngleY;
 
 signals:
     void statusUpdate(QString);
@@ -119,10 +118,7 @@ private:
 
     int         		                    m_shapeSelectionIndex;
     std::vector<sandbox::SceneObject>       *m_sceneObjects;
-
-    // Transformation
-    float           m_angle;
-    glm::mat4       m_projMatrix;
+    ProjectionCamera                        *m_camera;
 };
 
 #endif

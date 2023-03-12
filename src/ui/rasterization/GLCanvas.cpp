@@ -1,5 +1,6 @@
 #include "GLCanvas.h"
 #include "RasterizationScene.h"
+#include "ProjectionCamera.h"
 
 #include <iostream>
 
@@ -87,10 +88,14 @@ GLCanvas::mouseMoveEvent(QMouseEvent *event)
 
 	emit screenCoordsChanged(x, y);
 
+	ProjectionCamera *camera = m_scene->getCamera();
+
 	if(m_mouseLeftDown)
 	{
-		m_scene->m_cameraAngleX += (x - m_posX);
-		m_scene->m_cameraAngleY += (y - m_posY);
+		// m_scene->m_cameraAngleX += (x - m_posX);
+		camera->tilt(static_cast<float>(x - m_posX));
+		// m_scene->m_cameraAngleY += (y - m_posY);
+		camera->pan(static_cast<float>(y - m_posY));
 
 		m_posX = x;
 		m_posY = y;
@@ -99,7 +104,8 @@ GLCanvas::mouseMoveEvent(QMouseEvent *event)
 	}
 	else if(m_mouseRightDown)
 	{
-		m_scene->m_cameraDistance -= (y - m_posY) * 0.2f;
+		camera->dolly((y - m_posY) * -0.2f);
+		// m_scene->m_cameraDistance -= (y - m_posY) * 0.2f;
 		m_posY = y;
 
 		m_scene->update();
