@@ -4,18 +4,21 @@
 #include <glm/ext/matrix_clip_space.hpp> // glm::perspective
 
 //----------------------------------------------------------------------------------
-Camera::Camera() : m_position(glm::vec3(0.f)),
-                   m_focalPoint(glm::vec3(0.f)),
+Camera::Camera() : m_position(glm::vec3(0.f, 0.f, 1.f)),
+                   m_focalPoint(glm::vec3(0.f, 0.f, 0.f)),
                    m_viewUp(glm::vec3(0.0f, 1.0f, 0.0f)),
-                   m_modelMatrix(glm::mat4(1.0f)),
-                   m_viewMatrix(glm::mat4(1.0f)) {}
+                   m_modelMatrix(glm::mat4(1.0f))
+{
+    this->updateViewMatrix();
+}
 
 //----------------------------------------------------------------------------------
 void Camera::roll(const float angle)
 {
     m_modelMatrix = glm::rotate(m_modelMatrix,
                                 glm::radians(angle),
-                                glm::vec3(0.f,0.f,1.f));
+                                this->getForwardAxis());
+    this->updateViewMatrix();
 }
 
 //----------------------------------------------------------------------------------
@@ -23,7 +26,8 @@ void Camera::tilt(const float angle)
 {
     m_modelMatrix = glm::rotate(m_modelMatrix,
                                 glm::radians(angle),
-                                glm::vec3(1.f,0.f,0.f));
+                                this->getHorizontalAxis());
+    this->updateViewMatrix();
 }
 
 //----------------------------------------------------------------------------------
@@ -31,38 +35,90 @@ void Camera::pan(const float angle)
 {
     m_modelMatrix = glm::rotate(m_modelMatrix,
                                 glm::radians(angle),
-                                glm::vec3(0.f,1.f,0.f));
+                                this->getVerticalAxis());
+    this->updateViewMatrix();
 }
 
 //----------------------------------------------------------------------------------
 void Camera::dolly(const float value)
 {
-    m_modelMatrix = glm::translate(m_modelMatrix, glm::vec3(0.f, 0.f, value));
+    auto forwardAxis = this->getForwardAxis();
+    forwardAxis.z += value;
+    m_modelMatrix = glm::translate(m_modelMatrix, forwardAxis);
+    this->updateViewMatrix();
 }
 
 //----------------------------------------------------------------------------------
 void Camera::boom(const float value)
 {
-    m_modelMatrix = glm::translate(m_modelMatrix, glm::vec3(0.f, value, 0.f));
+    auto verticalAxis = this->getVerticalAxis();
+    verticalAxis.y += value;
+    m_modelMatrix = glm::translate(m_modelMatrix, verticalAxis);
+    this->updateViewMatrix();
 }
 
 //----------------------------------------------------------------------------------
 void Camera::setPosition(const glm::vec3 &position)
 {
     m_position = position;
-    m_viewMatrix = glm::lookAt(m_position, m_focalPoint, m_viewUp);
+    this->updateViewMatrix();
 }
 
 //----------------------------------------------------------------------------------
 void Camera::setFocalPoint(const glm::vec3 &focalPoint)
 {
     m_focalPoint = focalPoint;
-    m_viewMatrix = glm::lookAt(m_position, m_focalPoint, m_viewUp);
+    this->updateViewMatrix();
 }
 
 //----------------------------------------------------------------------------------
 void Camera::setViewUp(const glm::vec3 &up)
 {
-    m_viewUp = up;
-    m_viewMatrix = glm::lookAt(m_position, m_focalPoint, m_viewUp);
+    m_viewUp = glm::normalize(up);
+    this->updateViewMatrix();
+}
+
+//----------------------------------------------------------------------------------
+glm::vec3 Camera::getForwardAxis()
+{
+    return glm::normalize(m_focalPoint - m_position);
+}
+
+//----------------------------------------------------------------------------------
+glm::vec3 Camera::getHorizontalAxis()
+{
+    auto forwardAxis = this->getForwardAxis();
+    return glm::cross(forwardAxis, m_viewUp);
+}
+
+//----------------------------------------------------------------------------------
+glm::vec3 Camera::getVerticalAxis()
+{
+    auto forwardAxis = this->getForwardAxis();
+    auto horizontalAxis = glm::cross(m_viewUp, forwardAxis);
+    return glm::cross(horizontalAxis, forwardAxis);
+}
+
+//----------------------------------------------------------------------------------
+void Camera::setCameraToWorldMatrix(const glm::mat4 &matrix)
+{
+    m_modelMatrix = matrix;
+    this->updateViewMatrix();
+}
+
+//----------------------------------------------------------------------------------
+void Camera::updateViewMatrix()
+{
+    auto position = m_modelMatrix * glm::vec4(m_position, 1.0f);
+    auto viewUp = m_modelMatrix * glm::vec4(m_viewUp, 1.0f);
+
+    auto pos = glm::vec3(position[0]/position[3],
+                         position[1]/position[3],
+                         position[2]/position[3]);
+
+    auto up = glm::normalize(glm::vec3(viewUp[0]/viewUp[3],
+                                       viewUp[1]/viewUp[3],
+                                       viewUp[2]/viewUp[3]));
+
+    m_viewMatrix = glm::lookAt(pos, m_focalPoint, up);
 }

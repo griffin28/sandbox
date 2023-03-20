@@ -18,8 +18,8 @@ GLCanvas::GLCanvas(int w, int h, QWidget *parent) : QOpenGLWidget(parent),
 					        					m_scene(new RasterizationScene(this)),
 												m_mouseLeftDown(false),
 												m_mouseRightDown(false),
-												m_posX(0),
-												m_posY(0)
+												m_posX(-1),
+												m_posY(-1)
 {
     setMinimumSize(w, h);
     setFocusPolicy(Qt::StrongFocus);
@@ -34,13 +34,6 @@ GLCanvas::~GLCanvas()
     makeCurrent();
     delete m_scene;
     doneCurrent();
-}
-
-//----------------------------------------------------------------------------------
-RasterizationScene *
-GLCanvas::getScene()
-{
-    return m_scene;
 }
 
 //----------------------------------------------------------------------------------
@@ -69,10 +62,12 @@ GLCanvas::mouseReleaseEvent(QMouseEvent *event)
 	{
 	case Qt::LeftButton:
 		m_mouseLeftDown = false;
-
+		m_posX = -1;
+		m_posY = -1;
 		break;
 	case Qt::RightButton:
 		m_mouseRightDown = false;
+		m_posY = -1;
 		break;
 	default:
 		QOpenGLWidget::mouseReleaseEvent(event);
@@ -88,14 +83,17 @@ GLCanvas::mouseMoveEvent(QMouseEvent *event)
 
 	emit screenCoordsChanged(x, y);
 
+	// TODO: If a shape is selected transform shape, else camera
+
 	ProjectionCamera *camera = m_scene->getCamera();
 
 	if(m_mouseLeftDown)
 	{
-		// m_scene->m_cameraAngleX += (x - m_posX);
-		camera->tilt(static_cast<float>(x - m_posX));
-		// m_scene->m_cameraAngleY += (y - m_posY);
-		camera->pan(static_cast<float>(y - m_posY));
+		m_posY = m_posY == -1 ? y : m_posY;
+		camera->tilt(static_cast<float>((m_posY - y)/2));
+
+		m_posX = m_posX == -1 ? x : m_posX;
+		camera->pan(static_cast<float>((x - m_posX)/2));
 
 		m_posX = x;
 		m_posY = y;
@@ -104,11 +102,12 @@ GLCanvas::mouseMoveEvent(QMouseEvent *event)
 	}
 	else if(m_mouseRightDown)
 	{
-		camera->dolly((y - m_posY) * -0.2f);
-		// m_scene->m_cameraDistance -= (y - m_posY) * 0.2f;
-		m_posY = y;
+		// TODO: fix
+		// camera->dolly((y - m_posY) * -0.2f);
+		// // m_scene->m_cameraDistance -= (y - m_posY) * 0.2f;
+		// m_posY = y;
 
-		m_scene->update();
+		// m_scene->update();
 	}
 	else
 	{

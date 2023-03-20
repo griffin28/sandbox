@@ -24,8 +24,6 @@ enum class ShapeType
 class Shape {
 public:
     Shape();
-    Shape(ShapeType);
-    Shape(ShapeType, glm::mat4 transform);
     virtual ~Shape() = default;
 
     // TODO: Make pure virtual and implement in concrete shape
@@ -55,12 +53,35 @@ public:
     virtual const unsigned int  *getLineIndices() const { return nullptr; }
     virtual unsigned int        getLineIndexCount() const { return 0; }
 
-    virtual ShapeType  getType() const { return m_type; }
+    ShapeType  getType() const { return m_type; }
+    void       setType(const ShapeType type) { m_type = type; }
 
     //virtual AxisAlignedBB objectBounds() const = 0;
     //virtual AxisAlignedBB worldBounds() const = 0;
 
     //virtual bool intersect() const = 0;
+
+    /// @brief scale this shape
+    /// @param factor the scale factor
+    void scale(const glm::vec3 factor) { m_transform = glm::scale(m_transform, factor); }
+
+    /// @brief translate this shape
+    /// @param t the translation amount in the x, y and z directions
+    void translate(const glm::vec3 t) { m_transform = glm::translate(m_transform, t); }
+
+    //@{
+    /// @brief rotate this shape around the x-, y-, or z-axis
+    /// @param angle the rotation angle in degrees
+    void rotateY(const float angle) { m_transform = glm::rotate(m_transform,
+                                                                glm::radians(angle),
+                                                                glm::vec3(0.0f, 1.0f, 0.0f)); }
+    void rotateX(const float angle) { m_transform = glm::rotate(m_transform,
+                                                                glm::radians(angle),
+                                                                glm::vec3(1.0f, 0.0f, 0.0f)); }
+    void rotateZ(const float angle) { m_transform = glm::rotate(m_transform,
+                                                                glm::radians(angle),
+                                                                glm::vec3(0.0f, 0.0f, 1.0f)); }
+    //@}
 private:
     ShapeType m_type;
     glm::mat4 m_transform;

@@ -57,9 +57,8 @@ public:
     /// @param height screen height
     void setScreenSize(const int width, const int height) override;
 
-    /// @brief Get the projection matrix in the form of a frustrum matrix such that clip-space
-    ///        takes the shape of a truncated rectangular pyramid.
-    /// @return the projection matrix
+    /// @brief Get the parallel projection matrix.
+    /// @return the parallel projection matrix
     glm::mat4 getProjectionMatrix() const override { return m_orthographicMatrix; }
 
     //@{

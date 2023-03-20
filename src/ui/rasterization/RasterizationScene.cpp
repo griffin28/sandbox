@@ -13,12 +13,14 @@
 
 using namespace std;
 
+//----------------------------------------------------------------------------------
 RasterizationScene::RasterizationScene(GLCanvas *glWidget):
     AbstractGLScene(glWidget),
     m_shapeSelectionIndex(-1),
     m_sceneObjects(new std::vector<sandbox::SceneObject>()),
     m_camera(nullptr) {}
 
+//----------------------------------------------------------------------------------
 RasterizationScene::~RasterizationScene()
 {
     for(size_t i=0; i<m_sceneObjects->size(); i++)
@@ -317,6 +319,9 @@ RasterizationScene::paint() {
 
     if(m_camera != nullptr)
     {
+        glm::mat4 vMatrix = m_camera->getViewMatrix();
+        glm::mat4 pMatrix = m_camera->getProjectionMatrix();
+
         for(size_t i=0; i<m_sceneObjects->size(); i++)
         {
             sandbox::SceneObject sceneObject = m_sceneObjects->at(i);
@@ -354,13 +359,15 @@ RasterizationScene::paint() {
 
             // Update Transforms
             // Column-major
+            // Model-World Transform - TODO: this will generally be done interactively
+            // shape->translate(glm::vec3(0.0f,0.0f,-20.0f));
+            // shape->rotateX(-90.0f);
 
-            auto mvMatrix = m_camera->getViewTransform() * shape->getModelTransform();
-            auto mvpMatrix = m_camera->getProjectionMatrix() * mvMatrix;
-            // glm::mat4 mvMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -m_cameraDistance));
-            // mvMatrix = glm::rotate(mvMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-            // mvMatrix = glm::rotate(mvMatrix, glm::radians(m_cameraAngleY), glm::vec3(0.0f, 1.0f, 0.0f));
-            // mvMatrix = glm::rotate(mvMatrix, glm::radians(m_cameraAngleX), glm::vec3(1.0f, 0.0f, 0.0f));
+            // World-View Transform
+            glm::mat4 mvMatrix = vMatrix * shape->getModelTransform();
+
+            // Projection
+            glm::mat4 mvpMatrix = pMatrix * mvMatrix;
 
             // Normals are transformed by the inverse transpose of the matrix
             // See: https://paroj.github.io/gltut/Illumination/Tut09%20Normal%20Transformation.html
@@ -380,9 +387,9 @@ RasterizationScene::paint() {
 
             // Draw Sphere
             glDrawElements(GL_TRIANGLES,                // primitive type
-                        shape->getIndexCount(),      // # of indices
-                        GL_UNSIGNED_INT,             // data type
-                        (void*)0);                   // offset into the indices buffer
+                           shape->getIndexCount(),      // # of indices
+                           GL_UNSIGNED_INT,             // data type
+                           (void*)0);                   // offset into the indices buffer
 
             // Draw selection outline
             if(m_shapeSelectionIndex == i)

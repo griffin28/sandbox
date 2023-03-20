@@ -5,26 +5,20 @@
 
 class GLCanvas;
 
-/**
- * @class RasterizationWidget
- * @brief Main application widget
- * @see <a href="https://doc.qt.io/qt-5/qwidget.html">QWidget</a>
-*/
+/// @class RasterizationWidget
+/// @brief Main application widget
+/// @see <a href="https://doc.qt.io/qt-5/qwidget.html">QWidget</a>
 class RasterizationWidget : public QWidget
 {
     friend class MainWindow;
     Q_OBJECT
 
 public:
-    /**
-     * Constructs the main widget.
-     * @param parent this widget's parent
-    */
+    /// @brief Constructs the main widget.
+    /// @param parent this widget's parent
     RasterizationWidget(QWidget *parent = nullptr);
 
-    /**
-     * Default destructor.
-    */
+    /// @brief Default destructor.
     ~RasterizationWidget() = default;
 
 private:

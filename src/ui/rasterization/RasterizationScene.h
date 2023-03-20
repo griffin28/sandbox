@@ -28,13 +28,7 @@ namespace sandbox
         COMPUTE
     };
 
-    /**
-     * @class SceneObject
-     * @brief Stores the scene related rendering resources
-     *
-     * Collects all of the OpenGL scene related objects
-     */
-
+   /// @brief Collects all of the OpenGL scene related objects
    struct SceneObject
    {
         SceneObject() : shape(nullptr),
@@ -51,33 +45,32 @@ namespace sandbox
    };
 } // namespace sandbox
 
-/**
- * @class RasterizationScene
- * @brief Renders a scene using OpenGL rasterization
- *
- * This class creates a scene of objects and renders them using
- * OpenGL's programmable rasterization pipeline.
- */
-
+/// @class RasterizationScene
+/// @brief Renders a scene using OpenGL rasterization
+///
+/// This class creates a scene of objects and renders them using OpenGL's programmable
+/// rasterization pipeline.
 class RasterizationScene: public QObject, public AbstractGLScene
 {
     Q_OBJECT
 
 public:
+    /// @brief Constructor
+    /// @param glWidget
     RasterizationScene(GLCanvas *glWidget);
+
+    /// Default destuctor
     ~RasterizationScene();
 
     void initialize() override;
     void paint() override;
 
-    /**
-     * Sets up the OpenGL viewport, projection, etc. Gets called whenever the widget
-     * has been resized (and also when it is shown for the first time because all newly
-     * created widgets get a resize event automatically).
-     * @see <a href="https://doc.qt.io/qt-6/qopenglwidget.html#resizeGL">QOpenGLWidget::resizeGL</a>
-     * @param w the width
-     * @param h the height
-     */
+    /// Sets up the OpenGL viewport, projection, etc. Gets called whenever the widget
+    /// has been resized (and also when it is shown for the first time because all newly
+    /// created widgets get a resize event automatically).
+    /// @see <a href="https://doc.qt.io/qt-6/qopenglwidget.html#resizeGL">QOpenGLWidget::resizeGL</a>
+    /// @param w the width
+    /// @param h the height
     void resize(int w, int h) override;
 
     void initGLSL(sandbox::SceneObject * const);

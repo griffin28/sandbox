@@ -340,6 +340,7 @@ MainWindow::showAddSphereDialog()
                                static_cast<float>(centerDist(randEngine)) - width/2.0f};
 
             Sphere *sphere = new Sphere(radius, center[0], center[1], center[2]);
+            sphere->setType(ShapeType::SPHERE);
             sphere->setColor(color[0], color[1], color[2], color[3]);
 
             m_shapePtrs->emplace_back(sphere);
@@ -353,7 +354,9 @@ MainWindow::showAddSphereDialog()
         sphereDialog.getColor(color);
 
         Sphere *sphere = new Sphere(radius, center[0], center[1], center[2]);
+        sphere->setType(ShapeType::SPHERE);
         sphere->setColor(color[0], color[1], color[2], color[3]);
+        sphere->translate(glm::vec3(0.0f,0.0f,-20.0f));
 
         m_shapePtrs->emplace_back(sphere);
     }

@@ -7,7 +7,7 @@ class Camera
 {
 public:
     Camera();
-    ~Camera() = default;
+    virtual ~Camera() = default;
 
     //@{
     // Camera Rotation
@@ -38,6 +38,13 @@ public:
     //@}
 
     //@{
+    /// Get the forward, horizontal, and vertical axes.
+    glm::vec3 getForwardAxis();
+    glm::vec3 getHorizontalAxis();
+    glm::vec3 getVerticalAxis();
+    //@}
+
+    //@{
     /// @brief Set/Get the position of the camera in world coordinates.
     /// @param position position of the camera
     void setPosition(const glm::vec3 &position);
@@ -52,19 +59,26 @@ public:
     glm::vec3 getFocalPoint() const { return m_focalPoint; }
     //@}
 
+    //@{
+    /// Set/get the camera view up direction. The up vector will be
+    /// normalized.
     void setViewUp(const glm::vec3 &up);
     glm::vec3 getViewUp() const { return m_viewUp; }
+    //@}
 
     /// @brief The viewing transformation for moving objects from world space to view space.
     /// @return world to view transformation matrix
-    glm::mat4 getViewTransform() { return  m_viewMatrix * m_modelMatrix; }
+    glm::mat4 getViewMatrix() { return  m_viewMatrix; }
 
-    /// @brief The transformation for moving the camera to world space.
-    /// @return camera to world transformation matrix
-    glm::mat4 getCameraToWorldTransform() { return m_modelMatrix; }
-    // TODO: setCameraToWorldTransform()
+    //@{
+    /// Set/get the camera to world matrix for moving the camera to world space.
+    glm::mat4 getCameraToWorldMatrix() { return m_modelMatrix; }
+    void setCameraToWorldMatrix(const glm::mat4 &matrix);
+    //@}
 
 private:
+    void updateViewMatrix();
+
     glm::vec3 m_position;
     glm::vec3 m_focalPoint;
     glm::vec3 m_viewUp;

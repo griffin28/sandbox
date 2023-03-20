@@ -3,7 +3,7 @@
 #include <iostream>
 #include <glm/ext/scalar_constants.hpp>
 
-Sphere::Sphere() : Shape(ShapeType::SPHERE), 
+Sphere::Sphere() :
     m_radius(-1.0f),
     m_center(-1.0f, -1.0f, -1.0f),
     m_smooth(true),
@@ -18,7 +18,7 @@ Sphere::Sphere() : Shape(ShapeType::SPHERE),
     set(1.0f, 0.0f, 0.0f, 0.0f, true, true);
 }
 
-Sphere::Sphere(float radius, float x, float y, const float z, bool smooth, bool buildGeometry) : Shape(ShapeType::SPHERE),
+Sphere::Sphere(float radius, float x, float y, const float z, bool smooth, bool buildGeometry) :
     m_radius(-1.0f),
     m_center(-1.0f, -1.0f, -1.0f),
     m_smooth(true),
@@ -34,10 +34,10 @@ Sphere::Sphere(float radius, float x, float y, const float z, bool smooth, bool 
 }
 
 void
-Sphere::set(const float radius, const float x, const float y, const float z, const bool smooth, const bool buildGeometry) 
+Sphere::set(const float radius, const float x, const float y, const float z, const bool smooth, const bool buildGeometry)
 {
-    if(radius == m_radius && 
-       smooth == m_smooth && 
+    if(radius == m_radius &&
+       smooth == m_smooth &&
        buildGeometry == m_buildGeometry &&
        m_center.x == x &&
        m_center.y == y &&
@@ -51,35 +51,35 @@ Sphere::set(const float radius, const float x, const float y, const float z, con
     m_center.x = x;
     m_center.y = y;
     m_center.z = z;
-    
-    if(buildGeometry) 
+
+    if(buildGeometry)
     {
         m_buildGeometry = buildGeometry;
         buildVertices();
     }
-    else 
+    else
     {
-        if(buildGeometry != m_buildGeometry) 
+        if(buildGeometry != m_buildGeometry)
         {
             m_buildGeometry = buildGeometry;
             clearArrays();
         }
-    } 
+    }
 }
 
-void 
-Sphere::setRadius(const float radius) 
+void
+Sphere::setRadius(const float radius)
 {
-    if(radius != m_radius) 
+    if(radius != m_radius)
     {
         set(radius, m_center.x, m_center.y, m_center.z, m_smooth, m_buildGeometry);
     }
 }
 
 void
-Sphere::setBuildGeometry(const bool build) 
+Sphere::setBuildGeometry(const bool build)
 {
-    if(build != m_buildGeometry) 
+    if(build != m_buildGeometry)
     {
         set(m_radius, m_center.x, m_center.y, m_center.z, m_smooth, build);
     }
@@ -88,7 +88,7 @@ Sphere::setBuildGeometry(const bool build)
 void
 Sphere::setSmooth(const bool smooth)
 {
-    if(smooth != m_smooth) 
+    if(smooth != m_smooth)
     {
         set(m_radius, m_center.x, m_center.y, m_center.z, smooth, m_buildGeometry);
     }
@@ -104,11 +104,11 @@ Sphere::setCenter(const float x, const float y, const float z)
 }
 
 void
-Sphere::clearArrays() 
+Sphere::clearArrays()
 {
     // vector::clear doesn't guarantee a reallocation, this way
     // we can force a reallocation
-    std::vector<float>().swap(m_vertices); 
+    std::vector<float>().swap(m_vertices);
     std::vector<float>().swap(m_normals);
     std::vector<float>().swap(m_texCoords);
     std::vector<unsigned int>().swap(m_indices);
@@ -116,7 +116,7 @@ Sphere::clearArrays()
 }
 
 void
-Sphere::buildVertices() 
+Sphere::buildVertices()
 {
     if(m_smooth) {
         buildVerticesSmooth();
@@ -134,7 +134,7 @@ Sphere::buildVertices()
 //       v: sector(longitude) angle (0 <= v <= 360)
 ///////////////////////////////////////////////////////////////////////////////
 void
-Sphere::buildVerticesSmooth() 
+Sphere::buildVerticesSmooth()
 {
     const float PI = acos(-1); // glm::pi<float>();
 
@@ -154,7 +154,7 @@ Sphere::buildVerticesSmooth()
     float stackStep = PI / stackCount;
     float sectorAngle, stackAngle;
 
-    for(int i=0; i<=stackCount; i++) 
+    for(int i=0; i<=stackCount; i++)
     {
         stackAngle = PI / 2 - i * stackStep;
         xy = m_radius * cosf(stackAngle);
@@ -162,7 +162,7 @@ Sphere::buildVerticesSmooth()
 
         // add sectorCount+1 vertices per stack
         // first and last vertices have same position and normal but different texcoords
-        for(int j=0; j<=sectorCount; j++) 
+        for(int j=0; j<=sectorCount; j++)
         {
             sectorAngle = j * sectorStep;   // 0 to 2PI
             // vertex position
@@ -187,12 +187,12 @@ Sphere::buildVerticesSmooth()
     //  | /  |
     //  k2--k2+1
     unsigned int k1, k2;
-    for(int i=0; i<stackCount; i++) 
+    for(int i=0; i<stackCount; i++)
     {
         k1 = i * (sectorCount + 1);
         k2 = k1 + sectorCount + 1;
 
-        for(int j=0; j<sectorCount; ++j, ++k1, ++k2) 
+        for(int j=0; j<sectorCount; ++j, ++k1, ++k2)
         {
             // 2 triangles per sector excluding 1st and last stacks
             if(i != 0) {
@@ -200,7 +200,7 @@ Sphere::buildVerticesSmooth()
             }
 
             if(i != (stackCount -1)) {
-                addIndices(k1+1, k2, k2+1); 
+                addIndices(k1+1, k2, k2+1);
             }
 
             // vertical lines for all stacks
@@ -218,7 +218,7 @@ Sphere::buildVerticesSmooth()
 }
 
 void
-Sphere::buildVerticesFlat() 
+Sphere::buildVerticesFlat()
 {
     // TODO: Implement
 }
@@ -247,7 +247,7 @@ Sphere::buildInterleavedVertices()
 }
 
 void
-Sphere::addVertex(const float x, const float y, const float z) 
+Sphere::addVertex(const float x, const float y, const float z)
 {
     // m_vertices.push_back(glm::vec3(x,y,z));
     m_vertices.push_back(x);
@@ -256,7 +256,7 @@ Sphere::addVertex(const float x, const float y, const float z)
 }
 
 void
-Sphere::addNormal(const float nx, const float ny, const float nz) 
+Sphere::addNormal(const float nx, const float ny, const float nz)
 {
     m_normals.push_back(nx);
     m_normals.push_back(ny);
@@ -271,7 +271,7 @@ Sphere::addTextureCoordinate(const float s, const float t)
 }
 
 void
-Sphere::addIndices(const unsigned int i1, const unsigned int i2, const unsigned int i3) 
+Sphere::addIndices(const unsigned int i1, const unsigned int i2, const unsigned int i3)
 {
     m_indices.push_back(i1);
     m_indices.push_back(i2);
@@ -279,7 +279,7 @@ Sphere::addIndices(const unsigned int i1, const unsigned int i2, const unsigned 
 }
 
 glm::vec3
-Sphere::computeFaceNormal(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3) 
+Sphere::computeFaceNormal(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3)
 {
     glm::vec3 e1 = v2 - v1;
     glm::vec3 e2 = v3 - v1;

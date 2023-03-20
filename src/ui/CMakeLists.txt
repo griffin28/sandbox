@@ -27,6 +27,7 @@ target_include_directories(ui
     PRIVATE
         ${Qt5Widgets_INCLUDE_DIRS}
         ${GLM_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_SOURCE_DIR}/../core
         ${CMAKE_CURRENT_SOURCE_DIR}/../cameras
         ${CMAKE_CURRENT_SOURCE_DIR}/../shapes
         ${CMAKE_CURRENT_SOURCE_DIR}/../shading

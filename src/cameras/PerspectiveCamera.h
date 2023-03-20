@@ -10,11 +10,11 @@ public:
     /// @param width screen width
     /// @param height screen height
     /// @param fovy the view angle in degrees
-    /// @param near the near clipping plane along the forward axis
-    /// @param far the far clipping plane along the forward axis
+    /// @param near the distance to the near clipping plane along the forward axis
+    /// @param far the distance to the far clipping plane along the forward axis
     PerspectiveCamera(int width,
                       int height,
-                      float fovy=30.f,
+                      float fovy=45.f,
                       float near=0.1f,
                       float far=1000.f);
 

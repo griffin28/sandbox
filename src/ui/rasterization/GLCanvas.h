@@ -34,7 +34,10 @@ public:
     */
     ~GLCanvas();
 
-    RasterizationScene *getScene();
+    /**
+     * Get the OpenGL scene.
+    */
+    RasterizationScene *getScene() const { return m_scene; }
 
 signals:
     /**
@@ -50,11 +53,6 @@ signals:
      * @param elapsed the time elapsed for rendering a frame
     */
     void frameRenderTimeChanged(long long int elapsed);
-/* signals:
-	void rotateX(int);
-	void rotateY(int);
-	void rotateZ(int);
-*/
 
 protected:
     /**
@@ -103,7 +101,6 @@ private:
     bool    m_mouseRightDown;
     int     m_posX;
     int     m_posY;
-
 };
 
 #endif /* GLCANVAS_H_ */

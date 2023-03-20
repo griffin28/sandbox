@@ -68,7 +68,7 @@ Ray *
 PerspectiveCamera::generateWorldRay(const glm::vec2 &pixel)
 {
     Ray *ray = this->generateRay(pixel);
-    glm::mat4 cameraToWorldTransform = this->getCameraToWorldTransform();
+    glm::mat4 cameraToWorldTransform = this->getCameraToWorldMatrix();
 
     ray->m_direction = glm::mat3(cameraToWorldTransform) * ray->m_direction;
     ray->m_origin = glm::vec3(cameraToWorldTransform[3]) + ray->m_origin;
