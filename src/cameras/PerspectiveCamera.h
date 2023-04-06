@@ -21,6 +21,9 @@ public:
     /// Default destructor.
     ~PerspectiveCamera() = default;
 
+    /// @see Camera::reset
+    void reset() override;
+
     /// @brief Creates a ray in camera space from a screen pixel location. Caller is responsible
     ///        for managing the memory allocated for this object.
     /// @param pixel the x- and y-coordinates of the pixel in raster space
@@ -33,7 +36,7 @@ public:
     /// @return
     Ray *generateWorldRay(const glm::vec2 &pixel) override;
 
-    /// @brief Decrease the view angle by the specified factor
+    /// @brief Change the view angle by the specified factor
     /// @param factor
     void zoom(const float factor) override { setViewAngle(m_fovy / factor); }
 
@@ -45,8 +48,8 @@ public:
     /// @brief Set/get the location of the near and far clipping planes along the forward axis
     ///        direction. Both of these values must be positive. The default clipping range is
     ///        (0.1,1000) and is measured in world coordinates.
-    /// @param  near the near clipping plane along the forward axis
-    /// @param  far  the far clipping plane along the forward axis
+    /// @param  near distance to the near clipping plane along the forward axis
+    /// @param  far  distance to the far clipping plane along the forward axis
     void setClippingRange(const float near, const float far) override;
     glm::vec2 getClippingRange() override { return glm::vec2(m_near, m_far); }
     //@}

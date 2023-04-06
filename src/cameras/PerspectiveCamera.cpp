@@ -19,32 +19,56 @@ PerspectiveCamera::PerspectiveCamera(int width,
 }
 
 //----------------------------------------------------------------------------------
+void PerspectiveCamera::reset()
+{
+    // TODO: save original values to reset to previous values
+    this->Camera::reset();
+
+    m_fovy = 45.0f;
+    m_near = 0.1f;
+    m_far = 1000.0f;
+}
+
+//----------------------------------------------------------------------------------
 void PerspectiveCamera::setViewAngle(const float angle)
 {
-    m_fovy = angle;
-    float aspect = static_cast<float>(m_width) / static_cast<float>(m_height);
+    if(m_fovy != angle)
+    {
+        float min = 0.00000001f;
+        float max = 179.0f;
 
-    m_perspectiveMatrix = glm::perspective(glm::radians(m_fovy), aspect, m_near, m_far);
+        m_fovy = (angle < min ? min : (angle > max ? max : angle));
+        float aspect = static_cast<float>(m_width) / static_cast<float>(m_height);
+
+        m_perspectiveMatrix = glm::perspective(glm::radians(m_fovy), aspect, m_near, m_far);
+    }
 }
 
 //----------------------------------------------------------------------------------
 void PerspectiveCamera::setClippingRange(const float near, const float far)
 {
-    m_near = near;
-    m_far = far;
-    float aspect = static_cast<float>(m_width) / static_cast<float>(m_height);
+    if(m_near != near || m_far != far)
+    {
+        m_near = near;
+        m_far = far;
+        float aspect = static_cast<float>(m_width) / static_cast<float>(m_height);
 
-    m_perspectiveMatrix = glm::perspective(glm::radians(m_fovy), aspect, m_near, m_far);
+        m_perspectiveMatrix = glm::perspective(glm::radians(m_fovy), aspect, m_near, m_far);
+    }
 }
 
 //----------------------------------------------------------------------------------
 void PerspectiveCamera::setScreenSize(const int width, const int height)
 {
-    m_width = width;
-    m_height = height;
-    float aspect = static_cast<float>(m_width) / static_cast<float>(m_height);
+    if(m_width != width || m_height != height)
+    {
+        m_width = width;
+        m_height = height;
+        float aspect = static_cast<float>(m_width) / static_cast<float>(m_height);
 
-    m_perspectiveMatrix = glm::perspective(glm::radians(m_fovy), aspect, m_near, m_far);
+        m_perspectiveMatrix = glm::perspective(glm::radians(m_fovy), aspect, m_near, m_far);
+    }
+
 }
 
 //----------------------------------------------------------------------------------

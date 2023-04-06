@@ -67,6 +67,7 @@ GLCanvas::mouseReleaseEvent(QMouseEvent *event)
 		break;
 	case Qt::RightButton:
 		m_mouseRightDown = false;
+		m_posX = -1;
 		m_posY = -1;
 		break;
 	default:
@@ -102,17 +103,41 @@ GLCanvas::mouseMoveEvent(QMouseEvent *event)
 	}
 	else if(m_mouseRightDown)
 	{
-		// TODO: fix
-		// camera->dolly((y - m_posY) * -0.2f);
-		// // m_scene->m_cameraDistance -= (y - m_posY) * 0.2f;
-		// m_posY = y;
+		m_posY = m_posY == -1 ? y : m_posY;
+		float moveDist = static_cast<float>(y - m_posY) / 2.0f;
 
-		// m_scene->update();
+		camera->dolly(moveDist);
+
+		m_posY = y;
+		m_scene->update();
 	}
 	else
 	{
 		QOpenGLWidget::mouseMoveEvent(event);
 	}
+}
+
+//----------------------------------------------------------------------------------
+void GLCanvas::wheelEvent(QWheelEvent *event)
+{
+    QPoint numDegrees = event->angleDelta() / 8;
+
+    if (!numDegrees.isNull())
+	{
+        QPoint numSteps = numDegrees / 15;
+		int yVal = numSteps.y();
+		float zoomFactor = 1.0f + static_cast<float>(std::abs(yVal));
+
+		if(yVal < 0)
+		{
+			zoomFactor = 1.0f / std::fabs(zoomFactor);
+		}
+
+		m_scene->getCamera()->zoom(zoomFactor);
+		m_scene->update();
+    }
+
+    event->accept();
 }
 
 //----------------------------------------------------------------------------------

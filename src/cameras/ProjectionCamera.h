@@ -25,7 +25,7 @@ public:
     /// @return
     virtual Ray *generateWorldRay(const glm::vec2 &pixel) = 0;
 
-    /// @brief Decrease the view angle by the specified factor
+    /// @brief Change the view angle by the specified factor
     /// @param factor
     virtual void zoom(const float factor) = 0;
 
@@ -48,8 +48,7 @@ public:
     /// @param height screen height
     virtual void setScreenSize(const int width, const int height) = 0;
 
-    /// @brief Get the projection matrix in the form of a frustrum matrix such that clip-space
-    ///        takes the shape of a truncated rectangular pyramid.
+    /// @brief Get the projection matrix
     /// @return the projection matrix
     virtual glm::mat4 getProjectionMatrix() const = 0;
 };

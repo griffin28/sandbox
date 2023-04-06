@@ -9,6 +9,9 @@ public:
     Camera();
     virtual ~Camera() = default;
 
+    /// @brief reset camera settings to default values
+    virtual void reset();
+
     //@{
     // Camera Rotation
 
@@ -29,7 +32,7 @@ public:
     // Camera Translation
 
     /// @brief Translation of the camera along its forward axis
-    /// @param value the amount to mvoe the camera
+    /// @param value the amount to move the camera
     void dolly(const float value);
 
     /// @brief Translation of the camera along its vertical axis.

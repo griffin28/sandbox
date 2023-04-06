@@ -90,6 +90,11 @@ protected:
     */
     void mouseReleaseEvent(QMouseEvent *event) override;
 
+    /**
+     * @see <a href="https://doc.qt.io/qt-5/qwidget.html#wheelEvent">QWidget::wheelEvent</a>
+    */
+    void wheelEvent(QWheelEvent *event) override;
+
 private:
     int m_width;
     int m_height;

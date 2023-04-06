@@ -13,6 +13,17 @@ Camera::Camera() : m_position(glm::vec3(0.f, 0.f, 1.f)),
 }
 
 //----------------------------------------------------------------------------------
+void Camera::reset()
+{
+    m_position = glm::vec3(0.0f, 0.0f, 1.0f);
+    m_focalPoint = glm::vec3(0.f, 0.f, 0.f);
+    m_viewUp = glm::vec3(0.0f, 1.0f, 0.0f);
+    m_modelMatrix = glm::mat4(1.0f);
+
+    this->updateViewMatrix();
+}
+
+//----------------------------------------------------------------------------------
 void Camera::roll(const float angle)
 {
     m_modelMatrix = glm::rotate(m_modelMatrix,
@@ -42,19 +53,23 @@ void Camera::pan(const float angle)
 //----------------------------------------------------------------------------------
 void Camera::dolly(const float value)
 {
+    float distance = glm::distance(m_focalPoint, m_position);
+    float d = distance + value;
+    d = (d <= 0.0f) ? 0.1f : d;
+
     auto forwardAxis = this->getForwardAxis();
-    forwardAxis.z += value;
-    m_modelMatrix = glm::translate(m_modelMatrix, forwardAxis);
-    this->updateViewMatrix();
+    auto delta = forwardAxis * d;
+
+    this->setPosition(m_focalPoint - delta);
 }
 
 //----------------------------------------------------------------------------------
 void Camera::boom(const float value)
 {
     auto verticalAxis = this->getVerticalAxis();
-    verticalAxis.y += value;
-    m_modelMatrix = glm::translate(m_modelMatrix, verticalAxis);
-    this->updateViewMatrix();
+    auto delta = verticalAxis * value;
+
+    this->setPosition(m_position - delta);
 }
 
 //----------------------------------------------------------------------------------
