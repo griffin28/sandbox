@@ -92,6 +92,9 @@ private slots:
     void pathtracingActionHandler();
     //@}
 
+    void perspectiveCameraActionHandler();
+    void orthoCameraActionHandler();
+
 private:
     void    createActions();
     void    createHelpMenu();
@@ -138,6 +141,8 @@ private:
     QAction     *m_pathTracingAction;
     QAction     *m_accelNoneAction;
     QAction     *m_accelBVHAction;
+    QAction     *m_perspectiveCameraAction;
+    QAction     *m_orthoCameraAction;
 
     // Labels
     QLabel      *m_statusLabel;

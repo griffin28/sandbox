@@ -13,13 +13,16 @@ public:
     /// @param near the near clipping plane along the forward axis
     /// @param far the far clipping plane along the forward axis
     OrthographicCamera(int width,
-                      int height,
-                      float fovDistance=100.f,
-                      float near=0.1f,
-                      float far=1000.f);
+                       int height,
+                       float fovDistance=100.f,
+                       float near=0.1f,
+                       float far=1000.f);
 
     /// Default destructor.
     ~OrthographicCamera() = default;
+
+    /// @see Camera::reset
+    void reset() override;
 
     /// @brief Creates a ray for an orthographic projection in camera space from a screen pixel
     ///        location. Caller is responsible for managing the memory allocated for this object.
@@ -35,12 +38,14 @@ public:
 
     /// @brief translate in the z-direction
     /// @param factor
-    void zoom(const float factor) override { this->dolly(factor); };
+    void zoom(const float factor) override;
+    float getZoomFactor() const override { return m_zoomFactor; }
 
     /// @brief Set the camera view angle. This will have no effect for an orthographic camera as
     ///        the effective view angle is always zero degrees.
     /// @param angle angular height of the camera view measured in degrees
     void setViewAngle(const float angle) override { }
+    float getViewAngle() const override { return 0.0f; }
 
     //@{
     /// @brief Set/get the location of the near and far clipping planes along the forward axis
@@ -49,13 +54,14 @@ public:
     /// @param  near the near clipping plane along the forward axis
     /// @param  far  the far clipping plane along the forward axis
     void setClippingRange(const float near, const float far) override;
-    glm::vec2 getClippingRange() override { return glm::vec2(m_near, m_far); }
+    glm::vec2 getClippingRange() const override { return glm::vec2(m_near, m_far); }
     //@}
 
     /// @brief Update the screen size.
     /// @param width screen width
     /// @param height screen height
     void setScreenSize(const int width, const int height) override;
+    glm::vec2 getScreenSize() const override { return glm::vec2(m_width, m_height); }
 
     /// @brief Get the parallel projection matrix.
     /// @return the parallel projection matrix
@@ -68,9 +74,13 @@ public:
     float getFOVDistance() const { return m_fovDistance; }
     //@}
 
+    void copy(ProjectionCamera * const camera) override;
+
 private:
     int m_width;
     int m_height;
+    float m_scale;
+    float m_zoomFactor;
 
     float m_fovDistance;
     float m_near;

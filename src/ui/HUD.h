@@ -8,12 +8,12 @@ class QElapsedTimer;
 /**
  * @class HUD
  * @brief Heads-up Display
- * 
- * Semi-transparent overlay displaying rendering details like rendering mode and 
+ *
+ * Semi-transparent overlay displaying rendering details like rendering mode and
  * frames-per-second.
- * 
+ *
 */
-class HUD : public QGraphicsView 
+class HUD : public QGraphicsView
 {
     Q_OBJECT
 
@@ -33,22 +33,27 @@ public:
      * Sets the current rendering mode.
      * @param mode the current rendering mode (rasterization, pathtracing, etc.)
     */
-    void    setRenderingMode(const char *mode);
+    void setRenderingMode(const char *mode);
+
+    /// @brief Sets the camera type.
+    /// @param type Perspective or orthographic
+    void setCameraType(const char *type);
 public slots:
     /**
      * Update the frames per second (FPS) and the frame render time in the HUD.
-     * @param nsecs the number of nanoseconds to render the frame 
-     * 
+     * @param nsecs the number of nanoseconds to render the frame
+     *
     */
     void    updateFrameRenderTime(long long int nsecs);
-    
+
 private:
     QElapsedTimer           *m_fpsTimer;
     QRectF                  *m_position;
     QGraphicsScene          *m_scene;
-    QGraphicsRectItem       *m_border;    
+    QGraphicsRectItem       *m_border;
     QGraphicsSimpleTextItem *m_renderingModeTextItem;
+    QGraphicsSimpleTextItem *m_cameraTextItem;
     QGraphicsSimpleTextItem *m_renderTimeTextItem;
 };
 
-#endif 
+#endif

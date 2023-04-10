@@ -10,6 +10,7 @@ PerspectiveCamera::PerspectiveCamera(int width,
                                      float far) :
     m_width(width),
     m_height(height),
+    m_zoomFactor(1.0f),
     m_fovy(fovy),
     m_near(near),
     m_far(far)
@@ -27,6 +28,13 @@ void PerspectiveCamera::reset()
     m_fovy = 45.0f;
     m_near = 0.1f;
     m_far = 1000.0f;
+}
+
+//----------------------------------------------------------------------------------
+void PerspectiveCamera::zoom(const float factor)
+{
+    m_zoomFactor = factor;
+    this->setViewAngle(m_fovy / factor);
 }
 
 //----------------------------------------------------------------------------------
@@ -98,4 +106,32 @@ PerspectiveCamera::generateWorldRay(const glm::vec2 &pixel)
     ray->m_origin = glm::vec3(cameraToWorldTransform[3]) + ray->m_origin;
 
     return ray;
+}
+
+//----------------------------------------------------------------------------------
+void
+PerspectiveCamera::copy(ProjectionCamera * const camera)
+{
+    if(camera != nullptr)
+    {
+        // Projection Camera
+        this->zoom(camera->getZoomFactor());
+
+        glm::vec2 clippingRange = camera->getClippingRange();
+        this->setClippingRange(clippingRange[0], clippingRange[1]);
+
+        glm::vec2 screenSize = camera->getScreenSize();
+        this->setScreenSize(screenSize.x, screenSize.y);
+
+        // Camera
+        this->setPosition(camera->getPosition());
+        this->setFocalPoint(camera->getFocalPoint());
+        this->setViewUp(camera->getViewUp());
+
+        this->setCameraToWorldMatrix(camera->getCameraToWorldMatrix());
+    }
+    else
+    {
+        this->reset();
+    }
 }

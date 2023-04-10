@@ -5,9 +5,6 @@
 #include "sphere.h"
 
 #include <memory>
-
-//#include <glm/vec3.hpp> // vec3
-//#include <glm/mat4x4.hpp> // mat4
 #include <glm/glm.hpp>
 
 #include <QObject>
@@ -19,7 +16,8 @@ class ProjectionCamera;
 namespace sandbox
 {
     // Scoped enumeration
-    enum class Shader {
+    enum class Shader
+    {
         VERTEX = 0,
         TESS_CONTROL,
         TESS_EVAL,
@@ -62,7 +60,11 @@ public:
     /// Default destuctor
     ~RasterizationScene();
 
+    /// @brief Initialize the OpenGL functions. This method needs to be called from a current OpenGL context.
+    /// @see <a href="https://doc.qt.io/qt-5/qopenglfunctions.html#initializeOpenGLFunctions">QOpenGLFunctions::initializeOpenGLFunctions</a>
     void initialize() override;
+
+    /// @brief This function is called whenever a painting operation is needed.
     void paint() override;
 
     /// Sets up the OpenGL viewport, projection, etc. Gets called whenever the widget
@@ -73,17 +75,32 @@ public:
     /// @param h the height
     void resize(int w, int h) override;
 
-    void initGLSL(sandbox::SceneObject * const);
+    //@{
+    /// @brief Set/get the shape selection index
+    /// @param x the x-coordinate of the mouse
+    /// @param y the y-coordinate of the mouse
+    void setShapeSelection(const int x, const int y);
+    int getShapeSelection() { return m_shapeSelectionIndex; }
+    //@}
 
-    void setShapeSelection(const int, const int);
-    void addShape(Shape * const);
-    void addShapes(Shape **, const size_t);
+    /// @brief Add shape to the scene
+    /// @param  shape the shape to add
+    void addShape(Shape * const shape);
+
+    /// @brief Add the shapes to the scene
+    /// @param shapes the list of shapes to add to the scene
+    /// @param count the size of shapes
+    void addShapes(Shape ** shapes, const size_t count);
 
     //@{
     /// @brief Set/get the projection (perspecivte or orthographic) camera
     void setCamera(ProjectionCamera * const camera) { m_camera = camera; }
     ProjectionCamera *getCamera() const { return m_camera; }
     //@}
+
+    /// @brief Get the currently selected shape.
+    /// @return the selected shape
+    Shape *getSelectedShape();
 
     static void GLAPIENTRY  DebugMessageCallback(GLenum,
                                                  GLenum,
@@ -97,6 +114,8 @@ signals:
     void statusUpdate(QString);
 
 private:
+    void initGLSL(sandbox::SceneObject * const);
+
     // GLuint compileShaders();
     GLuint createShaderProgram(const char * const *vs,
                                const char * const *fs,
@@ -109,7 +128,7 @@ private:
     void printShaderInfoLog(const GLuint * const, const sandbox::Shader);
     void printLinkerInfoLog(const GLuint);
 
-    int         		                    m_shapeSelectionIndex;
+    size_t         		                    m_shapeSelectionIndex;
     std::vector<sandbox::SceneObject>       *m_sceneObjects;
     ProjectionCamera                        *m_camera;
 };

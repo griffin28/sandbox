@@ -2,6 +2,13 @@
 
 #include <glm/ext/matrix_clip_space.hpp> // glm::ortho
 
+// double width = this->ParallelScale * aspect;
+//     double height = this->ParallelScale;
+
+//     double xmin = (this->WindowCenter[0] - 1.0) * width;
+//     double xmax = (this->WindowCenter[0] + 1.0) * width;
+//     double ymin = (this->WindowCenter[1] - 1.0) * height;
+//     double ymax = (this->WindowCenter[1] + 1.0) * height;
 //----------------------------------------------------------------------------------
 OrthographicCamera::OrthographicCamera(int width,
                                       int height,
@@ -10,13 +17,34 @@ OrthographicCamera::OrthographicCamera(int width,
                                       float far) :
     m_width(width),
     m_height(height),
+    m_scale(1.f),
+    m_zoomFactor(1.f),
     m_fovDistance(fovDistance),
     m_near(near),
     m_far(far)
 {
-    m_orthographicMatrix = glm::ortho(0.f, static_cast<float>(width),
-                                      static_cast<float>(height), 0.f,
-                                      near, far);
+    // TODO: fix
+    float w = static_cast<float>(width) * m_scale;
+    float h = static_cast<float>(height) * m_scale;
+
+    float xmin = w/2.f;
+    float xmax = w + xmin;
+    float ymin = h / 2.f;
+    float ymax = h + ymin;
+
+    m_orthographicMatrix = glm::ortho(xmin, xmax, ymin, ymax, near, far);
+}
+
+//----------------------------------------------------------------------------------
+void OrthographicCamera::reset()
+{
+    // TODO: save original values to reset to previous values
+    this->Camera::reset();
+
+    m_scale = 1.0f;
+    m_fovDistance = 100.0f;
+    m_near = 0.1f;
+    m_far = 1000.0f;
 }
 
 //----------------------------------------------------------------------------------
@@ -25,9 +53,15 @@ void OrthographicCamera::setClippingRange(const float near, const float far)
     m_near = near;
     m_far = far;
 
-    m_orthographicMatrix = glm::ortho(0.f, static_cast<float>(m_width),
-                                      static_cast<float>(m_height), 0.f,
-                                      near, far);
+    float w = static_cast<float>(m_width) * m_scale;
+    float h = static_cast<float>(m_height) * m_scale;
+
+    float xmin = w/2.f;
+    float xmax = w + xmin;
+    float ymin = h / 2.f;
+    float ymax = h + ymin;
+
+    m_orthographicMatrix = glm::ortho(xmin, xmax, ymin, ymax, m_near, m_far);
 }
 
 //----------------------------------------------------------------------------------
@@ -36,9 +70,31 @@ void OrthographicCamera::setScreenSize(const int width, const int height)
     m_width = width;
     m_height = height;
 
-    m_orthographicMatrix = glm::ortho(0.f, static_cast<float>(width),
-                                      static_cast<float>(height), 0.f,
-                                      m_near, m_far);
+    float w = static_cast<float>(m_width) * m_scale;
+    float h = static_cast<float>(m_height) * m_scale;
+
+    float xmin = w/2.f;
+    float xmax = w + xmin;
+    float ymin = h / 2.f;
+    float ymax = h + ymin;
+
+    m_orthographicMatrix = glm::ortho(xmin, xmax, ymin, ymax, m_near, m_far);
+}
+
+//----------------------------------------------------------------------------------
+void OrthographicCamera::zoom(const float factor)
+{
+    m_zoomFactor = factor;
+    m_scale /= factor;
+    float w = static_cast<float>(m_width) * m_scale;
+    float h = static_cast<float>(m_height) * m_scale;
+
+    float xmin = w/2.f;
+    float xmax = w + xmin;
+    float ymin = h / 2.f;
+    float ymax = h + ymin;
+
+    m_orthographicMatrix = glm::ortho(xmin, xmax, ymin, ymax, m_near, m_far);
 }
 
 //----------------------------------------------------------------------------------
@@ -67,4 +123,32 @@ OrthographicCamera::generateWorldRay(const glm::vec2 &pixel)
     ray->m_origin = glm::vec3(cameraToWorldTransform[3]) + ray->m_origin;
 
     return ray;
+}
+
+//----------------------------------------------------------------------------------
+void
+OrthographicCamera::copy(ProjectionCamera * const camera)
+{
+    if(camera != nullptr)
+    {
+        // Projection Camera
+        this->zoom(camera->getZoomFactor());
+
+        glm::vec2 clippingRange = camera->getClippingRange();
+        this->setClippingRange(clippingRange[0], clippingRange[1]);
+
+        glm::vec2 screenSize = camera->getScreenSize();
+        this->setScreenSize(screenSize.x, screenSize.y);
+
+        // Camera
+        this->setPosition(camera->getPosition());
+        this->setFocalPoint(camera->getFocalPoint());
+        this->setViewUp(camera->getViewUp());
+
+        this->setCameraToWorldMatrix(camera->getCameraToWorldMatrix());
+    }
+    else
+    {
+        this->reset();
+    }
 }

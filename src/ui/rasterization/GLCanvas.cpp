@@ -13,13 +13,13 @@
 //const GLfloat GLCanvas::RED[] = {1.0f, 0.0f, 0.0f, 1.0f};
 //----------------------------------------------------------------------------------
 GLCanvas::GLCanvas(int w, int h, QWidget *parent) : QOpenGLWidget(parent),
-                                                m_width(w),
-												m_height(h),
-					        					m_scene(new RasterizationScene(this)),
-												m_mouseLeftDown(false),
-												m_mouseRightDown(false),
-												m_posX(-1),
-												m_posY(-1)
+													m_width(w),
+													m_height(h),
+													m_scene(new RasterizationScene(this)),
+													m_mouseLeftDown(false),
+													m_mouseRightDown(false),
+													m_posX(-1),
+													m_posY(-1)
 {
     setMinimumSize(w, h);
     setFocusPolicy(Qt::StrongFocus);
@@ -85,6 +85,7 @@ GLCanvas::mouseMoveEvent(QMouseEvent *event)
 	emit screenCoordsChanged(x, y);
 
 	// TODO: If a shape is selected transform shape, else camera
+	// Shape *selectedShape = m_scene->getSelectedShape();
 
 	ProjectionCamera *camera = m_scene->getCamera();
 

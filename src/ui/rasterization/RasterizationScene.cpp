@@ -166,6 +166,19 @@ RasterizationScene::addShapes(Shape **shapes, const size_t size)
     update();
 }
 
+//----------------------------------------------------------------------------------
+Shape *
+RasterizationScene::getSelectedShape()
+{
+    if(m_shapeSelectionIndex >= 0)
+    {
+        sandbox::SceneObject sceneObject = m_sceneObjects->at(m_shapeSelectionIndex);
+        return sceneObject.shape;
+    }
+
+    return nullptr;
+}
+
 void
 RasterizationScene::updateShaderInputs(Shape const *shapePtr, const GLuint program)
 {

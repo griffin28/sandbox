@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Initialize shapes cache
     m_shapePtrs = new std::vector<Shape *>();
 
-    // TODO: base this off UI setting
+    // Initialize camera
     m_camera.reset(new PerspectiveCamera(RasterizationWidget::WIDTH, RasterizationWidget::HEIGHT));
 
     // Initialize rendering widgets
@@ -176,6 +176,13 @@ MainWindow::createActions()
     m_accelBVHAction = new QAction(QIcon(":images/dot.png"), tr("BVH"), this);
     m_accelBVHAction->setIconVisibleInMenu(false);
     connect(m_accelBVHAction, &QAction::triggered, this, &MainWindow::tempActionHandler);
+
+    m_perspectiveCameraAction = new QAction(QIcon(":images/dot.png"), tr("Perspective"), this);
+    connect(m_perspectiveCameraAction, &QAction::triggered, this, &MainWindow::perspectiveCameraActionHandler);
+
+    m_orthoCameraAction = new QAction(QIcon(":images/dot.png"), tr("Orthographic"), this);
+    m_orthoCameraAction->setIconVisibleInMenu(false);
+    connect(m_orthoCameraAction, &QAction::triggered, this, &MainWindow::orthoCameraActionHandler);
 }
 
 //----------------------------------------------------------------------------------
@@ -225,15 +232,20 @@ MainWindow::createRenderingMenu()
     // Root
     m_renderingMenu = menuBar()->addMenu(tr("Rendering"));
 
+    // Acceleration
+    QMenu *accelMenu = m_renderingMenu->addMenu(tr("Acceleration"));
+    accelMenu->addAction(m_accelNoneAction);
+    accelMenu->addAction(m_accelBVHAction);
+
     // Mode
     QMenu *modeMenu = m_renderingMenu->addMenu(tr("Mode"));
     modeMenu->addAction(m_rasterizationAction);
     modeMenu->addAction(m_pathTracingAction);
 
-    // Acceleration
-    QMenu *accelMenu = m_renderingMenu->addMenu(tr("Acceleration"));
-    accelMenu->addAction(m_accelNoneAction);
-    accelMenu->addAction(m_accelBVHAction);
+    // Cameras
+    QMenu *cameraMenu = m_renderingMenu->addMenu(tr("Camera"));
+    cameraMenu->addAction(m_orthoCameraAction);
+    cameraMenu->addAction(m_perspectiveCameraAction);
 }
 
 //----------------------------------------------------------------------------------
@@ -428,6 +440,15 @@ MainWindow::rasterizationActionHandler()
         RasterizationScene *scene = m_rasterizationWidget->m_canvas->getScene();
         scene->setCamera(m_camera.get());
 
+        if(m_perspectiveCameraAction->isIconVisibleInMenu())
+        {
+            m_hud->setCameraType("Perspective");
+        }
+        else
+        {
+            m_hud->setCameraType("Orthographic");
+        }
+
         if(!m_shapePtrs->empty())
         {
             // implicit update
@@ -457,6 +478,58 @@ MainWindow::pathtracingActionHandler()
         this->setCentralWidget(m_pathTracerWidget);
 
         connectRendererSignals(RendererType::PATHTRACING);
+
+        if(m_perspectiveCameraAction->isIconVisibleInMenu())
+        {
+            m_hud->setCameraType("Perspective");
+        }
+        else
+        {
+            m_hud->setCameraType("Orthographic");
+        }
+
+        update();
+    }
+}
+
+//----------------------------------------------------------------------------------
+void
+MainWindow::orthoCameraActionHandler()
+{
+    if(!m_orthoCameraAction->isIconVisibleInMenu())
+    {
+        m_orthoCameraAction->setIconVisibleInMenu(true);
+        m_perspectiveCameraAction->setIconVisibleInMenu(false);
+
+        OrthographicCamera *camera = new OrthographicCamera(RasterizationWidget::WIDTH,
+                                                            RasterizationWidget::HEIGHT);
+        camera->copy(m_camera.get());
+
+        m_camera.reset(camera);
+        m_rasterizationWidget->m_canvas->getScene()->setCamera(m_camera.get());
+
+        m_hud->setCameraType("Orthographic");
+        update();
+    }
+}
+
+//----------------------------------------------------------------------------------
+void
+MainWindow::perspectiveCameraActionHandler()
+{
+    if(!m_perspectiveCameraAction->isIconVisibleInMenu())
+    {
+        m_orthoCameraAction->setIconVisibleInMenu(false);
+        m_perspectiveCameraAction->setIconVisibleInMenu(true);
+
+        PerspectiveCamera *camera = new PerspectiveCamera(RasterizationWidget::WIDTH,
+                                                          RasterizationWidget::HEIGHT);
+        camera->copy(m_camera.get());
+
+        m_camera.reset(camera);
+        m_rasterizationWidget->m_canvas->getScene()->setCamera(m_camera.get());
+
+        m_hud->setCameraType("Perspective");
         update();
     }
 }
