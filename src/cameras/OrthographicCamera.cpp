@@ -2,19 +2,12 @@
 
 #include <glm/ext/matrix_clip_space.hpp> // glm::ortho
 
-// double width = this->ParallelScale * aspect;
-//     double height = this->ParallelScale;
-
-//     double xmin = (this->WindowCenter[0] - 1.0) * width;
-//     double xmax = (this->WindowCenter[0] + 1.0) * width;
-//     double ymin = (this->WindowCenter[1] - 1.0) * height;
-//     double ymax = (this->WindowCenter[1] + 1.0) * height;
 //----------------------------------------------------------------------------------
 OrthographicCamera::OrthographicCamera(int width,
-                                      int height,
-                                      float fovDistance,
-                                      float near,
-                                      float far) :
+                                       int height,
+                                       float fovDistance,
+                                       float near,
+                                       float far) :
     m_width(width),
     m_height(height),
     m_scale(1.f),
@@ -23,14 +16,17 @@ OrthographicCamera::OrthographicCamera(int width,
     m_near(near),
     m_far(far)
 {
-    // TODO: fix
-    float w = static_cast<float>(width) * m_scale;
-    float h = static_cast<float>(height) * m_scale;
+    float widthf = static_cast<float>(m_width);
+    float heightf = static_cast<float>(m_height);
+    float aspect =  widthf / heightf;
 
-    float xmin = w/2.f;
-    float xmax = w + xmin;
-    float ymin = h / 2.f;
-    float ymax = h + ymin;
+    float w = widthf * aspect * m_scale * 0.5f;
+    float h = m_scale * heightf * 0.5f;
+
+    float xmin = -1.0f * w;
+    float xmax = w;
+    float ymin = -1.0f * h;
+    float ymax = h;
 
     m_orthographicMatrix = glm::ortho(xmin, xmax, ymin, ymax, near, far);
 }
@@ -53,13 +49,17 @@ void OrthographicCamera::setClippingRange(const float near, const float far)
     m_near = near;
     m_far = far;
 
-    float w = static_cast<float>(m_width) * m_scale;
-    float h = static_cast<float>(m_height) * m_scale;
+    float widthf = static_cast<float>(m_width);
+    float heightf = static_cast<float>(m_height);
+    float aspect =  widthf / heightf;
 
-    float xmin = w/2.f;
-    float xmax = w + xmin;
-    float ymin = h / 2.f;
-    float ymax = h + ymin;
+    float w = widthf * aspect * m_scale * 0.5f;
+    float h = m_scale * heightf * 0.5f;
+
+    float xmin = w * -1.0f;
+    float xmax = w;
+    float ymin = h * -1.0f;
+    float ymax = h;
 
     m_orthographicMatrix = glm::ortho(xmin, xmax, ymin, ymax, m_near, m_far);
 }
@@ -70,13 +70,17 @@ void OrthographicCamera::setScreenSize(const int width, const int height)
     m_width = width;
     m_height = height;
 
-    float w = static_cast<float>(m_width) * m_scale;
-    float h = static_cast<float>(m_height) * m_scale;
+    float widthf = static_cast<float>(m_width);
+    float heightf = static_cast<float>(m_height);
+    float aspect =  widthf / heightf;
 
-    float xmin = w/2.f;
-    float xmax = w + xmin;
-    float ymin = h / 2.f;
-    float ymax = h + ymin;
+    float w = widthf * aspect * m_scale * 0.5f;
+    float h = m_scale * heightf * 0.5f;
+
+    float xmin = w * -1.0f;
+    float xmax = w;
+    float ymin = h * -1.0f;
+    float ymax = h;
 
     m_orthographicMatrix = glm::ortho(xmin, xmax, ymin, ymax, m_near, m_far);
 }
@@ -86,13 +90,18 @@ void OrthographicCamera::zoom(const float factor)
 {
     m_zoomFactor = factor;
     m_scale /= factor;
-    float w = static_cast<float>(m_width) * m_scale;
-    float h = static_cast<float>(m_height) * m_scale;
 
-    float xmin = w/2.f;
-    float xmax = w + xmin;
-    float ymin = h / 2.f;
-    float ymax = h + ymin;
+    float widthf = static_cast<float>(m_width);
+    float heightf = static_cast<float>(m_height);
+    float aspect =  widthf / heightf;
+
+    float w = widthf * aspect * m_scale * 0.5f;
+    float h = m_scale * heightf * 0.5f;
+
+    float xmin = w * -1.0f;
+    float xmax = w;
+    float ymin = h * -1.0f;
+    float ymax = h;
 
     m_orthographicMatrix = glm::ortho(xmin, xmax, ymin, ymax, m_near, m_far);
 }

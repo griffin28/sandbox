@@ -18,32 +18,24 @@ class HUD : public QGraphicsView
     Q_OBJECT
 
 public:
-    /**
-     * Constructs a Heads-up Display.
-     * @param parent this widget's parent
-    */
+    /// @brief Constructs a heads-up display.
+    /// @param parent this widget's parent
     HUD(QWidget *parent);
 
-    /**
-     * Default destructor.
-    */
+    /// Default destructor
     ~HUD() = default;
 
-    /**
-     * Sets the current rendering mode.
-     * @param mode the current rendering mode (rasterization, pathtracing, etc.)
-    */
+    /// @brief Sets the current rendering mode.
+    /// @param mode the current rendering mode (rasterization, pathtracing, etc.)
     void setRenderingMode(const char *mode);
 
     /// @brief Sets the camera type.
     /// @param type Perspective or orthographic
     void setCameraType(const char *type);
+
 public slots:
-    /**
-     * Update the frames per second (FPS) and the frame render time in the HUD.
-     * @param nsecs the number of nanoseconds to render the frame
-     *
-    */
+     /// @brief Update the frames per second (FPS) and the frame render time in the HUD.
+     /// @param nsecs the number of nanoseconds to render the frame
     void    updateFrameRenderTime(long long int nsecs);
 
 private:

@@ -3,6 +3,14 @@
 
 #include "ProjectionCamera.h"
 
+/// @class OrthographicCamera
+/// @brief Represents the orthographic camera for parallel projections
+///
+/// TODO: details from book
+/// The orthographic camera is commonly used in engineering. All objects appear at the same scale,
+/// parallel lines remain parallel and a unit of length will appear to have the same length
+/// everywhere in the rendering. This makes it easier to judge relative sizes and to align models.
+///
 class OrthographicCamera : public ProjectionCamera
 {
 public:
