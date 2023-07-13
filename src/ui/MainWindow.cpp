@@ -22,12 +22,9 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     m_hud(nullptr),
-    m_shapePtrs(nullptr),
+    m_shapes(),
     m_camera(nullptr)
 {
-    // Initialize shapes cache
-    m_shapePtrs = new std::vector<Shape *>();
-
     // Initialize camera
     m_camera.reset(new PerspectiveCamera(RasterizationWidget::WIDTH, RasterizationWidget::HEIGHT));
 
@@ -59,18 +56,7 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 //----------------------------------------------------------------------------------
-MainWindow::~MainWindow()
-{
-    if(m_shapePtrs != nullptr)
-    {
-        for(int i=0; i<m_shapePtrs->size(); i++)
-        {
-            delete m_shapePtrs->at(i);
-        }
-
-        delete m_shapePtrs;
-    }
-}
+MainWindow::~MainWindow() {}
 
 //----------------------------------------------------------------------------------
 void
@@ -351,11 +337,11 @@ MainWindow::showAddSphereDialog()
                                static_cast<float>(centerDist(randEngine)) - width/2.0f,
                                static_cast<float>(centerDist(randEngine)) - width/2.0f};
 
-            Sphere *sphere = new Sphere(radius, center[0], center[1], center[2]);
+            std::shared_ptr<Shape> sphere(new Sphere(radius, center[0], center[1], center[2]));
             sphere->setType(ShapeType::SPHERE);
             sphere->setColor(color[0], color[1], color[2], color[3]);
 
-            m_shapePtrs->emplace_back(sphere);
+            m_shapes.emplace_back(sphere);
         }
     }
     else
@@ -365,18 +351,18 @@ MainWindow::showAddSphereDialog()
         float color[4];
         sphereDialog.getColor(color);
 
-        Sphere *sphere = new Sphere(radius, center[0], center[1], center[2]);
+        std::shared_ptr<Shape> sphere(new Sphere(radius, center[0], center[1], center[2]));
         sphere->setType(ShapeType::SPHERE);
         sphere->setColor(color[0], color[1], color[2], color[3]);
         sphere->translate(glm::vec3(0.0f,0.0f,-20.0f));
 
-        m_shapePtrs->emplace_back(sphere);
+        m_shapes.emplace_back(sphere);
     }
 
     if(m_rasterizationWidget != nullptr)
     {
         RasterizationScene *scene = m_rasterizationWidget->m_canvas->getScene();
-        scene->addShapes(m_shapePtrs->data(), m_shapePtrs->size());
+        scene->addShapes(m_shapes);
     }
 }
 
@@ -449,10 +435,10 @@ MainWindow::rasterizationActionHandler()
             m_hud->setCameraType("Orthographic");
         }
 
-        if(!m_shapePtrs->empty())
+        if(!m_shapes.empty())
         {
             // implicit update
-            scene->addShapes(m_shapePtrs->data(), m_shapePtrs->size());
+            scene->addShapes(m_shapes);
         }
         else
         {

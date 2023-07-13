@@ -29,13 +29,13 @@ namespace sandbox
    /// @brief Collects all of the OpenGL scene related objects
    struct SceneObject
    {
-        SceneObject() : shape(nullptr),
+        SceneObject() : shape(),
                         program(0),
                         vertexArray(0),
                         positionBuffer(0),
                         indexBuffers{0,1} {}
 
-        Shape   *shape;
+        std::shared_ptr<Shape> shape;
         GLuint  program;
         GLuint  vertexArray;
         GLuint  positionBuffer;
@@ -85,12 +85,11 @@ public:
 
     /// @brief Add shape to the scene
     /// @param  shape the shape to add
-    void addShape(Shape * const shape);
+    void addShape(std::shared_ptr<Shape> shape);
 
     /// @brief Add the shapes to the scene
-    /// @param shapes the list of shapes to add to the scene
-    /// @param count the size of shapes
-    void addShapes(Shape ** shapes, const size_t count);
+    /// @param shapes the shapes to add to the scene
+    void addShapes(std::vector<std::shared_ptr<Shape>> shapes);
 
     //@{
     /// @brief Set/get the projection (perspecivte or orthographic) camera
@@ -100,7 +99,7 @@ public:
 
     /// @brief Get the currently selected shape.
     /// @return the selected shape
-    Shape *getSelectedShape();
+    std::shared_ptr<Shape> getSelectedShape();
 
     static void GLAPIENTRY  DebugMessageCallback(GLenum,
                                                  GLenum,
@@ -123,7 +122,7 @@ private:
                                const char * const *tcs=nullptr,
                                const char * const *tes=nullptr);
     GLuint  compileComputeShaders();
-    void    updateShaderInputs(Shape const *, const GLuint);
+    void    updateShaderInputs(std::shared_ptr<Shape>, const GLuint);
 
     void printShaderInfoLog(const GLuint * const, const sandbox::Shader);
     void printLinkerInfoLog(const GLuint);

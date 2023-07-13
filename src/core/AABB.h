@@ -32,6 +32,20 @@ public:
     /// @throws std::runtime_error if the corner index is not in the range of 0 to 7 inclusive.
     glm::vec3 corner(const int c) const;
 
+    /// @brief Compute the surface area of the six faces of the bounding box.
+    /// @return the surface area of the bounding box
+    float surfaceArea() const;
+
+    /// @brief Compute the volume of the bounding box.
+    /// @return the volume of this bounding box
+    float volume() const;
+
+    /// @brief Construct a new bounding box that bounds the space encompassed by the two bounding boxes.
+    /// @param box1 the first bounding box
+    /// @param box2 the second bounding box
+    /// @return  A new bounding box bounding the space encompassed by box1 and box2
+    AxisAlignedBoundingBox combine(const AxisAlignedBoundingBox &box1, const AxisAlignedBoundingBox &box2);
+
     /// @brief Uses the slab test to determine if a ray intersects the bounding box.
     /// @param ray the ray to test for intersection
     /// @return true if the ray intersects this bounding box, otherwise false

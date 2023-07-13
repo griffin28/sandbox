@@ -50,3 +50,31 @@ bool AxisAlignedBoundingBox::intersect(Ray * const ray)
 
     return tBoxMin <= tBoxMax;
 }
+
+//----------------------------------------------------------------------------------
+float AxisAlignedBoundingBox::surfaceArea() const
+{
+    glm::vec3 diagonal = m_pMax - m_pMin;
+    float retVal = 2 * (diagonal.x * diagonal.y + diagonal.x * diagonal.z + diagonal.y * diagonal.z);
+    return retVal;
+}
+
+//----------------------------------------------------------------------------------
+float AxisAlignedBoundingBox::volume() const
+{
+    glm::vec3 diagonal = m_pMax - m_pMin;
+    float retVal = diagonal.x * diagonal.y * diagonal.z;
+    return retVal;
+}
+
+//----------------------------------------------------------------------------------
+AxisAlignedBoundingBox AxisAlignedBoundingBox::combine(const AxisAlignedBoundingBox &box1,
+                                                       const AxisAlignedBoundingBox &box2)
+{
+    return AxisAlignedBoundingBox(glm::vec3(std::min(box1.m_pMin.x, box2.m_pMin.x),
+                                            std::min(box1.m_pMin.y, box2.m_pMin.y),
+                                            std::min(box1.m_pMin.z, box2.m_pMin.z)),
+                                  glm::vec3(std::max(box1.m_pMax.x, box2.m_pMax.x),
+                                            std::max(box1.m_pMax.y, box2.m_pMax.y),
+                                            std::max(box1.m_pMax.z, box2.m_pMax.z)));
+}

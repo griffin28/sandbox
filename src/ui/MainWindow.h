@@ -111,7 +111,7 @@ private:
     QWidget     *m_pathTracerWidget;
     HUD         *m_hud;
 
-    std::vector<Shape *>                *m_shapePtrs;
+    std::vector<std::shared_ptr<Shape>> m_shapes;
     std::unique_ptr<ProjectionCamera>   m_camera;
 
     // Menu Bar

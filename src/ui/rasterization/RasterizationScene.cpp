@@ -24,10 +24,8 @@ RasterizationScene::RasterizationScene(GLCanvas *glWidget):
 //----------------------------------------------------------------------------------
 RasterizationScene::~RasterizationScene()
 {
-    for(size_t i=0; i<m_sceneObjects->size(); i++)
+    for(auto sceneObject : *m_sceneObjects)
     {
-        sandbox::SceneObject sceneObject = m_sceneObjects->at(i);
-
         GLuint vao = sceneObject.vertexArray;
         glDeleteVertexArrays(1, &vao);
 
@@ -37,6 +35,8 @@ RasterizationScene::~RasterizationScene()
 	    glDeleteBuffers(2, sceneObject.indexBuffers);
         glDeleteProgram(sceneObject.program);
     }
+
+    delete m_sceneObjects;
 }
 
 //
@@ -138,7 +138,7 @@ RasterizationScene::setShapeSelection(const int x, const int y)
 
 //----------------------------------------------------------------------------------
 void
-RasterizationScene::addShape(Shape * const shape)
+RasterizationScene::addShape(std::shared_ptr<Shape> shape)
 {
     shape->setShadingModel(new LambertShadingModel());
 
@@ -153,11 +153,10 @@ RasterizationScene::addShape(Shape * const shape)
 
 //----------------------------------------------------------------------------------
 void
-RasterizationScene::addShapes(Shape **shapes, const size_t size)
+RasterizationScene::addShapes(std::vector<std::shared_ptr<Shape>> shapes)
 {
-    for(size_t i=0; i<size; i++)
+    for(auto shape : shapes)
     {
-        Shape *shape = shapes[i];
         shape->setShadingModel(new LambertShadingModel());
 
         sandbox::SceneObject sceneObject;
@@ -171,7 +170,7 @@ RasterizationScene::addShapes(Shape **shapes, const size_t size)
 }
 
 //----------------------------------------------------------------------------------
-Shape *
+std::shared_ptr<Shape>
 RasterizationScene::getSelectedShape()
 {
     if(m_shapeSelectionIndex >= 0)
@@ -184,9 +183,9 @@ RasterizationScene::getSelectedShape()
 }
 
 void
-RasterizationScene::updateShaderInputs(Shape const *shapePtr, const GLuint program)
+RasterizationScene::updateShaderInputs(std::shared_ptr<Shape> shape, const GLuint program)
 {
-    const float *shapeColor = shapePtr->getColor();
+    const float *shapeColor = shape->getColor();
 
     // TODO: Create uniform blocks for lights and bind at global level to be shared
     // by all shaders
@@ -235,7 +234,7 @@ RasterizationScene::updateShaderInputs(Shape const *shapePtr, const GLuint progr
 void
 RasterizationScene::initGLSL(sandbox::SceneObject * const sceneObject)
 {
-    Shape *shape = sceneObject->shape;
+    std::shared_ptr<Shape> shape = sceneObject->shape;
 
     const char *vertexShaderSource = shape->getShadingModel()->getVertexShaderSource();
     const char *fragmentShaderSource = shape->getShadingModel()->getFragmentShaderSource();
@@ -344,7 +343,7 @@ RasterizationScene::paint() {
             sandbox::SceneObject sceneObject = m_sceneObjects->at(i);
             glBindVertexArray(sceneObject.vertexArray);
 
-            Shape *shape = sceneObject.shape;
+            std::shared_ptr<Shape> shape = sceneObject.shape;
 
             GLuint program = sceneObject.program;
             glUseProgram(program);
