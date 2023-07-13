@@ -2,6 +2,7 @@
 #include "GLCanvas.h"
 #include "lambert.h"
 #include "ProjectionCamera.h"
+#include "Ray.h"
 
 #include <glm/ext/matrix_transform.hpp>	 // translate, rotate, scale
 #include <glm/ext/matrix_clip_space.hpp> // glm::perspective
@@ -127,6 +128,9 @@ RasterizationScene::DebugMessageCallback(GLenum source,
 void
 RasterizationScene::setShapeSelection(const int x, const int y)
 {
+    Ray *ray = this->getCamera()->generateWorldRay(glm::vec2(x,y));
+    // Sort m_sceneObjects by closest to ray
+    // For each shape test if ray intersects it's axis-aligned bounding box
     m_shapeSelectionIndex = m_shapeSelectionIndex == -1 ? 0 : -1;
     update();
     // TODO: m_shapeSelectionIndex = findShapeIntersection(x, y);
