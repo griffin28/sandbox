@@ -1,4 +1,5 @@
 set (CORE_SRCS
+    AABB.cpp
     Ray.h)
 
 INCLUDE_DIRECTORIES(
