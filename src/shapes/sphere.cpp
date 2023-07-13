@@ -3,6 +3,7 @@
 #include <iostream>
 #include <glm/ext/scalar_constants.hpp>
 
+//----------------------------------------------------------------------------------
 Sphere::Sphere() :
     m_radius(-1.0f),
     m_center(-1.0f, -1.0f, -1.0f),
@@ -18,6 +19,7 @@ Sphere::Sphere() :
     set(1.0f, 0.0f, 0.0f, 0.0f, true, true);
 }
 
+//----------------------------------------------------------------------------------
 Sphere::Sphere(float radius, float x, float y, const float z, bool smooth, bool buildGeometry) :
     m_radius(-1.0f),
     m_center(-1.0f, -1.0f, -1.0f),
@@ -33,8 +35,38 @@ Sphere::Sphere(float radius, float x, float y, const float z, bool smooth, bool 
     set(radius, x, y, z, smooth, buildGeometry);
 }
 
-void
-Sphere::set(const float radius, const float x, const float y, const float z, const bool smooth, const bool buildGeometry)
+//----------------------------------------------------------------------------------
+AxisAlignedBoundingBox Sphere::objectBounds() const
+{
+    glm::vec3 p0 = glm::vec3(-(m_radius + m_center.x),
+                             -(m_radius + m_center.y),
+                             -(m_radius + m_center.z));
+    glm::vec3 p1 = glm::vec3((m_radius + m_center.x),
+                             (m_radius + m_center.y),
+                             (m_radius + m_center.z));
+
+    return AxisAlignedBoundingBox(p0, p1);
+}
+
+//----------------------------------------------------------------------------------
+AxisAlignedBoundingBox Sphere::worldBounds() const
+{
+    glm::vec3 p0 = glm::vec3(-(m_radius + m_center.x),
+                             -(m_radius + m_center.y),
+                             -(m_radius + m_center.z));
+    glm::vec3 p1 = glm::vec3((m_radius + m_center.x),
+                             (m_radius + m_center.y),
+                             (m_radius + m_center.z));
+
+    glm::vec4 worldp0 = glm::vec4(p0, 1.f) * this->getModelTransform();
+    glm::vec4 worldp1 = glm::vec4(p1, 1.f) * this->getModelTransform();
+
+    return AxisAlignedBoundingBox(glm::vec3(worldp0[0]/worldp0[3], worldp0[1]/worldp0[3], worldp0[2]/worldp0[3]),
+                                  glm::vec3(worldp1[0]/worldp1[3], worldp1[1]/worldp1[3], worldp1[2]/worldp1[3]));
+}
+
+//----------------------------------------------------------------------------------
+void Sphere::set(const float radius, const float x, const float y, const float z, const bool smooth, const bool buildGeometry)
 {
     if(radius == m_radius &&
        smooth == m_smooth &&
@@ -67,6 +99,7 @@ Sphere::set(const float radius, const float x, const float y, const float z, con
     }
 }
 
+//----------------------------------------------------------------------------------
 void
 Sphere::setRadius(const float radius)
 {

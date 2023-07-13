@@ -6,26 +6,49 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+/// @class AxisAlignedBoundingBox
+/// @brief Axis aligned bounding box
+///
+/// Axis aligned bounding box where the box edges are mutually perpendicular and aligned with
+/// the coordinate system axes.
 class AxisAlignedBoundingBox
 {
 public:
+    /// Default constructor
     AxisAlignedBoundingBox();
+
+    /// @brief Constructor
+    ///
+    /// @param p1 Minimum point of the bounding box
+    /// @param p2 Maximum point of the bounding box
     AxisAlignedBoundingBox(const glm::vec3 &p1, const glm::vec3 &p2);
+
+    /// Default destructor
     ~AxisAlignedBoundingBox() = default;
 
-    glm::vec3 corner(int);
-    bool intersect(Ray * const);
+    /// @brief Get one corner of the bounding box
+    /// @param  c the corner index which can be one of eight values ranging from 0 to 7.
+    /// @return the coordinates of one of the eight corners of the bounding box.
+    /// @throws std::runtime_error if the corner index is not in the range of 0 to 7 inclusive.
+    glm::vec3 corner(const int c) const;
+
+    /// @brief Uses the slab test to determine if a ray intersects the bounding box.
+    /// @param ray the ray to test for intersection
+    /// @return true if the ray intersects this bounding box, otherwise false
+    bool intersect(Ray * const ray);
 
     friend std::ostream &operator<<(std::ostream &os, const AxisAlignedBoundingBox &b)
     {
-        os << "[ (" << b.pMin.x << "," << b.pMin.y << "," << b.pMin.z << ")"
-           << " - (" << b.pMax.x << "," << b.pMax.y << "," << b.pMax.z << ") ]";
+        os << "[ (" << b.m_pMin.x << "," << b.m_pMin.y << "," << b.m_pMin.z << ")"
+           << " - (" << b.m_pMax.x << "," << b.m_pMax.y << "," << b.m_pMax.z << ") ]";
 
         return os;
     }
 
-    glm::vec3 pMin;
-    glm::vec3 pMax;
+    /// @brief minimum point of the bounding box
+    glm::vec3 m_pMin;
+    /// @brief maximum point of the bounding box
+    glm::vec3 m_pMax;
 };
 
 #endif

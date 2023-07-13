@@ -12,6 +12,9 @@ public:
     Sphere(float r, float x, float y, float z, bool smooth=true, bool buildGeometry=true);
     ~Sphere() = default;
 
+    AxisAlignedBoundingBox objectBounds() const override;
+    AxisAlignedBoundingBox worldBounds() const override;
+
     // Getter/setters
     float   getRadius() const { return m_radius; }
     float   getSectorCount() const { return m_radius * UNIT_SECTOR_COUNT; }

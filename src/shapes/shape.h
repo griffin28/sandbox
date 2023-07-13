@@ -2,16 +2,12 @@
 #define INCLUDED_SHAPE_H
 
 #include "model.h"
-// TODO: #include "aabb.h"
+#include "AABB.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <memory>
-
-// TODO:
-// - bounding box
-// - ray intersection
 
 // Scoped enumeration
 enum class ShapeType
@@ -25,6 +21,9 @@ class Shape {
 public:
     Shape();
     virtual ~Shape() = default;
+
+    virtual AxisAlignedBoundingBox objectBounds() const = 0;
+    virtual AxisAlignedBoundingBox worldBounds() const = 0;
 
     // TODO: Make pure virtual and implement in concrete shape
     //@{
@@ -55,11 +54,6 @@ public:
 
     ShapeType  getType() const { return m_type; }
     void       setType(const ShapeType type) { m_type = type; }
-
-    //virtual AxisAlignedBB objectBounds() const = 0;
-    //virtual AxisAlignedBB worldBounds() const = 0;
-
-    //virtual bool intersect() const = 0;
 
     /// @brief scale this shape
     /// @param factor the scale factor
