@@ -4,13 +4,11 @@
 #include "ProjectionCamera.h"
 
 /// @class OrthographicCamera
-/// @brief Represents the orthographic camera for parallel projections
+/// @brief Represents a projection camera for parallel projections
 ///
-/// TODO: details from book
 /// The orthographic camera is commonly used in engineering. All objects appear at the same scale,
 /// parallel lines remain parallel and a unit of length will appear to have the same length
-/// everywhere in the rendering. This makes it easier to judge relative sizes and to align models.
-///
+/// everywhere in the rendering (it doesn't give the effect of foreshortening).
 class OrthographicCamera : public ProjectionCamera
 {
 public:
@@ -32,8 +30,8 @@ public:
     /// @see Camera::reset
     void reset() override;
 
-    /// @brief Creates a ray for an orthographic projection in camera space from a screen pixel
-    ///        location. Caller is responsible for managing the memory allocated for this object.
+    /// Creates a ray for an orthographic projection in camera space from a screen pixel location.
+    /// Caller is responsible for managing the memory allocated for this object.
     /// @param pixel the x- and y-coordinates of the pixel in raster space
     /// @return
     Ray *generateRay(const glm::vec2 &pixel) override;

@@ -3,6 +3,14 @@
 
 #include "ProjectionCamera.h"
 
+/// @class PerspectiveCamera
+/// @brief Represents a projection camera for perspective projections
+///
+/// The perspective camera projects a volume of space onto a 2D plane. It also uses the effect
+/// of foreshortening where objects that are far away are projected to be smaller than objects
+/// of the same size that are closer. The perspective projection doesn't preserve distances or
+/// angles and parallel lines no longer remain parallel. The perspective projection is a reasonably
+/// close match to how an eye or camera lens generates images of the 3D world.
 class PerspectiveCamera : public ProjectionCamera
 {
 public:

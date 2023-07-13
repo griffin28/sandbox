@@ -3,6 +3,10 @@
 
 #include <glm/glm.hpp>
 
+/// @class Camera
+/// @brief virtual camera for 3D rendering
+///
+/// Base camera class that all camera implementations must inherit.
 class Camera
 {
 public:
@@ -36,12 +40,12 @@ public:
     void dolly(const float value);
 
     /// @brief Translation of the camera along its vertical axis.
-    /// @param value
+    /// @param value the amount to move the camera
     void boom(const float value);
     //@}
 
     //@{
-    /// Get the forward, horizontal, and vertical axes.
+    /// Get the normalized forward, horizontal, and vertical axes.
     glm::vec3 getForwardAxis();
     glm::vec3 getHorizontalAxis();
     glm::vec3 getVerticalAxis();
@@ -55,7 +59,7 @@ public:
     //@}
 
     //@{
-    /// @brief Set/Get the focal of the camera in world coordinates. The default
+    /// @brief Set/Get the focal point of the camera in world coordinates. The default
     ///        focal point is the origin.
     /// @param focalPoint
     void setFocalPoint(const glm::vec3 &focalPoint);
@@ -63,7 +67,7 @@ public:
     //@}
 
     //@{
-    /// Set/get the camera view up direction. The up vector will be
+    /// Set/get the camera view up direction. The view up vector will be
     /// normalized.
     void setViewUp(const glm::vec3 &up);
     glm::vec3 getViewUp() const { return m_viewUp; }
@@ -71,11 +75,11 @@ public:
 
     /// @brief The viewing transformation for moving objects from world space to view space.
     /// @return world to view transformation matrix
-    glm::mat4 getViewMatrix() { return  m_viewMatrix; }
+    glm::mat4 getViewMatrix() const { return  m_viewMatrix; }
 
     //@{
     /// Set/get the camera to world matrix for moving the camera to world space.
-    glm::mat4 getCameraToWorldMatrix() { return m_modelMatrix; }
+    glm::mat4 getCameraToWorldMatrix() const { return m_modelMatrix; }
     void setCameraToWorldMatrix(const glm::mat4 &matrix);
     //@}
 
