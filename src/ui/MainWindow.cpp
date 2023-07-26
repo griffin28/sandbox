@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Initialize rendering widgets
 	m_rasterizationWidget = new RasterizationWidget(this);
-    m_rasterizationWidget->m_canvas->getScene()->setCamera(m_camera.get());
+    m_rasterizationWidget->m_canvas->getScene()->setCamera(m_camera);
 
 	setCentralWidget(m_rasterizationWidget);
 	setWindowTitle("Rendering Sandbox");
@@ -424,7 +424,7 @@ MainWindow::rasterizationActionHandler()
         connectRendererSignals(RendererType::RASTERIZATION);
 
         RasterizationScene *scene = m_rasterizationWidget->m_canvas->getScene();
-        scene->setCamera(m_camera.get());
+        scene->setCamera(m_camera);
 
         if(m_perspectiveCameraAction->isIconVisibleInMenu())
         {
@@ -492,7 +492,7 @@ MainWindow::orthoCameraActionHandler()
         camera->copy(m_camera.get());
 
         m_camera.reset(camera);
-        m_rasterizationWidget->m_canvas->getScene()->setCamera(m_camera.get());
+        m_rasterizationWidget->m_canvas->getScene()->setCamera(m_camera);
 
         m_hud->setCameraType("Orthographic");
         update();
@@ -513,7 +513,7 @@ MainWindow::perspectiveCameraActionHandler()
         camera->copy(m_camera.get());
 
         m_camera.reset(camera);
-        m_rasterizationWidget->m_canvas->getScene()->setCamera(m_camera.get());
+        m_rasterizationWidget->m_canvas->getScene()->setCamera(m_camera);
 
         m_hud->setCameraType("Perspective");
         update();

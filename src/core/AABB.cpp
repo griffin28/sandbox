@@ -31,19 +31,19 @@ glm::vec3 AxisAlignedBoundingBox::corner(const int c) const
 }
 
 //----------------------------------------------------------------------------------
-bool AxisAlignedBoundingBox::intersect(Ray * const ray)
+bool AxisAlignedBoundingBox::intersect(const Ray &ray)
 {
-    glm::vec3 invRayDir = glm::vec3(1.f / ray->m_direction.x,
-                                    1.f / ray->m_direction.y,
-                                    1.f / ray->m_direction.z);
+    glm::vec3 invRayDir = glm::vec3(1.f / ray.m_direction.x,
+                                    1.f / ray.m_direction.y,
+                                    1.f / ray.m_direction.z);
 
     // Absolute distance to lower and upper box coordinates
-    glm::vec3 tLower = (m_pMin - ray->m_origin) * invRayDir;
-    glm::vec3 tUpper = (m_pMax - ray->m_origin) * invRayDir;
+    glm::vec3 tLower = (m_pMin - ray.m_origin) * invRayDir;
+    glm::vec3 tUpper = (m_pMax - ray.m_origin) * invRayDir;
 
     // The four t-intervals (for x-/y-/z-slabs, and ray p(t))
-    glm::vec4 tMins = glm::vec4(glm::min(tLower, tUpper), ray->m_tMin);
-    glm::vec4 tMaxes = glm::vec4(glm::max(tLower, tUpper), ray->m_tMax);
+    glm::vec4 tMins = glm::vec4(glm::min(tLower, tUpper), ray.m_tMin);
+    glm::vec4 tMaxes = glm::vec4(glm::max(tLower, tUpper), ray.m_tMax);
 
     float tBoxMin = std::max(std::max(std::max(tMins[0], tMins[1]), tMins[2]), tMins[3]);
     float tBoxMax = std::min(std::min(std::min(tMaxes[0], tMaxes[1]), tMaxes[2]), tMaxes[3]);
@@ -68,6 +68,25 @@ float AxisAlignedBoundingBox::volume() const
 }
 
 //----------------------------------------------------------------------------------
+int AxisAlignedBoundingBox::maxExtent() const
+{
+    glm::vec3 diagonal = m_pMax - m_pMin;
+
+    if(diagonal.x > diagonal.y && diagonal.x > diagonal.z)
+    {
+        return 0;
+    }
+    else if(diagonal.y > diagonal.z)
+    {
+        return 1;
+    }
+    else
+    {
+        return 2;
+    }
+}
+
+//----------------------------------------------------------------------------------
 AxisAlignedBoundingBox AxisAlignedBoundingBox::combine(const AxisAlignedBoundingBox &box1,
                                                        const AxisAlignedBoundingBox &box2)
 {
@@ -77,4 +96,16 @@ AxisAlignedBoundingBox AxisAlignedBoundingBox::combine(const AxisAlignedBounding
                                   glm::vec3(std::max(box1.m_pMax.x, box2.m_pMax.x),
                                             std::max(box1.m_pMax.y, box2.m_pMax.y),
                                             std::max(box1.m_pMax.z, box2.m_pMax.z)));
+}
+
+//----------------------------------------------------------------------------------
+AxisAlignedBoundingBox AxisAlignedBoundingBox::combine(const AxisAlignedBoundingBox &box,
+                                                       const glm::vec3 &point)
+{
+    return AxisAlignedBoundingBox(glm::vec3(std::min(box.m_pMin.x, point.x),
+                                            std::min(box.m_pMin.y, point.y),
+                                            std::min(box.m_pMin.z, point.z)),
+                                  glm::vec3(std::max(box.m_pMax.x, point.x),
+                                            std::max(box.m_pMax.y, point.y),
+                                            std::max(box.m_pMax.z, point.z)));
 }

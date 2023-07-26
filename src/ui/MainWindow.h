@@ -112,7 +112,7 @@ private:
     HUD         *m_hud;
 
     std::vector<std::shared_ptr<Shape>> m_shapes;
-    std::unique_ptr<ProjectionCamera>   m_camera;
+    std::shared_ptr<ProjectionCamera>   m_camera;
 
     // Menu Bar
     QMenu *m_fileMenu;
