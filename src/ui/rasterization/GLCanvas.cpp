@@ -87,7 +87,7 @@ GLCanvas::mouseMoveEvent(QMouseEvent *event)
 	// TODO: If a shape is selected transform shape, else camera
 	// std::shared_ptr<Shape> selectedShape = m_scene->getSelectedShape();
 
-	ProjectionCamera *camera = m_scene->getCamera();
+	auto camera = m_scene->getCamera();
 
 	if(m_mouseLeftDown)
 	{

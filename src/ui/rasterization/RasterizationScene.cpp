@@ -3,6 +3,7 @@
 #include "lambert.h"
 #include "ProjectionCamera.h"
 #include "Ray.h"
+#include "BVH.h"
 
 #include <glm/ext/matrix_transform.hpp>	 // translate, rotate, scale
 #include <glm/ext/matrix_clip_space.hpp> // glm::perspective
@@ -19,7 +20,8 @@ RasterizationScene::RasterizationScene(GLCanvas *glWidget):
     AbstractGLScene(glWidget),
     m_shapeSelectionIndex(-1),
     m_sceneObjects(),
-    m_camera(nullptr) {}
+    m_camera(nullptr),
+    m_bvh(nullptr) {}
 
 //----------------------------------------------------------------------------------
 RasterizationScene::~RasterizationScene()
@@ -34,6 +36,8 @@ RasterizationScene::~RasterizationScene()
 
 	    glDeleteBuffers(2, sceneObject->indexBuffers);
         glDeleteProgram(sceneObject->program);
+
+        delete sceneObject;
     }
 }
 
@@ -122,46 +126,70 @@ RasterizationScene::DebugMessageCallback(GLenum source,
 //
 // Methods
 //
-
+//----------------------------------------------------------------------------------
 void
 RasterizationScene::setShapeSelection(const int x, const int y)
 {
-    Ray *ray = this->getCamera()->generateWorldRay(glm::vec2(x,y));
-    m_shapeSelectionIndex = 1; // m_bvh.intersect(ray);
+    Ray * const worldRay = this->getCamera()->generateWorldRay(glm::vec2(x,y));
+
+    if(m_bvh)
+    {
+        m_shapeSelectionIndex =  m_bvh->intersect(*worldRay);
+    }
+    else
+    {
+        m_shapeSelectionIndex = -1;
+    }
+
+    std::cout << "m_shapeSelectionIndex = " << m_shapeSelectionIndex << std::endl;
+
+    delete worldRay;
     update();
 }
 
 //----------------------------------------------------------------------------------
 void
-RasterizationScene::addShape(std::shared_ptr<Shape> shape)
+RasterizationScene::addShape(const std::shared_ptr<Shape> &shape)
 {
-    shape->setShadingModel(new LambertShadingModel());
+    if(shape)
+    {
+        shape->setShadingModel(new LambertShadingModel());
 
-    std::shared_ptr<sandbox::SceneObject> sceneObject;
-    sceneObject->shape = shape;
+        auto sceneObject = new sandbox::SceneObject();
+        sceneObject->shape = shape;
 
-    initGLSL(sceneObject);
-    m_sceneObjects.emplace_back(sceneObject);
+        initGLSL(sceneObject);
+        m_sceneObjects.emplace_back(sceneObject);
 
-    update();
+        // Update BVH
+        m_bvh.reset(new BVH(m_sceneObjects));
+
+        update();
+    }
 }
 
 //----------------------------------------------------------------------------------
 void
 RasterizationScene::addShapes(const std::vector<std::shared_ptr<Shape>> &shapes)
 {
-    for(auto shape : shapes)
+    if(!shapes.empty())
     {
-        shape->setShadingModel(new LambertShadingModel());
+        for(auto shape : shapes)
+        {
+            shape->setShadingModel(new LambertShadingModel());
 
-        std::shared_ptr<sandbox::SceneObject> sceneObject;
-        sceneObject->shape = shape;
+            auto sceneObject = new sandbox::SceneObject();
+            sceneObject->shape = shape;
 
-        initGLSL(sceneObject);
-        m_sceneObjects.emplace_back(sceneObject);
+            initGLSL(sceneObject);
+            m_sceneObjects.emplace_back(sceneObject);
+        }
+
+        // Update BVH
+        m_bvh.reset(new BVH(m_sceneObjects));
+
+        update();
     }
-
-    update();
 }
 
 //----------------------------------------------------------------------------------
@@ -170,7 +198,7 @@ RasterizationScene::getSelectedShape()
 {
     if(m_shapeSelectionIndex >= 0)
     {
-        std::shared_ptr<sandbox::SceneObject> sceneObject = m_sceneObjects.at(m_shapeSelectionIndex);
+        auto sceneObject = m_sceneObjects.at(m_shapeSelectionIndex);
         return sceneObject->shape;
     }
 
@@ -227,7 +255,7 @@ RasterizationScene::updateShaderInputs(std::shared_ptr<Shape> shape, const GLuin
 }
 
 void
-RasterizationScene::initGLSL(std::shared_ptr<sandbox::SceneObject> sceneObject)
+RasterizationScene::initGLSL(sandbox::SceneObject * const sceneObject)
 {
     std::shared_ptr<Shape> shape = sceneObject->shape;
 
@@ -335,7 +363,7 @@ RasterizationScene::paint() {
 
         for(size_t i=0; i<m_sceneObjects.size(); i++)
         {
-            std::shared_ptr<sandbox::SceneObject> sceneObject = m_sceneObjects.at(i);
+            auto sceneObject = m_sceneObjects.at(i);
             glBindVertexArray(sceneObject->vertexArray);
 
             std::shared_ptr<Shape> shape = sceneObject->shape;
@@ -412,9 +440,9 @@ RasterizationScene::paint() {
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer2);
 
                 glDrawElements(GL_LINES,
-                            shape->getLineIndexCount(),
-                            GL_UNSIGNED_INT,
-                            (void*)0);
+                               shape->getLineIndexCount(),
+                               GL_UNSIGNED_INT,
+                               (void*)0);
             }
             // Triangle
             // glPatchParameteri(GL_PATCH_VERTICES, 16);

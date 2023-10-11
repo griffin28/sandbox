@@ -29,23 +29,23 @@ namespace sandbox
 class BVH
 {
 public:
-    BVH(std::vector<std::shared_ptr<sandbox::SceneObject>> sceneObject, int maxShapesPerNode=1);
+    BVH(const std::vector<sandbox::SceneObject *> &sceneObjects, int maxShapesPerNode=1);
     ~BVH();
 
-    /// @brief Get the world space bounds for this axis-aligned bounding box.
-    /// @return Bounding box using world space coordinates
-    AxisAlignedBoundingBox worldBound() const;
+    /// @brief Get the world space bounds for this BVH
+    /// @return Bounding box for the BVH using world space coordinates
+    AxisAlignedBoundingBox getBounds() const;
 
     /// @brief Determines if a ray intersects this bounding box.
     /// @param ray the ray to test for intersection
     /// @return index of the primitive that the ray intersects, otherwise -1
-    int intersect(const Ray &ray) const;
+    size_t intersect(const Ray &ray) const;
 private:
     sandbox::BVHNode *build(std::vector<sandbox::BVHShapeInfo> &shapeInfo, int start, int end);
     void deleteBVH(sandbox::BVHNode *root);
 
     const int m_maxShapesPerNode;;
-    std::vector<std::shared_ptr<sandbox::SceneObject>> m_sceneObject;
+    std::vector<sandbox::SceneObject *> m_sceneObjects;
     sandbox::BVHNode *m_root;
 };
 

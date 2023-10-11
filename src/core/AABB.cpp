@@ -2,8 +2,8 @@
 
 //----------------------------------------------------------------------------------
 AxisAlignedBoundingBox::AxisAlignedBoundingBox()
-    : m_pMin(glm::vec3(0.f)),
-      m_pMax(glm::vec3(0.f))
+    : m_pMin(glm::vec3(std::numeric_limits<float>::max())),
+      m_pMax(glm::vec3(std::numeric_limits<float>::lowest()))
 {}
 
 //----------------------------------------------------------------------------------

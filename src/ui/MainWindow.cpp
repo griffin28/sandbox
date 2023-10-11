@@ -359,7 +359,7 @@ MainWindow::showAddSphereDialog()
         m_shapes.emplace_back(sphere);
     }
 
-    if(m_rasterizationWidget != nullptr)
+    if(m_rasterizationWidget != nullptr && !m_shapes.empty())
     {
         RasterizationScene *scene = m_rasterizationWidget->m_canvas->getScene();
         scene->addShapes(m_shapes);

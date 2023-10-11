@@ -12,6 +12,7 @@
 
 class GLCanvas;
 class ProjectionCamera;
+class BVH;
 
 namespace sandbox
 {
@@ -85,7 +86,7 @@ public:
 
     /// @brief Add shape to the scene
     /// @param  shape the shape to add
-    void addShape(std::shared_ptr<Shape> shape);
+    void addShape(const std::shared_ptr<Shape> &shape);
 
     /// @brief Add the shapes to the scene
     /// @param shapes the shapes to add to the scene
@@ -93,7 +94,7 @@ public:
 
     //@{
     /// @brief Set/get the projection (perspecivte or orthographic) camera
-    void setCamera(std::shared_ptr<ProjectionCamera> camera) { m_camera = camera; }
+    void setCamera(const std::shared_ptr<ProjectionCamera> &camera) { m_camera = camera; }
     std::shared_ptr<ProjectionCamera> getCamera() const { return m_camera; }
     //@}
 
@@ -113,7 +114,7 @@ signals:
     void statusUpdate(QString);
 
 private:
-    void initGLSL(std::shared_ptr<sandbox::SceneObject>);
+    void initGLSL(sandbox::SceneObject * const);
 
     // GLuint compileShaders();
     GLuint createShaderProgram(const char * const *vs,
@@ -127,10 +128,10 @@ private:
     void printShaderInfoLog(const GLuint * const, const sandbox::Shader);
     void printLinkerInfoLog(const GLuint);
 
-    size_t         		                                m_shapeSelectionIndex;
-    std::vector<std::shared_ptr<sandbox::SceneObject>>  m_sceneObjects;
-    std::shared_ptr<ProjectionCamera>                   m_camera;
-    // std::unique_ptr<BVH> m_bvh;
+    size_t         		                m_shapeSelectionIndex;
+    std::vector<sandbox::SceneObject *> m_sceneObjects;
+    std::shared_ptr<ProjectionCamera>   m_camera;
+    std::unique_ptr<BVH>                m_bvh;
 };
 
 #endif
