@@ -11,10 +11,12 @@ Sphere::Sphere() :
     m_buildGeometry(true),
     m_vertices(),
     m_interleavedVertices(),
+    m_interleavedBoundingBoxVertices(),
     m_normals(),
     m_texCoords(),
     m_indices(),
-    m_lineIndices()
+    m_lineIndices(),
+    m_boundingBoxIndices()
 {
     set(1.0f, 0.0f, 0.0f, 0.0f, true, true);
 }
@@ -27,10 +29,12 @@ Sphere::Sphere(float radius, float x, float y, const float z, bool smooth, bool 
     m_buildGeometry(true),
     m_vertices(),
     m_interleavedVertices(),
+    m_interleavedBoundingBoxVertices(),
     m_normals(),
     m_texCoords(),
     m_indices(),
-    m_lineIndices()
+    m_lineIndices(),
+    m_boundingBoxIndices()
 {
     set(radius, x, y, z, smooth, buildGeometry);
 }
@@ -38,12 +42,12 @@ Sphere::Sphere(float radius, float x, float y, const float z, bool smooth, bool 
 //----------------------------------------------------------------------------------
 AxisAlignedBoundingBox Sphere::objectBounds() const
 {
-    glm::vec3 p0 = glm::vec3(-(m_radius + m_center.x),
-                             -(m_radius + m_center.y),
-                             -(m_radius + m_center.z));
-    glm::vec3 p1 = glm::vec3((m_radius + m_center.x),
-                             (m_radius + m_center.y),
-                             (m_radius + m_center.z));
+    glm::vec3 p0 = glm::vec3(m_center.x - m_radius,
+                             m_center.y - m_radius,
+                             m_center.z - m_radius);
+    glm::vec3 p1 = glm::vec3(m_radius + m_center.x,
+                             m_radius + m_center.y,
+                             m_radius + m_center.z);
 
     return AxisAlignedBoundingBox(p0, p1);
 }
@@ -51,18 +55,17 @@ AxisAlignedBoundingBox Sphere::objectBounds() const
 //----------------------------------------------------------------------------------
 AxisAlignedBoundingBox Sphere::worldBounds() const
 {
-    glm::vec3 p0 = glm::vec3(-(m_radius + m_center.x),
-                             -(m_radius + m_center.y),
-                             -(m_radius + m_center.z));
-    glm::vec3 p1 = glm::vec3((m_radius + m_center.x),
-                             (m_radius + m_center.y),
-                             (m_radius + m_center.z));
+   glm::vec3 p0 = glm::vec3(m_center.x - m_radius,
+                             m_center.y - m_radius,
+                             m_center.z - m_radius);
+    glm::vec3 p1 = glm::vec3(m_radius + m_center.x,
+                             m_radius + m_center.y,
+                             m_radius + m_center.z);
 
     glm::vec4 worldp0 = glm::vec4(p0, 1.f) * this->getModelTransform();
     glm::vec4 worldp1 = glm::vec4(p1, 1.f) * this->getModelTransform();
 
-    return AxisAlignedBoundingBox(glm::vec3(worldp0[0]/worldp0[3], worldp0[1]/worldp0[3], worldp0[2]/worldp0[3]),
-                                  glm::vec3(worldp1[0]/worldp1[3], worldp1[1]/worldp1[3], worldp1[2]/worldp1[3]));
+    return AxisAlignedBoundingBox(glm::vec3(worldp0), glm::vec3(worldp1));
 }
 
 //----------------------------------------------------------------------------------
@@ -97,6 +100,8 @@ void Sphere::set(const float radius, const float x, const float y, const float z
             clearArrays();
         }
     }
+
+    buildBoundingBoxVertices();
 }
 
 //----------------------------------------------------------------------------------
@@ -146,6 +151,43 @@ Sphere::clearArrays()
     std::vector<float>().swap(m_texCoords);
     std::vector<unsigned int>().swap(m_indices);
     std::vector<unsigned int>().swap(m_lineIndices);
+}
+
+void
+Sphere::buildBoundingBoxVertices()
+{
+    auto bounds = this->objectBounds();
+
+    for(int i=0; i<8; i++)
+    {
+        auto corner = bounds.corner(i);
+        m_interleavedBoundingBoxVertices.emplace_back(corner.x);
+        // std::cout << corner.x << std::endl;
+        m_interleavedBoundingBoxVertices.emplace_back(corner.y);
+        // std::cout << corner.y << std::endl;
+        m_interleavedBoundingBoxVertices.emplace_back(corner.z);
+        // std::cout << corner.z << std::endl;
+
+        auto normal = glm::normalize(corner);
+        m_interleavedBoundingBoxVertices.emplace_back(normal.x);
+        m_interleavedBoundingBoxVertices.emplace_back(normal.y);
+        m_interleavedBoundingBoxVertices.emplace_back(normal.z);
+    }
+
+    m_boundingBoxIndices.emplace_back(0); m_boundingBoxIndices.emplace_back(1);
+    m_boundingBoxIndices.emplace_back(0); m_boundingBoxIndices.emplace_back(2);
+    m_boundingBoxIndices.emplace_back(3); m_boundingBoxIndices.emplace_back(1);
+    m_boundingBoxIndices.emplace_back(3); m_boundingBoxIndices.emplace_back(2);
+
+    m_boundingBoxIndices.emplace_back(4); m_boundingBoxIndices.emplace_back(5);
+    m_boundingBoxIndices.emplace_back(4); m_boundingBoxIndices.emplace_back(6);
+    m_boundingBoxIndices.emplace_back(7); m_boundingBoxIndices.emplace_back(5);
+    m_boundingBoxIndices.emplace_back(7); m_boundingBoxIndices.emplace_back(6);
+
+    m_boundingBoxIndices.emplace_back(4); m_boundingBoxIndices.emplace_back(0);
+    m_boundingBoxIndices.emplace_back(2); m_boundingBoxIndices.emplace_back(6);
+    m_boundingBoxIndices.emplace_back(1); m_boundingBoxIndices.emplace_back(5);
+    m_boundingBoxIndices.emplace_back(7); m_boundingBoxIndices.emplace_back(3);
 }
 
 void

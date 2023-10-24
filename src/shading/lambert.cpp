@@ -3,7 +3,7 @@
 LambertShadingModel::LambertShadingModel() : ShadingModel(ModelType::LAMBERT) {}
 
 const char *
-LambertShadingModel::getVertexShaderSource() 
+LambertShadingModel::getVertexShaderSource()
 {
     const char *source = R"(
     #version 430 core
@@ -41,7 +41,7 @@ LambertShadingModel::getTessControlShaderSource()
 }
 
 const char *
-LambertShadingModel::getTessEvaluationShaderSource() 
+LambertShadingModel::getTessEvaluationShaderSource()
 {
     return nullptr;
 }
@@ -104,7 +104,8 @@ LambertShadingModel::getFragmentShaderSource()
         // set fragment shader color
         if(colorUsed)
         {
-            color = materialColor;
+            // selection color;
+            color = vec4(1.0,0.0,0.0,1.0);
         }
         else
         {

@@ -39,7 +39,7 @@ public:
     /// @brief Determines if a ray intersects this bounding box.
     /// @param ray the ray to test for intersection
     /// @return index of the primitive that the ray intersects, otherwise -1
-    size_t intersect(const Ray &ray) const;
+    long intersect(const Ray &ray) const;
 private:
     sandbox::BVHNode *build(std::vector<sandbox::BVHShapeInfo> &shapeInfo, int start, int end);
     void deleteBVH(sandbox::BVHNode *root);

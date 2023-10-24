@@ -28,13 +28,16 @@ RasterizationScene::~RasterizationScene()
 {
     for(auto sceneObject : m_sceneObjects)
     {
-        GLuint vao = sceneObject->vertexArray;
-        glDeleteVertexArrays(1, &vao);
-
         GLuint positionBuffer = sceneObject->positionBuffer;
         glDeleteBuffers(1, &positionBuffer);
 
-	    glDeleteBuffers(2, sceneObject->indexBuffers);
+        GLuint boundingBoxBuffer = sceneObject->boundingBoxBuffer;
+        glDeleteBuffers(1, &boundingBoxBuffer);
+
+        GLuint vao = sceneObject->vertexArray;
+        glDeleteVertexArrays(1, &vao);
+
+	    glDeleteBuffers(3, sceneObject->indexBuffers);
         glDeleteProgram(sceneObject->program);
 
         delete sceneObject;
@@ -130,6 +133,7 @@ RasterizationScene::DebugMessageCallback(GLenum source,
 void
 RasterizationScene::setShapeSelection(const int x, const int y)
 {
+    // TODO: check if correct
     Ray * const worldRay = this->getCamera()->generateWorldRay(glm::vec2(x,y));
 
     if(m_bvh)
@@ -279,6 +283,7 @@ RasterizationScene::initGLSL(sandbox::SceneObject * const sceneObject)
     glBindVertexArray(vao);
     sceneObject->vertexArray = vao;
 
+    // Shape
     GLuint positionBuffer;
     glGenBuffers(1, &positionBuffer);
     sceneObject->positionBuffer = positionBuffer;
@@ -299,6 +304,20 @@ RasterizationScene::initGLSL(sandbox::SceneObject * const sceneObject)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer2);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, shape->sizeofLineIndices(), shape->getLineIndices(), GL_STATIC_DRAW);
 
+    // Bounding Box
+    GLuint boundingBoxBuffer;
+    glGenBuffers(1, &boundingBoxBuffer);
+    sceneObject->boundingBoxBuffer = boundingBoxBuffer;
+    glBindBuffer(GL_ARRAY_BUFFER, boundingBoxBuffer);
+    glBufferData(GL_ARRAY_BUFFER, shape->getInterleavedBoundingBoxVertexSize(), shape->getInterleavedBoundingBoxVertices(), GL_STATIC_DRAW);
+
+    // Bounding Box Indices
+    GLuint indexBuffer3;
+    glGenBuffers(1, &indexBuffer3);
+    sceneObject->indexBuffers[2] = indexBuffer3;
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer3);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, shape->sizeofBoundingBoxIndices(), shape->getBoundingBoxIndices(), GL_STATIC_DRAW);
+
     glBindVertexArray(0);
     glUseProgram(0);
 }
@@ -318,7 +337,7 @@ RasterizationScene::initialize()
     glEnable(GL_DEBUG_OUTPUT);
     // glDebugMessageCallback(DebugMessageCallback, 0);
 
-    // glShadeModel(GL_SMOOTH);
+    glShadeModel(GL_SMOOTH);
     // glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
     glEnable(GL_DEPTH_TEST);
@@ -374,7 +393,7 @@ RasterizationScene::paint() {
             GLuint positionBuffer = sceneObject->positionBuffer;
             glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
 
-            GLsizei stride = 8 * sizeof(float);
+            GLsizei stride = shape->getInterleavedStride();
 
             GLint positionLocation = glGetAttribLocation(program, "position");
             glVertexAttribPointer(positionLocation, 3, GL_FLOAT, GL_FALSE, stride, NULL);
@@ -389,8 +408,6 @@ RasterizationScene::paint() {
             glEnableVertexAttribArray(texCoordLocation);
 
             GLuint indexBuffer1 = sceneObject->indexBuffers[0];
-            GLuint indexBuffer2 = sceneObject->indexBuffers[1];
-
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer1);
 
             GLint uniformColorUsed = glGetUniformLocation(program, "colorUsed");
@@ -433,25 +450,42 @@ RasterizationScene::paint() {
             // Draw selection outline
             if(m_shapeSelectionIndex == i)
             {
-                // Draw Lines
-                // GLint uniformColorUsed = glGetUniformLocation(m_programs[0], "colorUsed");
+                // Color selection outlines red
                 glUniform1i(uniformColorUsed, 1);
 
+                // Draw shape outline
+                GLuint indexBuffer2 = sceneObject->indexBuffers[1];
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer2);
 
                 glDrawElements(GL_LINES,
                                shape->getLineIndexCount(),
                                GL_UNSIGNED_INT,
                                (void*)0);
-            }
-            // Triangle
-            // glPatchParameteri(GL_PATCH_VERTICES, 16);
-            // glDrawArrays(GL_PATCHES, 0, 16);
 
-            // glDisableVertexAttribArray(m_attribIndex[0]);
-            // glDisableVertexAttribArray(m_attribIndex[1]);
-            // glDisableVertexAttribArray(m_attribIndex[2]);
-            // glBindVertexArray(0);
+                // Draw bounding box
+                GLuint boundingBoxBuffer = sceneObject->boundingBoxBuffer;
+                glBindBuffer(GL_ARRAY_BUFFER, boundingBoxBuffer);
+
+                stride = shape->getInterleavedBoundingBoxStride();
+
+                // GLint positionLocation = glGetAttribLocation(program, "position");
+                glDisableVertexAttribArray(positionLocation);
+                glVertexAttribPointer(positionLocation, 3, GL_FLOAT, GL_FALSE, stride, NULL);
+                glEnableVertexAttribArray(positionLocation);
+
+                // Normals
+                glDisableVertexAttribArray(normalLocation);
+                glVertexAttribPointer(normalLocation, 3, GL_FLOAT, false, stride, (void *)(3 * sizeof(float)));
+                glEnableVertexAttribArray(normalLocation);
+
+                GLuint indexBuffer3 = sceneObject->indexBuffers[2];
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer3);
+
+                glDrawElements(GL_LINES,
+                               shape->getBoundingBoxIndexCount(),
+                               GL_UNSIGNED_INT,
+                               (void*)0);
+            }
         }
 
         glUseProgram(0);

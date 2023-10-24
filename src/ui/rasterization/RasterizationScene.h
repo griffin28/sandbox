@@ -34,13 +34,15 @@ namespace sandbox
                         program(0),
                         vertexArray(0),
                         positionBuffer(0),
-                        indexBuffers{0,1} {}
+                        boundingBoxBuffer(0),
+                        indexBuffers{0,1,2} {}
 
         std::shared_ptr<Shape> shape;
         GLuint  program;
         GLuint  vertexArray;
         GLuint  positionBuffer;
-        GLuint  indexBuffers[2];
+        GLuint  boundingBoxBuffer;
+        GLuint  indexBuffers[3];
    };
 } // namespace sandbox
 
@@ -128,7 +130,7 @@ private:
     void printShaderInfoLog(const GLuint * const, const sandbox::Shader);
     void printLinkerInfoLog(const GLuint);
 
-    size_t         		                m_shapeSelectionIndex;
+    long        		                m_shapeSelectionIndex;
     std::vector<sandbox::SceneObject *> m_sceneObjects;
     std::shared_ptr<ProjectionCamera>   m_camera;
     std::unique_ptr<BVH>                m_bvh;

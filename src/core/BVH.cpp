@@ -75,7 +75,10 @@ BVH::BVH(const std::vector<sandbox::SceneObject *> &sceneObjects, int maxShapesP
 
     for(size_t i=0; i<shapeCount; i++)
     {
-        shapeInfo.emplace_back(sandbox::BVHShapeInfo{i, m_sceneObjects[i]->shape->worldBounds()});
+        auto worldBounds = m_sceneObjects[i]->shape->worldBounds();
+        std::cout << "pMin: [" << worldBounds.m_pMin[0] << " , " << worldBounds.m_pMin[1] << " , " << worldBounds.m_pMin[2] << "]\n"
+                     "pMax: [" << worldBounds.m_pMax[0] << " , " << worldBounds.m_pMax[1] << " , " << worldBounds.m_pMax[2] << "]\n";
+        shapeInfo.emplace_back(sandbox::BVHShapeInfo{i, worldBounds});
     }
 
     // Build BVH tree
@@ -117,7 +120,7 @@ AxisAlignedBoundingBox BVH::getBounds() const
 }
 
 //----------------------------------------------------------------------------------
-size_t BVH::intersect(const Ray &ray) const
+long BVH::intersect(const Ray &ray) const
 {
     std::cout << ray << std::endl;
     std::stack<sandbox::BVHNode *> nodeStack;

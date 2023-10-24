@@ -42,7 +42,13 @@ public:
 
     // Geometry
     virtual unsigned int    getInterleavedVertexSize() const { return 0; }
-    virtual const float     *getInterleavedVertices() const { return nullptr; };
+    virtual const float     *getInterleavedVertices() const { return nullptr; }
+    virtual int             getInterleavedStride() const { return 0; }
+
+    // Bounding Box
+    virtual unsigned int    getInterleavedBoundingBoxVertexSize() const { return 0; }
+    virtual const float     *getInterleavedBoundingBoxVertices() const { return nullptr; };
+    virtual int             getInterleavedBoundingBoxStride() const { return 0; }
 
     virtual unsigned int        sizeofIndices() const { return 0; }
     virtual const unsigned int  *getIndices() const { return nullptr; }
@@ -51,6 +57,10 @@ public:
     virtual unsigned int        sizeofLineIndices() const { return 0; }
     virtual const unsigned int  *getLineIndices() const { return nullptr; }
     virtual unsigned int        getLineIndexCount() const { return 0; }
+
+    virtual unsigned int        sizeofBoundingBoxIndices() const { return 0; }
+    virtual const unsigned int  *getBoundingBoxIndices() const { return nullptr; }
+    virtual unsigned int        getBoundingBoxIndexCount() const { return 0; }
 
     ShapeType  getType() const { return m_type; }
     void       setType(const ShapeType type) { m_type = type; }
