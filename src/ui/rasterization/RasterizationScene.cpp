@@ -133,12 +133,11 @@ RasterizationScene::DebugMessageCallback(GLenum source,
 void
 RasterizationScene::setShapeSelection(const int x, const int y)
 {
-    // TODO: check if correct
-    Ray * const worldRay = this->getCamera()->generateWorldRay(glm::vec2(x,y));
+    Ray * const ray = this->getCamera()->generateRay(glm::vec2(x,y));
 
     if(m_bvh)
     {
-        m_shapeSelectionIndex =  m_bvh->intersect(*worldRay);
+        m_shapeSelectionIndex =  m_bvh->intersect(*ray);
     }
     else
     {
@@ -147,7 +146,7 @@ RasterizationScene::setShapeSelection(const int x, const int y)
 
     std::cout << "m_shapeSelectionIndex = " << m_shapeSelectionIndex << std::endl;
 
-    delete worldRay;
+    delete ray;
     update();
 }
 
@@ -467,8 +466,6 @@ RasterizationScene::paint() {
                 glBindBuffer(GL_ARRAY_BUFFER, boundingBoxBuffer);
 
                 stride = shape->getInterleavedBoundingBoxStride();
-
-                // GLint positionLocation = glGetAttribLocation(program, "position");
                 glDisableVertexAttribArray(positionLocation);
                 glVertexAttribPointer(positionLocation, 3, GL_FLOAT, GL_FALSE, stride, NULL);
                 glEnableVertexAttribArray(positionLocation);

@@ -59,7 +59,7 @@ public:
     // For interleaved bounding box vertices: V/N
     unsigned int    getInterleavedBoundingBoxVertexCount() const  { return 8; }
     unsigned int    getInterleavedBoundingBoxVertexSize() const override { return static_cast<unsigned int>(m_interleavedBoundingBoxVertices.size() * sizeof(float)); }    // # of bytes
-    int             getInterleavedBoundingBoxStride() const override { return 6 * sizeof(float); }   // should be 32 bytes
+    int             getInterleavedBoundingBoxStride() const override { return 6 * sizeof(float); }
     const float*    getInterleavedBoundingBoxVertices() const override { return m_interleavedBoundingBoxVertices.data(); }
 
     void            printSelf() const;

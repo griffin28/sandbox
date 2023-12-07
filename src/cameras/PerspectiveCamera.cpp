@@ -83,29 +83,49 @@ void PerspectiveCamera::setScreenSize(const int width, const int height)
 Ray *
 PerspectiveCamera::generateRay(const glm::vec2 &pixel)
 {
-    float tanHalfAngle = glm::tan(m_fovy / 2.f);
-    glm::vec3 direction = glm::normalize(glm::vec3(glm::vec2(pixel.x, -pixel.y) * (tanHalfAngle / m_height), -1));
-    glm::vec2 clippingRange = this->getClippingRange();
+    // Raster Space -> Normalized Device Coordinate Space
+    float pxNDC = (pixel.x + 0.5f) / static_cast<float>(m_width);
+    float pyNDC = (pixel.y + 0.5f) / static_cast<float>(m_height);
 
-    Ray *ray = new Ray(glm::vec3(0.f),
-                       direction,
-                       std::fabs(clippingRange[0] / direction.z),
-                       std::fabs(clippingRange[1] / direction.z));
+    // NDC Space -> Screen Space
+    float pxScreen = 2 * pxNDC - 1;
+    float pyScreen = 1 - 2 * pyNDC;
+
+    // Screen Space -> Camera Space
+    float aspect = static_cast<float>(m_width) / static_cast<float>(m_height);
+    float pxCamera = pxScreen * aspect * tan(m_fovy/2 * M_PI/180.f);
+    float pyCamera = pyScreen * tan(m_fovy/2 * M_PI/180.f);
+
+    glm::mat4 cameraToWorldTransform = this->getCameraToWorldMatrix();
+    glm::vec3 rayOrigin = glm::vec3(0.f);
+    glm::vec3 rayOriginWorld = glm::mat3(cameraToWorldTransform) * rayOrigin;
+    glm::vec3 rayPointWorld = glm::mat3(cameraToWorldTransform) * glm::vec3(pxCamera, pyCamera, -1);
+
+    Ray *ray = new Ray();
+    ray->m_origin = rayOriginWorld;
+    ray->m_direction = glm::normalize(rayPointWorld - rayOriginWorld);
+
+    if(ray->m_direction.z != 0.f)
+    {
+        glm::vec2 clippingRange = this->getClippingRange();
+        ray->m_tMin = std::fabs(clippingRange[0] / ray->m_direction.z);
+        ray->m_tMax = std::fabs(clippingRange[1] / ray->m_direction.z);
+    }
 
     return ray;
 }
 
 //----------------------------------------------------------------------------------
 Ray *
-PerspectiveCamera::generateWorldRay(const glm::vec2 &pixel)
+PerspectiveCamera::generateWorldRay(const glm::vec2 &p)
 {
-    Ray *ray = this->generateRay(pixel);
-    glm::mat4 cameraToWorldTransform = this->getCameraToWorldMatrix();
+    // Ray *ray = this->generateRay(pixel);
+    // glm::mat4 cameraToWorldTransform = this->getCameraToWorldMatrix();
 
-    ray->m_direction = glm::mat3(cameraToWorldTransform) * ray->m_direction;
-    ray->m_origin = glm::vec3(cameraToWorldTransform[3]) + ray->m_origin;
+    // ray->m_direction = glm::mat3(cameraToWorldTransform) * ray->m_direction;
+    // ray->m_origin = glm::vec3(cameraToWorldTransform[3]) + ray->m_origin;
 
-    return ray;
+    return this->generateRay(p);
 }
 
 //----------------------------------------------------------------------------------

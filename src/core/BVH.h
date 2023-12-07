@@ -43,6 +43,7 @@ public:
 private:
     sandbox::BVHNode *build(std::vector<sandbox::BVHShapeInfo> &shapeInfo, int start, int end);
     void deleteBVH(sandbox::BVHNode *root);
+    long recursiveIntersect(sandbox::BVHNode *, const Ray &) const;
 
     const int m_maxShapesPerNode;;
     std::vector<sandbox::SceneObject *> m_sceneObjects;

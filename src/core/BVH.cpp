@@ -25,7 +25,7 @@ namespace sandbox
     struct BVHNode
     {
         BVHNode() {}
-        ~BVHNode() { std::cout << "destructor called." << std::endl; }
+        ~BVHNode() { ; }
 
         void initLeafNode(const std::vector<size_t> &shapeIndex, const AxisAlignedBoundingBox &bounds)
         {
@@ -120,24 +120,13 @@ AxisAlignedBoundingBox BVH::getBounds() const
 }
 
 //----------------------------------------------------------------------------------
-long BVH::intersect(const Ray &ray) const
+long BVH::recursiveIntersect(sandbox::BVHNode *node, const Ray &ray) const
 {
-    std::cout << ray << std::endl;
-    std::stack<sandbox::BVHNode *> nodeStack;
-    // TODO: may need to copy data before placing on the stack
-    if(m_root != nullptr && m_root->m_bounds.intersect(ray))
+    if(node != nullptr && node->m_bounds.intersect(ray))
     {
-        std::cout << "Detected in bounds " << std::endl;
-        nodeStack.push(m_root);
-    }
-
-    while(!nodeStack.empty())
-    {
-        auto currentNode = nodeStack.top();
-
-        if(currentNode->m_leaf)
+        if(node->m_leaf)
         {
-            for(size_t index : currentNode->m_shapeIndex)
+            for(size_t index : node->m_shapeIndex)
             {
                 if(m_sceneObjects[index]->shape->worldBounds().intersect(ray))
                 {
@@ -145,28 +134,71 @@ long BVH::intersect(const Ray &ray) const
                 }
             }
 
-            nodeStack.pop();
+            return -1;
         }
         else
         {
-            auto child0 = currentNode->m_children[0];
-            auto child1 = currentNode->m_children[1];
-            nodeStack.pop();
-
-            if(child0 != nullptr && child0->m_bounds.intersect(ray))
-            {
-                nodeStack.push(child0);
-            }
-
-            if(child1 != nullptr && child1->m_bounds.intersect(ray))
-            {
-                nodeStack.push(child1);
-            }
+            return std::max(recursiveIntersect(node->m_children[0], ray), recursiveIntersect(node->m_children[1], ray));
         }
     }
 
     return -1;
 }
+
+//----------------------------------------------------------------------------------
+long BVH::intersect(const Ray &ray) const
+{
+    return recursiveIntersect(m_root, ray);
+}
+
+//----------------------------------------------------------------------------------
+// long BVH::intersect(const Ray &ray) const
+// {
+//     std::cout << ray << std::endl;
+//     std::stack<sandbox::BVHNode> nodeStack;
+
+//     if(m_root != nullptr && m_root->m_bounds.intersect(ray))
+//     {
+//         std::cout << "Detected in bounds " << std::endl;
+//         nodeStack.push(*m_root);
+//     }
+
+//     while(!nodeStack.empty())
+//     {
+//         auto currentNode = nodeStack.top();
+
+//         if(currentNode.m_leaf)
+//         {
+//             for(size_t index : currentNode.m_shapeIndex)
+//             {
+//                 if(m_sceneObjects[index]->shape->worldBounds().intersect(ray))
+//                 {
+//                     return index;
+//                 }
+//             }
+
+//             nodeStack.pop();
+//         }
+//         else
+//         {
+//             auto child0 = currentNode.m_children[0];
+//             auto child1 = currentNode.m_children[1];
+//             nodeStack.pop();
+
+//             if(child0 != nullptr && child0->m_bounds.intersect(ray))
+//             {
+//                 nodeStack.push(*child0);
+//             }
+
+//             if(child1 != nullptr && child1->m_bounds.intersect(ray))
+//             {
+//                 nodeStack.push(*child1);
+//             }
+//         }
+//     }
+
+//     return -1;
+// }
 
 //----------------------------------------------------------------------------------
 sandbox::BVHNode *BVH::build(std::vector<sandbox::BVHShapeInfo> &shapeInfo, int start, int end)
@@ -200,7 +232,7 @@ sandbox::BVHNode *BVH::build(std::vector<sandbox::BVHShapeInfo> &shapeInfo, int 
 
         int dim = centroidBounds.maxExtent();
 
-        if(centroidBounds.m_pMax[dim] == centroidBounds.m_pMin[dim])
+        if(centroidBounds.m_pMax[dim] == centroidBounds.m_pMin[dim])    // Create leaf
         {
             std::vector<size_t> shapeIndex;
 

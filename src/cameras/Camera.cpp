@@ -4,8 +4,8 @@
 #include <glm/ext/matrix_clip_space.hpp> // glm::perspective
 
 //----------------------------------------------------------------------------------
-Camera::Camera() : m_position(glm::vec3(0.f, 0.f, 1.f)),
-                   m_focalPoint(glm::vec3(0.f, 0.f, 0.f)),
+Camera::Camera() : m_position(glm::vec3(0.f, 0.f, 0.f)),
+                   m_focalPoint(glm::vec3(0.f, 0.f, -1.f)),
                    m_viewUp(glm::vec3(0.0f, 1.0f, 0.0f)),
                    m_modelMatrix(glm::mat4(1.0f))
 {
@@ -15,8 +15,8 @@ Camera::Camera() : m_position(glm::vec3(0.f, 0.f, 1.f)),
 //----------------------------------------------------------------------------------
 void Camera::reset()
 {
-    m_position = glm::vec3(0.0f, 0.0f, 1.0f);
-    m_focalPoint = glm::vec3(0.f, 0.f, 0.f);
+    m_position = glm::vec3(0.0f, 0.0f, 0.0f);
+    m_focalPoint = glm::vec3(0.f, 0.f, -1.f);
     m_viewUp = glm::vec3(0.0f, 1.0f, 0.0f);
     m_modelMatrix = glm::mat4(1.0f);
 
