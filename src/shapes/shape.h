@@ -25,6 +25,8 @@ public:
     virtual AxisAlignedBoundingBox objectBounds() const = 0;
     virtual AxisAlignedBoundingBox worldBounds() const = 0;
 
+    virtual bool intersect(const Ray &ray) const = 0;
+
     // TODO: Make pure virtual and implement in concrete shape
     //@{
     /// @brief Set/get the model to world transform.

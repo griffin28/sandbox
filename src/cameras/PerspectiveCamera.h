@@ -32,8 +32,9 @@ public:
     /// @see Camera::reset
     void reset() override;
 
-    /// @brief Creates a ray in camera space from a screen pixel location. Caller is responsible
+    /// @brief Creates a ray in world space from a screen pixel location. Caller is responsible
     ///        for managing the memory allocated for this object.
+    ///        Implementation based on: https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-generating-camera-rays/generating-camera-rays.html
     /// @param p the x- and y-coordinates of the pixel in raster space
     /// @return
     Ray *generateRay(const glm::vec2 &p) override;

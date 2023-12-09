@@ -62,6 +62,9 @@ BVH::BVH(const std::vector<sandbox::SceneObject *> &sceneObjects, int maxShapesP
     : m_sceneObjects(sceneObjects)
     , m_maxShapesPerNode(maxShapesPerNode)
     , m_root(nullptr)
+    , m_totalNodes(0)
+    , m_totalLeafNodes(0)
+    , m_totalInteriorNodes(0)
 {
     if(sceneObjects.size() == 0)
     {
@@ -82,7 +85,16 @@ BVH::BVH(const std::vector<sandbox::SceneObject *> &sceneObjects, int maxShapesP
     }
 
     // Build BVH tree
+    std::cout << "Building BVH..." << std::endl;
     m_root = build(shapeInfo, 0, shapeInfo.size());
+    std::cout << "Done building BVH. Total nodes = " << m_totalNodes
+              << " Total leaf nodes = " << m_totalLeafNodes
+              << " Total interior nodes = " << m_totalInteriorNodes << std::endl;
+
+    auto worldBounds = m_root->m_bounds;
+    std::cout << "Root Bounds" << std::endl;
+    std::cout << "pMin: [" << worldBounds.m_pMin[0] << " , " << worldBounds.m_pMin[1] << " , " << worldBounds.m_pMin[2] << "]\n"
+                 "pMax: [" << worldBounds.m_pMax[0] << " , " << worldBounds.m_pMax[1] << " , " << worldBounds.m_pMax[2] << "]\n";
 }
 
 //----------------------------------------------------------------------------------
@@ -128,7 +140,7 @@ long BVH::recursiveIntersect(sandbox::BVHNode *node, const Ray &ray) const
         {
             for(size_t index : node->m_shapeIndex)
             {
-                if(m_sceneObjects[index]->shape->worldBounds().intersect(ray))
+                if(m_sceneObjects[index]->shape->intersect(ray))
                 {
                     return index;
                 }
@@ -152,110 +164,70 @@ long BVH::intersect(const Ray &ray) const
 }
 
 //----------------------------------------------------------------------------------
-// long BVH::intersect(const Ray &ray) const
-// {
-//     std::cout << ray << std::endl;
-//     std::stack<sandbox::BVHNode> nodeStack;
-
-//     if(m_root != nullptr && m_root->m_bounds.intersect(ray))
-//     {
-//         std::cout << "Detected in bounds " << std::endl;
-//         nodeStack.push(*m_root);
-//     }
-
-//     while(!nodeStack.empty())
-//     {
-//         auto currentNode = nodeStack.top();
-
-//         if(currentNode.m_leaf)
-//         {
-//             for(size_t index : currentNode.m_shapeIndex)
-//             {
-//                 if(m_sceneObjects[index]->shape->worldBounds().intersect(ray))
-//                 {
-//                     return index;
-//                 }
-//             }
-
-//             nodeStack.pop();
-//         }
-//         else
-//         {
-//             auto child0 = currentNode.m_children[0];
-//             auto child1 = currentNode.m_children[1];
-//             nodeStack.pop();
-
-//             if(child0 != nullptr && child0->m_bounds.intersect(ray))
-//             {
-//                 nodeStack.push(*child0);
-//             }
-
-//             if(child1 != nullptr && child1->m_bounds.intersect(ray))
-//             {
-//                 nodeStack.push(*child1);
-//             }
-//         }
-//     }
-
-//     return -1;
-// }
-
-//----------------------------------------------------------------------------------
-sandbox::BVHNode *BVH::build(std::vector<sandbox::BVHShapeInfo> &shapeInfo, int start, int end)
+sandbox::BVHNode *BVH::build(std::vector<sandbox::BVHShapeInfo> &shapeInfo, std::size_t start, std::size_t end)
 {
+    std::size_t nShapes = end - start;
+
+    if(nShapes <= 0)
+    {
+        return nullptr;
+    }
+
     sandbox::BVHNode *node = new sandbox::BVHNode();
+    ++m_totalNodes;
 
     // Compute bounds
     AxisAlignedBoundingBox bounds;
 
-    for(int i=start; i<end; i++)
+    for(std::size_t i=start; i<end; i++)
     {
         bounds = AxisAlignedBoundingBox::combine(bounds, shapeInfo[i].m_bounds);
     }
 
-     int nShapes = end - start;
-
-     if(nShapes == 1)
-     {
+    if(nShapes == 1)
+    {
         std::vector<size_t> shapeIndex;
         shapeIndex.emplace_back(shapeInfo[0].m_shapeNum);
         node->initLeafNode(shapeIndex, bounds);
-     }
-     else
-     {
+        ++m_totalLeafNodes;
+    }
+    else
+    {
         AxisAlignedBoundingBox centroidBounds;
 
-        for(int i=start; i<end; i++)
+        for(std::size_t i=start; i<end; i++)
         {
             centroidBounds = AxisAlignedBoundingBox::combine(centroidBounds, shapeInfo[i].m_centroid);
         }
 
-        int dim = centroidBounds.maxExtent();
+        const int dim = centroidBounds.maxExtent();
 
-        if(centroidBounds.m_pMax[dim] == centroidBounds.m_pMin[dim])    // Create leaf
+        if((centroidBounds.m_pMax[dim] - centroidBounds.m_pMin[dim]) <= 2.f) // Create leaf
         {
             std::vector<size_t> shapeIndex;
 
-            for(int i=start; i<end; i++)
+            for(std::size_t i=start; i<end; i++)
             {
                 shapeIndex.emplace_back(shapeInfo[i].m_shapeNum);
             }
 
             node->initLeafNode(shapeIndex, bounds);
+            ++m_totalLeafNodes;
         }
         else
         {
             std::sort(&shapeInfo[start], &shapeInfo[end], [dim](const sandbox::BVHShapeInfo &a, const sandbox::BVHShapeInfo &b)
-                                                          {
+                                                            {
                                                             return a.m_centroid[dim] < b.m_centroid[dim];
-                                                          }
-                     );
-            int mid = (start + end) / 2;
+                                                            }
+                        );
+            std::size_t mid = (start + end) / 2;
+            ++m_totalInteriorNodes;
             node->initInteriorNode(dim,
-                                   build(shapeInfo, start, mid),
-                                   build(shapeInfo, mid, end));
+                                    build(shapeInfo, start, mid),
+                                    build(shapeInfo, mid, end));
         }
-     }
+    }
 
     return node;
 }

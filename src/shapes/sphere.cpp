@@ -40,6 +40,46 @@ Sphere::Sphere(float radius, float x, float y, const float z, bool smooth, bool 
 }
 
 //----------------------------------------------------------------------------------
+bool Sphere::intersect(const Ray &ray) const
+{
+    glm::vec3 l = m_center - ray.m_origin;
+    float tca = glm::dot(l, ray.m_direction);
+    if(tca < 0)
+    {
+        return false;
+    }
+    float d2 = glm::dot(l, l) - tca * tca;
+    if(d2 > m_radius * m_radius)
+    {
+        return false;
+    }
+    float thc = sqrt(m_radius * m_radius - d2);
+    float t0 = tca - thc;
+    float t1 = tca + thc;
+
+    if(t0 > t1)
+    {
+        std::swap(t0, t1);
+    }
+
+    if(t0 < 0)
+    {
+        t0 = t1;
+        if(t0 < 0)
+        {
+            return false;
+        }
+    }
+
+    if(ray.m_tMin < t0 && t0 < ray.m_tMax)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//----------------------------------------------------------------------------------
 AxisAlignedBoundingBox Sphere::objectBounds() const
 {
     glm::vec3 p0 = glm::vec3(m_center.x - m_radius,
@@ -55,15 +95,15 @@ AxisAlignedBoundingBox Sphere::objectBounds() const
 //----------------------------------------------------------------------------------
 AxisAlignedBoundingBox Sphere::worldBounds() const
 {
-   glm::vec3 p0 = glm::vec3(m_center.x - m_radius,
+    glm::vec3 p0 = glm::vec3(m_center.x - m_radius,
                              m_center.y - m_radius,
                              m_center.z - m_radius);
     glm::vec3 p1 = glm::vec3(m_radius + m_center.x,
                              m_radius + m_center.y,
                              m_radius + m_center.z);
 
-    glm::vec4 worldp0 = glm::vec4(p0, 1.f) * this->getModelTransform();
-    glm::vec4 worldp1 = glm::vec4(p1, 1.f) * this->getModelTransform();
+    glm::vec4 worldp0 = this->getModelTransform() * glm::vec4(p0, 1.f);
+    glm::vec4 worldp1 = this->getModelTransform() * glm::vec4(p1, 1.f);
 
     return AxisAlignedBoundingBox(glm::vec3(worldp0), glm::vec3(worldp1));
 }

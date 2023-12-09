@@ -41,13 +41,16 @@ public:
     /// @return index of the primitive that the ray intersects, otherwise -1
     long intersect(const Ray &ray) const;
 private:
-    sandbox::BVHNode *build(std::vector<sandbox::BVHShapeInfo> &shapeInfo, int start, int end);
+    sandbox::BVHNode *build(std::vector<sandbox::BVHShapeInfo> &shapeInfo, std::size_t start, std::size_t end);
     void deleteBVH(sandbox::BVHNode *root);
     long recursiveIntersect(sandbox::BVHNode *, const Ray &) const;
 
     const int m_maxShapesPerNode;;
     std::vector<sandbox::SceneObject *> m_sceneObjects;
     sandbox::BVHNode *m_root;
+    std::size_t m_totalNodes;
+    std::size_t m_totalLeafNodes;
+    std::size_t m_totalInteriorNodes;
 };
 
 #endif

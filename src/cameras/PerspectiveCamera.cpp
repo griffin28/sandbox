@@ -83,6 +83,8 @@ void PerspectiveCamera::setScreenSize(const int width, const int height)
 Ray *
 PerspectiveCamera::generateRay(const glm::vec2 &pixel)
 {
+    const float scale = tan(glm::radians(m_fovy * 0.5f));
+
     // Raster Space -> Normalized Device Coordinate Space
     float pxNDC = (pixel.x + 0.5f) / static_cast<float>(m_width);
     float pyNDC = (pixel.y + 0.5f) / static_cast<float>(m_height);
@@ -93,27 +95,36 @@ PerspectiveCamera::generateRay(const glm::vec2 &pixel)
 
     // Screen Space -> Camera Space
     float aspect = static_cast<float>(m_width) / static_cast<float>(m_height);
-    float pxCamera = pxScreen * aspect * tan(m_fovy/2 * M_PI/180.f);
-    float pyCamera = pyScreen * tan(m_fovy/2 * M_PI/180.f);
+    float pxCamera = pxScreen * aspect * scale;
+    float pyCamera = pyScreen * scale;
 
+    // Camera Space -> World Space
     glm::mat4 cameraToWorldTransform = this->getCameraToWorldMatrix();
-    glm::vec3 rayOrigin = glm::vec3(0.f);
+    glm::vec3 rayOrigin = this->getPosition();
     glm::vec3 rayOriginWorld = glm::mat3(cameraToWorldTransform) * rayOrigin;
-    glm::vec3 rayPointWorld = glm::mat3(cameraToWorldTransform) * glm::vec3(pxCamera, pyCamera, -1);
+    glm::vec3 rayPointWorld = glm::mat3(cameraToWorldTransform) * glm::vec3(pxCamera, pyCamera, rayOrigin.z-1);
 
     Ray *ray = new Ray();
     ray->m_origin = rayOriginWorld;
     ray->m_direction = glm::normalize(rayPointWorld - rayOriginWorld);
 
-    if(ray->m_direction.z != 0.f)
-    {
-        glm::vec2 clippingRange = this->getClippingRange();
-        ray->m_tMin = std::fabs(clippingRange[0] / ray->m_direction.z);
-        ray->m_tMax = std::fabs(clippingRange[1] / ray->m_direction.z);
-    }
-
     return ray;
 }
+
+// Ray *
+// PerspectiveCamera::generateRay(const glm::vec2 &pixel)
+// {
+//     glm::vec2 p = (((pixel + glm::vec2(0.5f)) / glm::vec2(m_width, m_height)) * 2.0f) - glm::vec2(1.0f);
+//     auto view = this->getViewMatrix();
+//     float aspect = static_cast<float>(m_width) / static_cast<float>(m_height);
+//     const float scale = tan(glm::radians(m_fovy * 0.5f));
+
+//     Ray *ray = new Ray();
+//     ray->m_origin = glm::vec3(view[3]);
+//     ray->m_direction = glm::normalize((p.x * glm::vec3(view[0]) * aspect * scale) - (p.y * glm::vec3(view[1]) * scale) + glm::vec3(view[2]));
+
+//     return ray;
+// }
 
 //----------------------------------------------------------------------------------
 Ray *

@@ -15,6 +15,8 @@ public:
     AxisAlignedBoundingBox objectBounds() const override;
     AxisAlignedBoundingBox worldBounds() const override;
 
+    bool intersect(const Ray &ray) const override;
+
     // Getter/setters
     float   getRadius() const { return m_radius; }
     float   getSectorCount() const { return m_radius * UNIT_SECTOR_COUNT; }
