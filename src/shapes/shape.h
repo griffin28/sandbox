@@ -69,22 +69,26 @@ public:
 
     /// @brief scale this shape
     /// @param factor the scale factor
-    void scale(const glm::vec3 factor) { m_transform = glm::scale(m_transform, factor); }
+    virtual void scale(const glm::vec3 factor) { m_transform = glm::scale(m_transform, factor); }
 
     /// @brief translate this shape
     /// @param t the translation amount in the x, y and z directions
-    void translate(const glm::vec3 t) { m_transform = glm::translate(m_transform, t); }
+    virtual void translate(const glm::vec3 t) { m_transform = glm::translate(m_transform, t); }
+
+    /// @brief rotate this shape
+    /// @param angle the rotation angle in degrees
+    virtual void rotate(const float angle) = 0;
 
     //@{
     /// @brief rotate this shape around the x-, y-, or z-axis
     /// @param angle the rotation angle in degrees
-    void rotateY(const float angle) { m_transform = glm::rotate(m_transform,
+    virtual void rotateY(const float angle) { m_transform = glm::rotate(m_transform,
                                                                 glm::radians(angle),
                                                                 glm::vec3(0.0f, 1.0f, 0.0f)); }
-    void rotateX(const float angle) { m_transform = glm::rotate(m_transform,
+    virtual void rotateX(const float angle) { m_transform = glm::rotate(m_transform,
                                                                 glm::radians(angle),
                                                                 glm::vec3(1.0f, 0.0f, 0.0f)); }
-    void rotateZ(const float angle) { m_transform = glm::rotate(m_transform,
+    virtual void rotateZ(const float angle) { m_transform = glm::rotate(m_transform,
                                                                 glm::radians(angle),
                                                                 glm::vec3(0.0f, 0.0f, 1.0f)); }
     //@}

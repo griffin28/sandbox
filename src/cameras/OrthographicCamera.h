@@ -30,17 +30,11 @@ public:
     /// @see Camera::reset
     void reset() override;
 
-    /// Creates a ray for an orthographic projection in camera space from a screen pixel location.
+    /// Creates a ray for an orthographic projection in world space from a screen pixel location.
     /// Caller is responsible for managing the memory allocated for this object.
     /// @param pixel the x- and y-coordinates of the pixel in raster space
     /// @return
     Ray *generateRay(const glm::vec2 &pixel) override;
-
-    /// @brief Creates a ray for an orthographic projection in world space from a screen pixel
-    ///        location. Caller is responsible for managing the memory allocated for this object.
-    /// @param pixel the x- and y-coordinates of the pixel in raster space
-    /// @return
-    Ray *generateWorldRay(const glm::vec2 &pixel) override;
 
     /// @brief translate in the z-direction
     /// @param factor

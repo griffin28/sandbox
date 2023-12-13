@@ -81,40 +81,70 @@ GLCanvas::mouseMoveEvent(QMouseEvent *event)
 {
 	int x = event->x();
 	int y = event->y();
-
 	emit screenCoordsChanged(x, y);
 
-	// TODO: If a shape is selected transform shape, else camera
-	// std::shared_ptr<Shape> selectedShape = m_scene->getSelectedShape();
+	auto shape = m_scene->getSelectedShape();
 
-	auto camera = m_scene->getCamera();
-
-	if(m_mouseLeftDown)
+	if(shape)
 	{
-		m_posY = m_posY == -1 ? y : m_posY;
-		camera->tilt(static_cast<float>((m_posY - y)/2));
+		if(m_mouseLeftDown)
+		{
+			m_posY = m_posY == -1 ? y : m_posY;
+			m_posX = m_posX == -1 ? x : m_posX;
 
-		m_posX = m_posX == -1 ? x : m_posX;
-		camera->pan(static_cast<float>((x - m_posX)/2));
+			if(m_posX > m_posY)
+			{
+				shape->rotate(static_cast<float>((x - m_posX)));
+			}
+			else
+			{
+				shape->rotate(static_cast<float>((m_posY - y)));
+			}
 
-		m_posX = x;
-		m_posY = y;
+			m_posX = x;
+			m_posY = y;
 
-		m_scene->update();
-	}
-	else if(m_mouseRightDown)
-	{
-		m_posY = m_posY == -1 ? y : m_posY;
-		float moveDist = static_cast<float>(y - m_posY) / 2.0f;
-
-		camera->dolly(moveDist);
-
-		m_posY = y;
-		m_scene->update();
+			m_scene->update();
+		}
+		else
+		{
+			QOpenGLWidget::mouseMoveEvent(event);
+		}
 	}
 	else
 	{
-		QOpenGLWidget::mouseMoveEvent(event);
+		auto camera = m_scene->getCamera();
+
+		if(camera.get() != nullptr)
+		{
+			if(m_mouseLeftDown)
+			{
+				m_posY = m_posY == -1 ? y : m_posY;
+				camera->tilt(static_cast<float>((m_posY - y)/2));
+
+				m_posX = m_posX == -1 ? x : m_posX;
+				camera->pan(static_cast<float>((x - m_posX)/2));
+
+				m_posX = x;
+				m_posY = y;
+
+				m_scene->update();
+			}
+			else if(m_mouseRightDown)
+			{
+				m_posY = m_posY == -1 ? y : m_posY;
+				float moveDist = static_cast<float>(y - m_posY) / 2.0f;
+
+				camera->dolly(moveDist);
+
+				m_posY = y;
+				m_scene->update();
+			}
+			else
+			{
+				QOpenGLWidget::mouseMoveEvent(event);
+			}
+		}
 	}
 }
 

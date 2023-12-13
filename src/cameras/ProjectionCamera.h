@@ -21,12 +21,6 @@ public:
     /// @return camera ray
     virtual Ray *generateRay(const glm::vec2 &pixel) = 0;
 
-    /// Creates a ray in world space from a screen pixel location. Caller is responsible for
-    /// managing the memory allocated for this object.
-    /// @param pixel the x- and y-coordinates of the pixel in raster space
-    /// @return
-    virtual Ray *generateWorldRay(const glm::vec2 &pixel) = 0;
-
     //@{
     /// Change the zoom level. For a perspective camera this will change the view angle by
     /// the specified factor. For an orthographic camera this will change the parallel scale

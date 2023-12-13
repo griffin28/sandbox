@@ -40,6 +40,16 @@ Sphere::Sphere(float radius, float x, float y, const float z, bool smooth, bool 
 }
 
 //----------------------------------------------------------------------------------
+void Sphere::rotate(const float angle)
+{
+    auto modelMatrix = this->getModelTransform();
+    modelMatrix = glm::rotate(modelMatrix,
+                              glm::radians(angle),
+                              m_center);
+    this->setModelTransform(modelMatrix);
+}
+
+//----------------------------------------------------------------------------------
 bool Sphere::intersect(const Ray &ray) const
 {
     glm::vec3 l = m_center - ray.m_origin;
@@ -105,7 +115,8 @@ AxisAlignedBoundingBox Sphere::worldBounds() const
     glm::vec4 worldp0 = this->getModelTransform() * glm::vec4(p0, 1.f);
     glm::vec4 worldp1 = this->getModelTransform() * glm::vec4(p1, 1.f);
 
-    return AxisAlignedBoundingBox(glm::vec3(worldp0), glm::vec3(worldp1));
+    return AxisAlignedBoundingBox(glm::vec3(worldp0[0]/worldp0[3], worldp0[1]/worldp0[3], worldp0[2]/worldp0[3]),
+                                  glm::vec3(worldp1[0]/worldp1[3], worldp1[1]/worldp1[3], worldp1[2]/worldp1[3]));
 }
 
 //----------------------------------------------------------------------------------

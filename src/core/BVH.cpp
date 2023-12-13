@@ -31,7 +31,7 @@ namespace sandbox
         {
             for(auto index : shapeIndex)
             {
-                m_shapeIndex.emplace_back(index);
+                m_shapeIndex.push_back(index);
             }
 
             m_leaf = true;
@@ -73,15 +73,12 @@ BVH::BVH(const std::vector<sandbox::SceneObject *> &sceneObjects, int maxShapesP
 
     // Initialize info for each shape
     size_t shapeCount = m_sceneObjects.size();
-    std::cout << "shapeCount = " << shapeCount << std::endl;
     std::vector<sandbox::BVHShapeInfo> shapeInfo;
 
     for(size_t i=0; i<shapeCount; i++)
     {
         auto worldBounds = m_sceneObjects[i]->shape->worldBounds();
-        std::cout << "pMin: [" << worldBounds.m_pMin[0] << " , " << worldBounds.m_pMin[1] << " , " << worldBounds.m_pMin[2] << "]\n"
-                     "pMax: [" << worldBounds.m_pMax[0] << " , " << worldBounds.m_pMax[1] << " , " << worldBounds.m_pMax[2] << "]\n";
-        shapeInfo.emplace_back(sandbox::BVHShapeInfo{i, worldBounds});
+        shapeInfo.push_back(sandbox::BVHShapeInfo{i, worldBounds});
     }
 
     // Build BVH tree
@@ -136,7 +133,7 @@ long BVH::recursiveIntersect(sandbox::BVHNode *node, const Ray &ray) const
 {
     if(node != nullptr && node->m_bounds.intersect(ray))
     {
-        if(node->m_leaf)
+        if(node->m_leaf || (node->m_children[0] == nullptr && node->m_children[1] == nullptr))
         {
             for(size_t index : node->m_shapeIndex)
             {
@@ -150,7 +147,8 @@ long BVH::recursiveIntersect(sandbox::BVHNode *node, const Ray &ray) const
         }
         else
         {
-            return std::max(recursiveIntersect(node->m_children[0], ray), recursiveIntersect(node->m_children[1], ray));
+            return std::max((node->m_children[0] != nullptr ? recursiveIntersect(node->m_children[0], ray) : -1),
+                            (node->m_children[1] != nullptr ? recursiveIntersect(node->m_children[1], ray) : -1));
         }
     }
 
@@ -187,7 +185,12 @@ sandbox::BVHNode *BVH::build(std::vector<sandbox::BVHShapeInfo> &shapeInfo, std:
     if(nShapes == 1)
     {
         std::vector<size_t> shapeIndex;
-        shapeIndex.emplace_back(shapeInfo[0].m_shapeNum);
+
+        for(std::size_t i=start; i<end; i++)
+        {
+            shapeIndex.push_back(shapeInfo[i].m_shapeNum);
+        }
+
         node->initLeafNode(shapeIndex, bounds);
         ++m_totalLeafNodes;
     }
@@ -202,13 +205,13 @@ sandbox::BVHNode *BVH::build(std::vector<sandbox::BVHShapeInfo> &shapeInfo, std:
 
         const int dim = centroidBounds.maxExtent();
 
-        if((centroidBounds.m_pMax[dim] - centroidBounds.m_pMin[dim]) <= 2.f) // Create leaf
+        if((centroidBounds.m_pMax[dim] - centroidBounds.m_pMin[dim]) <= 0.1f) // Create leaf
         {
             std::vector<size_t> shapeIndex;
 
             for(std::size_t i=start; i<end; i++)
             {
-                shapeIndex.emplace_back(shapeInfo[i].m_shapeNum);
+                shapeIndex.push_back(shapeInfo[i].m_shapeNum);
             }
 
             node->initLeafNode(shapeIndex, bounds);
@@ -217,15 +220,12 @@ sandbox::BVHNode *BVH::build(std::vector<sandbox::BVHShapeInfo> &shapeInfo, std:
         else
         {
             std::sort(&shapeInfo[start], &shapeInfo[end], [dim](const sandbox::BVHShapeInfo &a, const sandbox::BVHShapeInfo &b)
-                                                            {
+                                                          {
                                                             return a.m_centroid[dim] < b.m_centroid[dim];
-                                                            }
-                        );
+                                                          });
             std::size_t mid = (start + end) / 2;
             ++m_totalInteriorNodes;
-            node->initInteriorNode(dim,
-                                    build(shapeInfo, start, mid),
-                                    build(shapeInfo, mid, end));
+            node->initInteriorNode(dim, build(shapeInfo, start, mid), build(shapeInfo, mid, end));
         }
     }
 

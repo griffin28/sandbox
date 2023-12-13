@@ -185,7 +185,7 @@ RasterizationScene::addShapes(const std::vector<std::shared_ptr<Shape>> &shapes)
             sceneObject->shape = shape;
 
             initGLSL(sceneObject);
-            m_sceneObjects.emplace_back(sceneObject);
+            m_sceneObjects.push_back(sceneObject);
         }
 
         // Update BVH

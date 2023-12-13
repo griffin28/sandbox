@@ -16,6 +16,7 @@ public:
     AxisAlignedBoundingBox worldBounds() const override;
 
     bool intersect(const Ray &ray) const override;
+    void rotate(const float angle) override;
 
     // Getter/setters
     float   getRadius() const { return m_radius; }

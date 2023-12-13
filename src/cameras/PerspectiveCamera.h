@@ -39,12 +39,6 @@ public:
     /// @return
     Ray *generateRay(const glm::vec2 &p) override;
 
-    /// @brief Creates a ray in world space from a screen pixel location. Caller is responsible
-    ///        for managing the memory allocated for this object.
-    /// @param pixel the x- and y-coordinates of the pixel in raster space
-    /// @return
-    Ray *generateWorldRay(const glm::vec2 &p) override;
-
     /// @brief Change the view angle by the specified factor
     /// @param factor
     void zoom(const float factor) override;
